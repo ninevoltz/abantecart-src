@@ -1046,7 +1046,6 @@ class ModelCheckoutOrder extends Model
             return false;
         }
 
-        $this->db->query("DELETE FROM `".$this->db->table("order_history")."` WHERE order_id = '".$order_id."'");
         $this->db->query("DELETE FROM `".$this->db->table("order_products")."` WHERE order_id = '".$order_id."'");
         $this->db->query("DELETE FROM `".$this->db->table("order_options")."` WHERE order_id = '".$order_id."'");
         $this->db->query("DELETE FROM `".$this->db->table("order_downloads")."` WHERE order_id = '".$order_id."'");
