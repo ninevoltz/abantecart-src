@@ -379,19 +379,20 @@ class ControllerResponsesProductProduct extends AController
 
         $this->data['option_data'] = $this->model_catalog_product->getProductOption($product_id, $option_id);
 
-        $this->data['fields'] = [
-            'entry_status'             => 'status',
-            'entry_option_name'        => 'option_name',
-            'entry_option_placeholder' => 'option_placeholder',
-            'entry_sort_order'         => 'option_sort_order',
-            'entry_required'           => 'required',
-            'entry_allowed_extensions' => 'extensions',
-            'entry_min_size'           => 'min_size',
-            'entry_max_size'           => 'max_size',
-            'entry_upload_dir'         => 'directory',
-            'entry_regexp_pattern'     => 'option_regexp_pattern',
-            'entry_error_text'         => 'option_error_text'
-        ];
+//        $this->data['fields'] = [
+//            'entry_status'             => 'status',
+//            'entry_option_name'        => 'option_name',
+//            'entry_option_placeholder' => 'option_placeholder',
+//            'entry_sort_order'         => 'option_sort_order',
+//            'entry_required'           => 'required',
+//            'entry_allowed_extensions' => 'extensions',
+//            'entry_min_size'           => 'min_size',
+//            'entry_max_size'           => 'max_size',
+//            'entry_upload_dir'         => 'directory',
+//            'entry_regexp_pattern'     => 'option_regexp_pattern',
+//            'entry_error_text'         => 'option_error_text',
+//            'entry_html_attributes'    => 'html_attributes',
+//        ];
 
         $this->data['option_values_title'] = [
             'entry_option_value',
@@ -402,17 +403,14 @@ class ControllerResponsesProductProduct extends AController
             'entry_sort_order'
         ];
         if ($this->data['option_data']) {
+            $optionElmType = $this->data['option_data']['element_type'];
             $language_id = $this->language->getContentLanguageID();
             $this->data['language_id'] = $language_id;
 
             $this->data['element_types'] = HtmlElementFactory::getAvailableElements();
             $this->data['elements_with_options'] = HtmlElementFactory::getElementsWithOptions();
-            $this->data['selectable'] = in_array(
-                $this->data['option_data']['element_type'],
-                $this->data['elements_with_options']
-            ) ? 1 : 0;
-            $this->data['option_type'] =
-                $this->data['element_types'][$this->data['option_data']['element_type']]['type'];
+            $this->data['selectable'] = in_array($optionElmType, $this->data['elements_with_options']) ? 1 : 0;
+            $this->data['option_type'] = $this->data['element_types'][$optionElmType]['type'];
 
             $this->attribute_manager = new AAttribute_Manager('product_option');
 
@@ -426,7 +424,16 @@ class ControllerResponsesProductProduct extends AController
                 $option_id
             );
 
-            $this->data['option_name'] = $this->html->buildElement(
+            $this->data['fields']['common']['status'] = $this->html->buildElement(
+                [
+                    'type'  => 'checkbox',
+                    'name'  => 'status',
+                    'value' => $this->data['option_data']['status'],
+                    'style' => 'btn_switch btn-group-xs',
+                ]
+            );
+
+            $this->data['fields']['common']['name'] = $this->html->buildElement(
                 [
                     'type'  => 'input',
                     'name'  => 'name',
@@ -435,10 +442,8 @@ class ControllerResponsesProductProduct extends AController
                 ]
             );
 
-            if (in_array(
-                $this->data['option_data']['element_type'], HtmlElementFactory::getElementsWithPlaceholder()
-            )) {
-                $this->data['option_placeholder'] = $this->html->buildElement(
+            if (in_array($optionElmType, HtmlElementFactory::getElementsWithPlaceholder())) {
+                $this->data['fields']['common']['placeholder'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'option_placeholder',
@@ -446,17 +451,11 @@ class ControllerResponsesProductProduct extends AController
                         'style' => 'medium-field',
                     ]
                 );
+                $this->data['entry_placeholder'] =  $this->language->get('entry_option_placeholder');
             }
 
-            $this->data['status'] = $this->html->buildElement(
-                [
-                    'type'  => 'checkbox',
-                    'name'  => 'status',
-                    'value' => $this->data['option_data']['status'],
-                    'style' => 'btn_switch btn-group-xs',
-                ]
-            );
-            $this->data['option_sort_order'] = $this->html->buildElement(
+
+            $this->data['fields']['common']['sort_order'] = $this->html->buildElement(
                 [
                     'type'  => 'input',
                     'name'  => 'sort_order',
@@ -464,7 +463,7 @@ class ControllerResponsesProductProduct extends AController
                     'style' => 'tiny-field',
                 ]
             );
-            $this->data['required'] = $this->html->buildElement(
+            $this->data['fields']['common']['required'] = $this->html->buildElement(
                 [
                     'type'  => 'checkbox',
                     'name'  => 'required',
@@ -473,50 +472,46 @@ class ControllerResponsesProductProduct extends AController
                 ]
             );
             //for file-option
-            if ($this->data['option_data']['element_type'] == 'U') {
-                $option_settings = unserialize($this->data['option_data']['settings']);
-
-                $this->data['extensions'] = $this->html->buildElement(
+            $option_settings = unserialize($this->data['option_data']['settings']);
+            if ($optionElmType == 'U') {
+                $this->data['fields']['advanced']['allowed_extensions'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'settings[extensions]',
                         'value' => $option_settings['extensions'],
-                        'style' => 'no-save',
+                        'style' => 'no-save  medium-field',
                     ]
                 );
-
-                $this->data['min_size'] = $this->html->buildElement(
+                $this->data['fields']['advanced']['min_size'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'settings[min_size]',
                         'value' => $option_settings['min_size'],
-                        'style' => 'small-field no-save',
+                        'style' => 'tiny-field no-save',
                     ]
                 );
-                $this->data['max_size'] = $this->html->buildElement(
+                $this->data['fields']['advanced']['max_size'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'settings[max_size]',
                         'value' => $option_settings['max_size'],
-                        'style' => 'small-field no-save',
+                        'style' => 'tiny-field no-save',
                     ]
                 );
-                $this->data['directory'] = $this->html->buildElement(
+                $this->data['fields']['advanced']['directory'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'settings[directory]',
                         'value' => $option_settings['directory'],
-                        'style' => 'no-save',
+                        'style' => 'no-save medium-field',
                     ]
                 );
-
-                $this->data['entry_upload_dir'] = sprintf(
+                $this->data['entry_directory'] = sprintf(
                     $this->language->get('entry_upload_dir'),
                     'admin/system/uploads/'
                 );
-
             } else {
-                $this->data['option_regexp_pattern'] = $this->html->buildElement(
+                $this->data['fields']['advanced']['regexp_pattern'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'regexp_pattern',
@@ -525,7 +520,7 @@ class ControllerResponsesProductProduct extends AController
                     ]
                 );
 
-                $this->data['option_error_text'] = $this->html->buildElement(
+                $this->data['fields']['advanced']['error_text'] = $this->html->buildElement(
                     [
                         'type'  => 'input',
                         'name'  => 'error_text',
@@ -534,6 +529,15 @@ class ControllerResponsesProductProduct extends AController
                     ]
                 );
             }
+            //html-attributes for html-element of product option
+            $this->data['fields']['advanced']['html_attributes'] = $this->html->buildElement(
+                [
+                    'type'  => 'input',
+                    'name'  => 'settings[html_attributes]',
+                    'value' => $option_settings['html_attributes'],
+                    'style' => 'medium-field no-save',
+                ]
+            );
 
             $this->data['remove_option'] = $this->html->getSecureURL(
                 'product/product/del_option',
@@ -610,7 +614,7 @@ class ControllerResponsesProductProduct extends AController
             }
 
             $this->data['new_option_row'] = '';
-            if (in_array($this->data['option_data']['element_type'], $this->data['elements_with_options'])) {
+            if (in_array($optionElmType, $this->data['elements_with_options'])) {
                 $this->request->get['product_option_value_id'] = null;
                 $this->data['new_option_row'] = $this->_option_value_form($form);
             }

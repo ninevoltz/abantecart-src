@@ -1627,3 +1627,26 @@ function getUniqueTags($string)
     $tags = array_map('trim', explode(',', $string));
     return array_intersect_key($tags, array_unique(array_map('strtolower', $tags)));
 }
+
+/**
+ * common function for tpl files in admin
+ * @param string|null $styleAttribute
+ * @return string
+ */
+function getBSCssClass(?string $styleAttribute)
+{
+    $styleAttribute = (string)$styleAttribute;
+    if( str_contains($styleAttribute, 'large-field') ) {
+        $output = "col-sm-7";
+    }elseif( str_contains($styleAttribute, 'medium-field') || str_contains($styleAttribute, 'date') ) {
+        $output = "col-sm-6";
+    }elseif( str_contains($styleAttribute, 'small-field') || str_contains($styleAttribute, 'btn_switch') ) {
+        $output = "col-sm-3";
+    }elseif( str_contains($styleAttribute, 'tiny-field') ) {
+        $output = "col-sm-2";
+    }else{
+        $output = "col-sm-7";
+    }
+    $output .= " col-xs-12";
+    return $output;
+}

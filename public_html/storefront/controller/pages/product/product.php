@@ -446,6 +446,8 @@ class ControllerPagesProductProduct extends AController
         }
         foreach ($product_options as $option) {
             $optionId = $option['product_option_id'];
+            $optionSettings = $option['settings'] ? unserialize($option['settings']) : [];
+
             $values = $extra = $disabled_values = [];
             $name = $price = '';
             $default_value = $cart_product_info['options'][$optionId];
@@ -556,7 +558,8 @@ class ControllerPagesProductProduct extends AController
 
             //if not values are build, nothing to show
             if (count($values)) {
-                $value = $data_attr = '';
+                $value = '';
+                $data_attr = html_entity_decode($optionSettings['html_attributes']).' ';
                 //add price to option name if it is not element with options
                 if (!in_array($option['element_type'], $elements_with_options) && $option['element_type'] != 'B') {
                     $option['name'] .= ' <small>'.$price.'</small>';
