@@ -31,11 +31,14 @@ CREATE TABLE `ac_categories` (
   `parent_id` int(11) NOT NULL DEFAULT '0',
   `sort_order` int(3) NOT NULL DEFAULT '0',
   `status` int(1) NOT NULL DEFAULT '1',
+  `supplier_code` varchar(100) null,
+  `supplier_id` varchar(100) null,
   `date_added` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `date_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`category_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-CREATE INDEX `ac_categories_idx` ON `ac_categories` ( `category_id`, `parent_id`, `status`  );
+CREATE INDEX `ac_categories_idx` ON `ac_categories` ( `category_id`, `parent_id`, `status`);
+CREATE UNIQUE INDEX `ac_categories_supplier_idx` ON `ac_categories` (`supplier_code`, `supplier_id`);
 
 --
 -- DDL for table `category_descriptions`
@@ -1380,6 +1383,8 @@ CREATE TABLE `ac_products` (
   `maximum` int(11) NOT NULL DEFAULT '0',
   `cost` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `call_to_order` smallint NOT NULL default '0',
+  `supplier_code` varchar(100) null,
+  `supplier_id` varchar(100) null,
   `settings` LONGTEXT COLLATE utf8_general_ci,
   `date_added` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `date_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1388,6 +1393,7 @@ CREATE TABLE `ac_products` (
 
 CREATE INDEX `ac_products_idx` ON `ac_products` (`stock_status_id`,  `manufacturer_id`, `weight_class_id`, `length_class_id`);
 CREATE INDEX `ac_products_status_idx` ON `ac_products` (`product_id`, `status`, `date_available`);
+create UNIQUE index `ac_products_supplier_idx` on `ac_products` (`supplier_code`, `supplier_id`);
 
 
 --
@@ -1496,10 +1502,17 @@ CREATE TABLE `ac_product_option_values` (
   `grouped_attribute_data` text DEFAULT NULL,
   `sort_order` int(3) NOT NULL,
   `default` smallint DEFAULT 0,
+  `supplier_code` varchar(100) null,
+  `supplier_id` varchar(100) null,
+  `date_added` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_option_value_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE INDEX `ac_product_option_values_idx` ON `ac_product_option_values` ( `product_option_id`, `product_id`, `group_id`, `attribute_value_id` );
+CREATE INDEX `ac_product_option_values_idx`
+    ON `ac_product_option_values` ( `product_option_id`, `product_id`, `group_id`, `attribute_value_id`);
+create UNIQUE index `ac_product_option_values_supplier_idx`
+    on `ac_product_option_values` (`supplier_id`, `supplier_code`);
 
 
 --
@@ -10376,6 +10389,46 @@ CREATE TABLE `ac_content_tags` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
+-- DDL for table `suppliers`
+--
+DROP TABLE IF EXISTS `ac_suppliers`;
+create table `ac_suppliers`
+(
+    `id`            int auto_increment,
+    `code`          varchar(100)                        not null,
+    `name`          varchar(100)                        not null,
+    `date_added`    timestamp default CURRENT_TIMESTAMP not null,
+    `date_modified` timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint `ac_suppliers_pk`
+        primary key (`id`, `code`)
+);
+DROP TABLE IF EXISTS `ac_object_types`;
+create table `ac_object_types`
+(
+    `id`         int auto_increment,
+    `name`       varchar(100) not null,
+    `related_to` varchar(100)  not null,
+    constraint `ac_object_types_pk`
+        primary key (`id`, `name`, `related_to`)
+)
+comment 'list of types for mapping data';
+
+DROP TABLE IF EXISTS `ac_supplier_data`;
+create table `ac_supplier_data`
+(
+    `id`             int auto_increment,
+    `supplier_code`  varchar(100)                        not null, # doba etc
+    `object_type_id` int                                 not null, #type if from object_types table (mean product, category, brand etc)
+    `object_id`      int                                 not null, # product_id, category_id, manufacturer_id etc
+    `uid`            varchar(255)                        not null comment 'unique id of object from supplier API',
+    `data`           json                                not null comment 'json encoded data',
+    `date_added`     timestamp default CURRENT_TIMESTAMP not null,
+    `date_modified`  timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint `ac_supplier_data_pk`
+        primary key (`id`, `supplier_code`, `object_type_id`, `object_id`, `uid`)
+);
+
+--
 -- DDL for table `blocks`
 --
 DROP TABLE IF EXISTS `ac_blocks`;
@@ -12586,9 +12639,12 @@ CREATE TABLE `ac_product_stock_locations` (
   `location_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL DEFAULT '0',
   `sort_order` int(11) NOT NULL DEFAULT '0',
+  `supplier_code` varchar(100) null,
+  `supplier_id` varchar(100) null,
   UNIQUE KEY `ac_product_stock_locations_idx` (`product_id`,`product_option_value_id`,`location_id`),
   KEY `ac_product_stock_locations_idx2` (`product_option_value_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+create UNIQUE index `ac_product_stock_locations_supplier_idx` on `ac_products` (`supplier_code`, `supplier_id`);
 
 DROP TABLE IF EXISTS `ac_order_product_stock_locations`;
 CREATE TABLE `ac_order_product_stock_locations` (
