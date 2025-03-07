@@ -41,8 +41,8 @@ class ModelCatalogCategory extends Model
             SET parent_id = '" . (int)$data['parent_id'] . "',
                 sort_order = '" . (int)$data['sort_order'] . "',
                 status = '" . (int)$data['status'] . "',
-                supplier_code = '" . $this->db->escape($data['supplier_code']) . "',
-                supplier_id = '" . $this->db->escape($data['supplier_id']) . "',
+                supplier_code = " . $this->db->stringOrNull($data['supplier_code']) . ",
+                supplier_id = " . $this->db->stringOrNull($data['supplier_id']) . ",
                 date_modified = NOW(),
                 date_added = NOW()"
         );
@@ -115,7 +115,7 @@ class ModelCatalogCategory extends Model
         $update = ['date_modified = NOW()'];
         foreach ($fields as $f) {
             if (isset($data[$f])) {
-                $update[] = $f . " = '" . $this->db->escape($data[$f]) . "'";
+                $update[] = $f . " = " . $this->db->stringOrNull($data[$f]);
             }
         }
         if (!empty($update)) {

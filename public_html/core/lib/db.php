@@ -188,4 +188,13 @@ final class ADB
         }
         return true;
     }
+
+    public function stringOrNull($value){
+        return $value ? "'" . $this->escape($value) . "'" : "NULL";
+    }
+    public function intOrNull($value)
+    {
+        $value = (int)$value;
+        return $value ? : "NULL";
+    }
 }

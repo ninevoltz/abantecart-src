@@ -64,8 +64,8 @@ class ModelCatalogProduct extends Model
                     tax_class_id = '" . (int)$data['tax_class_id'] . "',
                     sort_order = '" . (int)$data['sort_order'] . "',                    
                     settings = '" . $this->db->escape(serialize($data['settings'])) . "',
-                    supplier_code = '" . $this->db->escape($data['supplier_code']) . "',
-                    supplier_id = '" . $this->db->escape($data['supplier_id']) . "',
+                    supplier_code = " . $this->db->stringOrNull($data['supplier_code']) . ",
+                    supplier_id = " . $this->db->stringOrNull($data['supplier_id']) . ",
                     date_added = NOW()"
         );
 
@@ -309,7 +309,7 @@ class ModelCatalogProduct extends Model
                 if (in_array($f, $preformat_fields)) {
                     $data[$f] = preformatFloat($data[$f], $this->language->get('decimal_point'));
                 }
-                $update[] = $f . " = '" . $this->db->escape($data[$f]) . "'";
+                $update[] = $f . " = " . $this->db->stringOrNull($data[$f]);
             }
         }
 
@@ -984,8 +984,8 @@ class ModelCatalogProduct extends Model
                 grouped_attribute_data = '" . $this->db->escape($data['grouped_attribute_data']) . "',
                 sort_order = '" . (int)$data['sort_order'] . "',
                 `default` = '" . (int)$data['default'] . "',
-                supplier_code = '" . $this->db->escape($data['supplier_code']) . "',
-                supplier_id = '" . $this->db->escape($data['supplier_id']) . "'"
+                supplier_code = " . $this->db->stringOrNull($data['supplier_code']) . ",
+                supplier_id = " . $this->db->stringOrNull($data['supplier_id'])
         );
         $this->cache->remove(['product', 'category', 'collection', 'storefront_menu']);
         return $this->db->getLastId();
@@ -1037,14 +1037,14 @@ class ModelCatalogProduct extends Model
                 if ($type == 'int') {
                     $value = (int)$data[$column];
                 } elseif ($type == 'string') {
-                    $value = $this->db->escape($data[$column]);
+                    $value = $this->db->stringOrNull($data[$column]);
                 } elseif ($type == 'float') {
                     if ($column == 'weight') {
                         $data[$column] = preformatFloat($data[$column], $this->language->get('decimal_point'));
                     }
                     $value = (float)$data[$column];
                 }
-                $updArray[] = "`" . $column . "` =  '" . $value . "'";
+                $updArray[] = "`" . $column . "` =  " . $value;
             }
         }
         if (!$updArray) {
@@ -2988,8 +2988,9 @@ class ModelCatalogProduct extends Model
             "DELETE
             FROM " . $this->db->table("product_stock_locations") . " 
             WHERE product_id = " . (int)$product_id . "
-                    AND product_option_value_id "
-            . ((int)$product_option_value_id ? " = " . (int)$product_option_value_id : "IS NULL")
+                    AND product_option_value_id " . ((int)$product_option_value_id
+                                                        ? " = " . (int)$product_option_value_id
+                                                        : "IS NULL")
         );
 
         //if no locations set - stop
@@ -3009,12 +3010,12 @@ class ModelCatalogProduct extends Model
                     (product_id, product_option_value_id, location_id, quantity, sort_order, supplier_code, supplier_id)
                 VALUES( 
                     " . (int)$product_id . ", 
-                    " . ((int)$product_option_value_id ?: 'NULL') . ", 
+                    " . $this->db->intOrNull($product_option_value_id) . ", 
                     " . (int)$location_id . ", 
                     " . (int)$location_details['quantity'] . ", 
                     " . (int)$location_details['sort_order'] . ",
-                    '" . $this->db->escape($location_details['supplier_code']) . "',
-                    '" . $this->db->escape($location_details['supplier_id']) . "'
+                    " . $this->db->stringOrNull($location_details['supplier_code']) . ",
+                    " . $this->db->stringOrNull($location_details['supplier_id']) . "
                 );"
             );
 
