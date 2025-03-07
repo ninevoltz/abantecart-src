@@ -713,39 +713,39 @@ class ModelToolImportProcess extends Model
 
         //IMAGE PROCESSING
         $data['image'] = (array)$data['image'];
-        foreach ($data['image'] as $source) {
-            if (empty($source)) {
+        foreach ($data['image'] as $srcUrl) {
+            if (!$srcUrl) {
                 continue;
             } else {
-                if (is_array($source)) {
+                if (is_array($srcUrl)) {
                     //we have an array from list of values. Run again
-                    $this->migrateImages(['image' => $source], $object_txt_id, $object_id, $title, $language_id);
+                    $this->migrateImages(['image' => $srcUrl], $object_txt_id, $object_id, $title, $language_id);
                     continue;
                 }
             }
             //check if image is absolute path or remote URL
-            $host = parse_url($source, PHP_URL_HOST);
-            $image_basename = basename($source);
-            $target = DIR_RESOURCE . $rm->getTypeDir() . $image_basename;
+            $host = parse_url($srcUrl, PHP_URL_HOST);
+            $imageBasename = basename(parse_url($srcUrl, PHP_URL_PATH));;
+            $dstFileName = DIR_RESOURCE . $rm->getTypeDir() . $imageBasename;
             if (!is_dir(DIR_RESOURCE . $rm->getTypeDir())) {
                 @mkdir(DIR_RESOURCE . $rm->getTypeDir(), 0777);
             }
 
             if ($host === null) {
                 //this is a path to file
-                if (!copy($source, $target)) {
-                    $this->toLog("Error: Unable to copy file " . $source . " to " . $target);
+                if (!copy($srcUrl, $dstFileName)) {
+                    $this->toLog("Error: Unable to copy file " . $srcUrl . " to " . $dstFileName);
                     continue;
                 }
             } else {
                 //this is URL to image. Download first
                 $fl = new AFile();
-                if (($file = $fl->downloadFile($source)) === false) {
-                    $this->toLog("Error: Unable to download file from " . $source);
+                if (($file = $fl->downloadFile($srcUrl)) === false) {
+                    $this->toLog("Error: Unable to download file from " . $srcUrl);
                     continue;
                 }
-                if (!$fl->writeDownloadToFile($file, $target)) {
-                    $this->toLog("Error: Unable to save downloaded file to " . $target);
+                if (!$fl->writeDownloadToFile($file, $dstFileName)) {
+                    $this->toLog("Error: Unable to save downloaded file to " . $dstFileName);
                     continue;
                 }
             }
@@ -756,7 +756,7 @@ class ModelToolImportProcess extends Model
                 'name'          => [],
                 'title'         => [],
                 'description'   => '',
-                'resource_path' => $image_basename,
+                'resource_path' => $imageBasename,
                 'resource_code' => '',
             ];
             foreach ($language_list as $lang) {
@@ -765,7 +765,7 @@ class ModelToolImportProcess extends Model
             }
             $resource_id = $rm->addResource($resource);
             if ($resource_id) {
-                $this->toLog("Map image resource : " . $image_basename . " " . $resource_id);
+                $this->toLog("Map image resource : " . $imageBasename . " " . $resource_id);
                 $rm->mapResource($object_txt_id, $object_id, $resource_id);
             } else {
                 $this->toLog("Error: Image resource can not be created. " . $this->db->error);
