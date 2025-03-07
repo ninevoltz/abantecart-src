@@ -21,9 +21,10 @@ if ($google_analytics_code) { ?>
         function gtag() {
             dataLayer.push(arguments);
         }
-
+        <?php echo  $this->getHookVar('ga_pre'); ?>
         gtag('js', new Date());
-        gtag('config', <?php js_echo($google_analytics_code); ?>);
+        gtag('config', <?php js_echo($google_analytics_code); ?>, {cookie_flags: 'SameSite=None;Secure'});
+        <?php echo  $this->getHookVar('ga_post'); ?>
     </script>
     <?php
 } ?>
