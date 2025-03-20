@@ -70,7 +70,7 @@ class AView
      *
      * @throws AException
      */
-    public function __construct($registry, $instance_id)
+    public function __construct($registry, $instance_id = 0)
     {
         $this->registry = $registry;
         $this->has_extensions = $this->registry->has('extensions');
