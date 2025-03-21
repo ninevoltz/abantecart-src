@@ -1186,7 +1186,9 @@ class ModelCatalogProduct extends Model
                         foreach ($product_option_value_query->rows as $product_option_value) {
                             if ($product_option_value['attribute_value_id']) {
                                 //skip duplicate attributes values if it is not grouped parent/child
-                                if (in_array($product_option_value['attribute_value_id'], $attribute_values)) {
+                                if (!$product_option_value['grouped_attribute_data']
+                                    && in_array($product_option_value['attribute_value_id'], $attribute_values))
+                                {
                                     continue;
                                 }
                                 $attribute_values[] = $product_option_value['attribute_value_id'];
