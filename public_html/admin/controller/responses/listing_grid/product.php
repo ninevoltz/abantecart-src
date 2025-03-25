@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -40,34 +40,38 @@ class ControllerResponsesListingGridProduct extends AController
         ) {
             unset($this->request->get['keyword']);
         }
-        if (isset($this->request->get['pfrom'])
-            && $this->request->get['pfrom'] == 0
-        ) {
+        if (isset($this->request->get['pfrom']) && $this->request->get['pfrom'] == 0) {
             unset($this->request->get['pfrom']);
         }
         if (isset($this->request->get['pto'])
-            && $this->request->get['pto'] == $this->language->get('filter_price_max')
-        ) {
+            && $this->request->get['pto'] == $this->language->get('filter_price_max')) {
             unset($this->request->get['pto']);
         }
 
         //Prepare filter config
-        $filter_params = [
-            'category',
-            'manufacturer',
-            'status',
-            'keyword',
-            'match',
-            'pfrom',
-            'pto',
-        ];
+        $filter_params = array_merge(
+            [
+                'category',
+                'manufacturer',
+                'status',
+                'keyword',
+                'match',
+                'pfrom',
+                'pto',
+            ],
+            (array)$this->data['filter_params']
+        );
 
-        $grid_filter_params = ['name', 'sort_order', 'sku', 'model'];
+        $grid_filter_params = array_merge(
+            ['name', 'sort_order', 'sku', 'model'],
+            (array)$this->data['grid_filter_params']
+        );
 
         $filter_form = new AFilter(['method' => 'get', 'filter_params' => $filter_params]);
         $filter_grid = new AFilter(['method' => 'post', 'grid_filter_params' => $grid_filter_params]);
         $data = array_merge($filter_form->getFilterData(), $filter_grid->getFilterData());
-        $results = $this->model_catalog_product->getProducts($data);
+        //raw data for hooks
+        $this->data['raw_data'] = $results = $this->model_catalog_product->getProducts($data);
         $total = (int)$results[0]['total_num_rows'];
         $response = new stdClass();
         $response->page = $filter_grid->getParam('page');
@@ -89,19 +93,20 @@ class ControllerResponsesListingGridProduct extends AController
             : [];
         $i = 0;
         foreach ($results as $result) {
-            $thumbnail = $thumbnails[$result['product_id']];
+            $id = $result['product_id'];
+            $thumbnail = $thumbnails[$id];
 
-            $response->rows[$i]['id'] = $result['product_id'];
+            $response->rows[$i]['id'] = $id;
             if (dateISO2Int($result['date_available']) > time()) {
-                $response->userdata->classes[$result['product_id']] = 'warning';
+                $response->userdata->classes[$id] = 'warning';
             }
 
-            if ($result['call_to_order'] > 0) {
+            if ($result['call_to_order']) {
                 $price = $this->language->get('text_call_to_order');
             } else {
                 $price = $this->html->buildInput(
                     [
-                        'name'  => 'price['.$result['product_id'].']',
+                        'name'  => 'price[' . $id . ']',
                         'value' => moneyDisplayFormat($result['price']),
                     ]
                 );
@@ -111,29 +116,29 @@ class ControllerResponsesListingGridProduct extends AController
                 $thumbnail['thumb_html'],
                 $this->html->buildInput(
                     [
-                        'name'  => 'product_description['.$result['product_id'].'][name]',
+                        'name'  => 'product_description[' . $id . '][name]',
                         'value' => $result['name'],
                     ]
                 ),
                 $this->html->buildInput(
                     [
 
-                        'name'  => 'model['.$result['product_id'].']',
+                        'name'  => 'model[' . $id . ']',
                         'value' => $result['model'],
                     ]
                 ),
                 $this->html->buildInput(
                     [
 
-                        'name'  => 'sku['.$result['product_id'].']',
+                        'name'  => 'sku[' . $id . ']',
                         'value' => $result['sku'],
                     ]
                 ),
                 $price,
-                (int) $result['quantity'],
+                (int)$result['quantity'],
                 $this->html->buildCheckbox(
                     [
-                        'name'  => 'status['.$result['product_id'].']',
+                        'name'  => 'status[' . $id . ']',
                         'value' => $result['status'],
                         'style' => 'btn_switch',
                     ]
@@ -173,13 +178,13 @@ class ControllerResponsesListingGridProduct extends AController
         $mdl = $this->loadModel('catalog/product');
         $this->loadLanguage('catalog/product');
 
+        $ids = filterIntegerIdList(explode(',', $post['id']));
         switch ($post['oper']) {
             case 'del':
-                $ids = explode(',', $post['id']);
-                if (!empty($ids)) {
+                if ($ids) {
                     foreach ($ids as $id) {
                         $err = $this->_validateDelete($id);
-                        if (!empty($err)) {
+                        if ($err) {
                             $error = new AError('');
                             $error->toJSONResponse(
                                 'VALIDATION_ERROR_406',
@@ -207,11 +212,10 @@ class ControllerResponsesListingGridProduct extends AController
                         'quantity',
                         'status',
                     ],
-                    (array) $this->data['allowed_fields']
+                    (array)$this->data['allowed_fields']
                 );
 
-                $ids = explode(',', $post['id']);
-                if (!empty($ids)) {
+                if ($ids) {
                     foreach ($ids as $id) {
                         foreach ($allowedFields as $f) {
                             if ($f == 'status' && !isset($post['status'][$id])) {
@@ -225,12 +229,8 @@ class ControllerResponsesListingGridProduct extends AController
                             }
 
                             if (isset($post[$f][$id])) {
-                                $err = $this->_validateField(
-                                    $f,
-                                    $post[$f][$id]
-                                );
-
-                                if (!empty($err)) {
+                                $err = $this->_validateField($f, $post[$f][$id]);
+                                if ($err) {
                                     $error = new AError('');
                                     $error->toJSONResponse(
                                         'VALIDATION_ERROR_406',
@@ -240,12 +240,7 @@ class ControllerResponsesListingGridProduct extends AController
                                     );
                                     return;
                                 }
-                                $mdl->updateProduct(
-                                    $id,
-                                    [
-                                        $f => $post[$f][$id],
-                                    ]
-                                );
+                                $mdl->updateProduct($id, [$f => $post[$f][$id]]);
                             }
                         }
                     }
@@ -253,8 +248,7 @@ class ControllerResponsesListingGridProduct extends AController
                 }
                 break;
             case 'relate':
-                $ids = explode(',', $post['id']);
-                if (!empty($ids)) {
+                if ($ids) {
                     $mdl->relateProducts($ids);
                 }
                 break;
@@ -293,7 +287,7 @@ class ControllerResponsesListingGridProduct extends AController
         /** @var ModelCatalogProduct $mdl */
         $mdl = $this->loadModel('catalog/product');
 
-        $product_id = (int) $this->request->get['id'];
+        $product_id = (int)$this->request->get['id'];
         $productInfo = $mdl->getProduct($product_id);
         if ($product_id && $productInfo) {
             //request sent from edit form. ID in url
@@ -326,7 +320,7 @@ class ControllerResponsesListingGridProduct extends AController
                 'quantity',
                 'status',
             ],
-            (array) $this->data['allowed_fields']
+            (array)$this->data['allowed_fields']
         );
 
         foreach ($allowedFields as $f) {
@@ -371,7 +365,7 @@ class ControllerResponsesListingGridProduct extends AController
 
         $this->loadLanguage('catalog/product');
         $this->loadModel('catalog/product');
-        $product_discount_id = (int) $this->request->get['id'];
+        $product_discount_id = (int)$this->request->get['id'];
         if ($product_discount_id) {
             //request sent from edit form. ID in url
             foreach ($post as $key => $value) {
@@ -411,17 +405,14 @@ class ControllerResponsesListingGridProduct extends AController
 
         $this->loadLanguage('catalog/product');
         $this->loadModel('catalog/product');
-        $product_special_id = (int) $this->request->get['id'];
-        if ($product_special_id) {
+        $specialId = (int)$this->request->get['id'];
+        if ($specialId) {
             //request sent from edit form. ID in url
             foreach ($post as $key => $value) {
                 $data = [$key => $value];
-                $this->model_catalog_product->updateProductSpecial(
-                    $product_special_id,
-                    $data
-                );
+                $this->model_catalog_product->updateProductSpecial($specialId, $data);
             }
-            $this->extensions->hk_ProcessData($this, 'product_update_special', ['product_special_id' => $product_special_id]);
+            $this->extensions->hk_ProcessData($this, 'product_update_special', ['product_special_id' => $specialId]);
         }
 
         //update controller data
@@ -457,7 +448,7 @@ class ControllerResponsesListingGridProduct extends AController
                 $data = [$key => $value];
                 $this->model_catalog_product->updateProductLinks($product_id, $data);
             }
-            $this->extensions->hk_ProcessData($this, 'product_update_special', ['product_id' => $product_id]);
+            $this->extensions->hk_ProcessData($this, __FUNCTION__, ['product_id' => $product_id]);
         }
 
         //update controller data
@@ -492,7 +483,7 @@ class ControllerResponsesListingGridProduct extends AController
                 }
                 break;
             case 'keyword' :
-                $this->data['error'] = $this->html->isSEOkeywordExists('product_id='.$this->request->get['id'], $value);
+                $this->data['error'] = $this->html->isSEOkeywordExists('product_id=' . $this->request->get['id'], $value);
                 break;
             case 'length' :
             case 'width'  :

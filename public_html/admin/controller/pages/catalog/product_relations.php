@@ -44,7 +44,12 @@ class ControllerPagesCatalogProductRelations extends AController
         }
 
         if ($this->request->is_POST()) {
+            //cast for model
+            foreach( ['product_store', 'product_related', 'product_category'] as $n){
+                $this->request->post[$n] = (array)$this->request->post[$n];
+            }
             $this->model_catalog_product->updateProductLinks($product_id, $this->request->post);
+            $this->extensions->hk_ProcessData($this, __FUNCTION__);
             $this->session->data['success'] = $this->language->get('text_success');
             redirect($this->html->getSecureURL('catalog/product_relations', '&product_id=' . $product_id));
         }
@@ -101,9 +106,7 @@ class ControllerPagesCatalogProductRelations extends AController
 
         foreach ($results as $r) {
             $this->data['categories'][$r['category_id']] = $r['name']
-                . (count($products_stores) > 1
-                    ? "   (" . $r['store_name'] . ")"
-                    : '');
+                . (count($products_stores) > 1 ? "   (" . $r['store_name'] . ")" : '');
         }
 
         $this->loadModel('setting/store');
@@ -181,7 +184,7 @@ class ControllerPagesCatalogProductRelations extends AController
         //load only prior saved products
         $this->data['products'] = [];
         if (count($this->data['product_related'])) {
-            $ids = array_map('intval', $this->data['product_related']);
+            $ids = array_map('intval', array_unique($this->data['product_related']));
 
             $this->loadModel('catalog/product');
             if ($ids) {
@@ -205,9 +208,12 @@ class ControllerPagesCatalogProductRelations extends AController
                 : [];
 
             foreach ($results as $r) {
-                $thumbnail = $thumbnails[$r['product_id']];
-                $this->data['products'][$r['product_id']]['name'] = $r['name'] . " (" . $r['model'] . ")";
-                $this->data['products'][$r['product_id']]['image'] = $thumbnail['thumb_html'];
+                $this->data['products'][$r['product_id']] =
+                [
+                    'name' => $r['name'] . " (" . $r['model'] . ")",
+                    'image' => $thumbnails[$r['product_id']]['thumb_html'],
+                    'url' => $this->html->getSecureURL('catalog/product/update', '&product_id='. $r['product_id'])
+                ];
             }
         }
 
