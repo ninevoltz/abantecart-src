@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -47,6 +47,7 @@ class ControllerResponsesProductProduct extends AController
                         'name'       => $product_info['name'],
                         'meta'       => $product_info['model'],
                         'sort_order' => (int)$product_info['sort_order'],
+                        'url'        => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id)
                     ];
                 }
             }
@@ -107,6 +108,10 @@ class ControllerResponsesProductProduct extends AController
                         'price'      => $price,
                         'meta'       => $product_data['model'],
                         'sort_order' => (int)$product_data['sort_order'],
+                        'url'        => $this->html->getSecureURL(
+                            'catalog/product/update',
+                            '&product_id=' . $product_data['product_id']
+                        )
                     ];
                 }
             }
@@ -451,7 +456,7 @@ class ControllerResponsesProductProduct extends AController
                         'style' => 'medium-field',
                     ]
                 );
-                $this->data['entry_placeholder'] =  $this->language->get('entry_option_placeholder');
+                $this->data['entry_placeholder'] = $this->language->get('entry_option_placeholder');
             }
 
 

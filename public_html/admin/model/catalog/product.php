@@ -562,30 +562,29 @@ class ModelCatalogProduct extends Model
     }
 
     /**
-     * @param array $product_ids
+     * @param array $idList
      *
      * @return bool
      * @throws AException
      */
-    public function relateProducts($product_ids = [])
+    public function relateProducts(array $idList)
     {
-        if (!$product_ids || !is_array($product_ids)) {
+        $idList = filterIntegerIdList($idList);
+        if (!$idList) {
             return false;
         }
-        foreach ($product_ids as $product_id) {
-            if ((int)$product_id) {
-                foreach ($product_ids as $related_id) {
-                    if ((int)$related_id && $related_id != $product_id) {
-                        $this->db->query(
-                            "DELETE FROM " . $this->db->table("products_related") . " 
-                            WHERE product_id = '" . (int)$related_id . "' 
-                                AND related_id = '" . (int)$product_id . "'"
-                        );
-                        $this->db->query(
-                            "INSERT INTO " . $this->db->table("products_related") . " 
-                            SET product_id = '" . (int)$related_id . "', related_id = '" . (int)$product_id . "'"
-                        );
-                    }
+        foreach ($idList as $productId) {
+            foreach ($idList as $relatedId) {
+                if ($relatedId && $relatedId != $productId) {
+                    $this->db->query(
+                        "DELETE FROM " . $this->db->table("products_related") . " 
+                        WHERE product_id = " . $relatedId . " 
+                            AND related_id = " . $productId
+                    );
+                    $this->db->query(
+                        "INSERT INTO " . $this->db->table("products_related") . " 
+                        SET product_id = " . $relatedId . ", related_id = " . $productId
+                    );
                 }
             }
         }
@@ -2989,8 +2988,8 @@ class ModelCatalogProduct extends Model
             FROM " . $this->db->table("product_stock_locations") . " 
             WHERE product_id = " . (int)$product_id . "
                     AND product_option_value_id " . ((int)$product_option_value_id
-                                                        ? " = " . (int)$product_option_value_id
-                                                        : "IS NULL")
+                ? " = " . (int)$product_option_value_id
+                : "IS NULL")
         );
 
         //if no locations set - stop
