@@ -80,7 +80,7 @@ class AView
                 : $this->registry->get('config')->get('config_storefront_template');
         }
         $this->data['template_dir'] = RDIR_TEMPLATE;
-        $this->data['tpl_common_dir'] = RDIR_TEMPLATE.'/template/common/';
+        $this->data['tpl_common_dir'] = RDIR_TEMPLATE.'template/common/';
         $this->instance_id = $instance_id;
 
     }
