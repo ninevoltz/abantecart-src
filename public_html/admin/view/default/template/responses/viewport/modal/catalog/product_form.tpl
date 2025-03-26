@@ -6,11 +6,9 @@
 				class="fa fa-arrow-down fa-fw"></i><?php echo $text_more_current; ?></a>
 	<h4 class="modal-title"><?php echo $heading_title; ?></h4>
 </div>
-<div id="content" class="panel panel-default">
-
+<div class="modal-body">
 	<?php echo $form['form_open']; ?>
-	<div class="panel-body panel-body-nopadding tab-content col-xs-12">
-
+	<div class="panel-body panel-body-nopadding">
 		<?php foreach ($form['fields'] as $section => $fields){ ?>
 			<label class="h4 heading"><?php echo ${'tab_' . $section}; ?></label>
 			<?php foreach ($fields as $name => $field){ ?>
@@ -48,11 +46,7 @@
 				</div>
 			<?php } ?><!-- <div class="fieldset"> -->
 		<?php } ?>
-
 	</div>
-
-
-
 	<div class="panel-footer col-xs-12">
 		<div class="text-center">
 			<a class="btn btn-primary on_save_close">
@@ -64,12 +58,9 @@
 		</div>
 	</div>
 	</form>
-
 </div>
 
-
 <script type="text/javascript">
-
 	$(document).ready(function () {
 		$('#productFrm_generate_seo_keyword').click(function () {
 			var seo_name = $('#productFrm_product_descriptionname').val().replace('%', '');

@@ -1,21 +1,18 @@
 <div class="modal-header">
 	<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
-	<a aria-hidden="true" class="btn btn-default" type="button" href="" target="_new"><i
-				class="fa fa-arrow-right fa-fw"></i><?php echo $text_more_new; ?></a>
-	<a aria-hidden="true" class="btn btn-default" type="button" href=""><i
-				class="fa fa-arrow-down fa-fw"></i><?php echo $text_more_current; ?></a>
+	<a aria-hidden="true" class="btn btn-default" type="button" href="" target="_new">
+        <i class="fa fa-arrow-right fa-fw"></i><?php echo $text_more_new; ?></a>
+	<a aria-hidden="true" class="btn btn-default" type="button" href="">
+        <i class="fa fa-arrow-down fa-fw"></i><?php echo $text_more_current; ?></a>
 	<h4 class="modal-title"><?php echo $heading_title; ?></h4>
 </div>
 
-<div id="content" class="panel panel-default">
+<div class="modal-body">
 	<?php echo $form['form_open']; ?>
-	<div class="panel-body panel-body-nopadding tab-content col-xs-12">
-
-
+	<div class="panel-body panel-body-nopadding">
 		<?php foreach ($form['fields'] as $section => $fields) { ?>
 		<label class="h4 heading" id="<?php echo $section;?>"><?php echo ${'tab_' . $section}; ?></label>
-			<?php foreach ($fields as $name => $field) { ?>
-			<?php
+			<?php foreach ($fields as $name => $field) {
 				//Logic to calculate fields width
 				$widthcasses = "col-sm-9";
 				if ( is_int(stripos($field->style, 'large-field')) ) {
@@ -36,19 +33,16 @@
 				<span class="input-group-btn">
 					<?php echo $keyword_button; ?>
 				</span>
-				<?php } ?>
-				<?php echo $field; ?>
+				<?php }
+                echo $field; ?>
 			</div>
 		    <?php if (!empty($error[$name])) { ?>
 		    <span class="help-block field_err"><?php echo $error[$name]; ?></span>
 		    <?php } ?>
 		</div>
-			<?php }  ?><!-- <div class="fieldset"> -->
-		<?php }  ?>
-
-
+			<?php }
+        }  ?>
 	</div>
-
 	<div class="panel-footer col-xs-12">
 		<div class="text-center">
 			<a class="btn btn-primary on_save_close">
@@ -60,7 +54,6 @@
 		</div>
 	</div>
 	</form>
-
 </div>
 
 <script type="text/javascript">
