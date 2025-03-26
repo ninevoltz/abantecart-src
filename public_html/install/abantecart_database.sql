@@ -10647,6 +10647,8 @@ INSERT INTO `ac_block_templates` (`block_id`, `parent_block_id`, `template`, `da
 (36, 1, 'blocks/content_search.tpl', now()),
 (36, 2, 'blocks/content_search.tpl', now()),
 (36, 3, 'blocks/content_search.tpl', now()),
+(36, 4, 'blocks/content_search.tpl', now()),
+(36, 5, 'blocks/content_search.tpl', now()),
 (36, 6, 'blocks/content_search.tpl', now()),
 (37, 6, 'blocks/store_hours.tpl',NOW()),
 (37, 3, 'blocks/store_hours.tpl',NOW())
