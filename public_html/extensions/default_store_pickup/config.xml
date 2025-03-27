@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <extension>
 	<id>default_store_pickup</id>
-	<version>1.3.2</version>
+	<version>1.3.3</version>
 	<type>shipping</type>
 	<category>shipping</category>
 	<cartversions>
@@ -9,5 +9,9 @@
 	</cartversions>
 	<priority>10</priority>
 	<settings>
+		<item id="default_store_pickup_sort_order">
+			<type>input</type>
+			<default_value>100</default_value>
+		</item>
 	</settings>
 </extension>
