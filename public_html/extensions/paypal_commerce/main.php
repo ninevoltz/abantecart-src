@@ -5,6 +5,18 @@ if(!class_exists('ExtensionPaypalCommerce')){
     require_once(__DIR__.DIRECTORY_SEPARATOR.'core'.DIRECTORY_SEPARATOR.'paypal_commerce_modules.php');
 }
 
+if(!defined('PAYPAL_SUPPORTED_CURRENCIES')){
+    define(
+        'PAYPAL_SUPPORTED_CURRENCIES',
+        [
+            'AUD','BRL','CAD','CNY','CZK','DKK','EUR',
+            'HKD','HUF','ILS','JPY','MYR','MXN','TWD',
+            'NZD','NOK','PHP','PLN','GBP','RUB','SGD',
+            'SEK','CHF','THB','USD'
+        ]
+    );
+}
+
 $controllers = [
     'storefront' => [
         'responses/extension/paypal_commerce'

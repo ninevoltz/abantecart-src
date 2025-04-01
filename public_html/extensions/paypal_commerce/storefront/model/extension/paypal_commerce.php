@@ -148,11 +148,13 @@ class ModelExtensionPaypalCommerce extends Model
                         AND (zone_id = '".(int) $address['zone_id']."' OR zone_id = '0')"
             );
 
-            if (!$this->config->get('paypal_commerce_location_id')) {
+            if(!in_array($this->currency->getCode(),PAYPAL_SUPPORTED_CURRENCIES)) {
+                $status = false;
+            } elseif (!$this->config->get('paypal_commerce_location_id')) {
                 $status = true;
             } elseif ($query->num_rows) {
                 $status = true;
-            } else {
+            }else {
                 $status = false;
             }
         } else {
