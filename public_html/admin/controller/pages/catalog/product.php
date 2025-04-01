@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -383,6 +383,7 @@ class ControllerPagesCatalogProduct extends AController
         $this->view->assign('relate_selected_url', $grid_settings['editurl']);
         $this->view->assign('create_collection_url', $this->html->getSecureURL('catalog/collections/insert'));
         $this->view->assign('text_success_relation_set', $this->language->get('text_success_relation_set'));
+        $this->view->assign('text_warning_empty_set', $this->language->get('text_warning_empty_set'));
 
         $grid = $this->dispatch('common/listing_grid', [$grid_settings]);
         $this->view->assign('listing_grid', $grid->dispatchGetOutput());

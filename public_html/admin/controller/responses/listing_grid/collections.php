@@ -220,9 +220,9 @@ class ControllerResponsesListingGridCollections extends AController
     protected function getFieldsForProducts($value = '')
     {
         $listing_data = [];
-        if (is_array($value) && is_array($value['value']) && $value['value']) {
+        if (is_array($value) && is_array($value['value']) && ($prodIds = array_filter($value['value'])) ) {
             $this->loadModel('catalog/product');
-            $filter = ['subsql_filter' => 'p.product_id in (' . implode(',', $value['value']) . ')'];
+            $filter = ['subsql_filter' => 'p.product_id in (' . implode(',', $prodIds) . ')'];
 
             $results = $this->model_catalog_product->getProducts($filter);
             if ($results) {

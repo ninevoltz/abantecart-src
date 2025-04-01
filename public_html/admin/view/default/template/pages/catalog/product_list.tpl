@@ -30,11 +30,16 @@ include($tpl_common_dir . 'action_confirm.tpl'); ?>
         var ids = $('#product_grid').jqGrid('getGridParam', 'selarrrow');
         //get single selected row
         ids.push($('#product_grid').jqGrid('getGridParam', 'selrow'));
+        ids = ids.filter(function (el) {
+            return el != null;
+        });
+
         if (!ids.length) {
+            warning_alert(<?php js_echo($text_warning_empty_set);?>);
             return;
         }
-
-        if ($('#product_grid_selected_action').val() == 'relate') {
+        let selected = $('#product_grid_selected_action');
+        if (selected.val() === 'relate') {
             var form_data = $('#product_grid_form').serializeArray();
             form_data.push({name: 'id', value: ids});
             form_data.push({name: 'oper', value: 'relate'});
@@ -43,7 +48,7 @@ include($tpl_common_dir . 'action_confirm.tpl'); ?>
                 type: 'POST',
                 data: form_data,
                 success: function (msg) {
-                    if (msg == '') {
+                    if (msg === '') {
                         jQuery('#product_grid').trigger("reloadGrid");
                         success_alert('<?php js_echo($text_success_relation_set);?>',true);
                     } else {
@@ -56,12 +61,16 @@ include($tpl_common_dir . 'action_confirm.tpl'); ?>
             });
         }
 
-        if ($('#product_grid_selected_action').val() == 'create_collection') {
+        if (selected.val() === 'create_collection') {
             //Get unique ids
             ids = ids.filter((value, index, self) => {
                 return self.indexOf(value) === index;
-            })
-            window.open('<?php echo $create_collection_url; ?>'+'&'+$.param({products: ids}), '_blank')
+            });
+            if(ids.length>1) {
+                window.open('<?php echo $create_collection_url; ?>'+'&'+$.param({products: ids}), '_blank');
+            } else {
+                warning_alert(<?php js_echo($text_warning_empty_set);?>);
+            }
         }
     });
 </script>

@@ -631,6 +631,10 @@
 		<value><![CDATA[Create Collection]]></value>
 	</definition>
 	<definition>
+		<key>text_warning_empty_set</key>
+		<value><![CDATA[Please select at least one product]]></value>
+	</definition>
+	<definition>
 		<key>text_enable_selected</key>
 		<value><![CDATA[Enable Selected]]></value>
 	</definition>
