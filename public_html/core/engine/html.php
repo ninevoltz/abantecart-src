@@ -473,7 +473,7 @@ class AHtml extends AController
         );
         if (in_array($seo_key, $kList)) {
             $url = HTTP_CATALOG . $seo_key;
-            return sprintf($this->language->get('error_seo_keyword'), $url, $seo_key);
+            return $this->language->getAndReplace('error_seo_keyword','', [$url, $seo_key]);
         }
 
         return '';

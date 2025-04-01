@@ -174,6 +174,38 @@ class ALanguage
     }
 
     /**
+     * safe wrapper of sprintf text replace
+     * @param string $key
+     * @param string|null $block
+     * @param array|string|null $replaces
+     * @return string|null
+     * @throws AException
+     */
+    public function getAndReplace(string $key, ?string $block = '', array|string|null $replaces = [])
+    {
+        $replaces = (array)$replaces;
+        $text = $this->get($key, $block);
+        $sCount = substr_count($text, '%s');
+        try {
+            $text = sprintf($text, ...$replaces);
+        } catch (Exception|Error $e) {
+            $e = new AError("Wrong language definition for key " . $key . "\n " . $e->getMessage());
+            $e->toDebug()->toLog();
+            try {
+                //try to cutoff or fill replaces
+                $replaces = array_slice($replaces, 0, $sCount);
+                if (count($replaces) < $sCount) {
+                    $replaces += array_fill(count($replaces), ($sCount - count($replaces)), '');
+                }
+                $text = sprintf($text, ...$replaces);
+            } catch (Exception|Error $e) {
+            }
+        }
+
+        return $text;
+    }
+
+    /**
      * Get all language definitions
      *
      * Note: If RT is not provided definition keys will be taken from main language section (ex: english.xml) if available
@@ -314,7 +346,7 @@ class ALanguage
                     if (!$browser_language) {
                         continue;
                     }
-                    foreach ($this->getActiveLanguages() as $key => $value) {
+                    foreach ($this->getActiveLanguages() as $value) {
                         $locale = array_map('trim', explode(',', $value['locale']));
                         if (!$locale) {
                             continue;
