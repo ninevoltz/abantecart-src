@@ -3761,3 +3761,11 @@ blockquote p::after {
 .primary_content_actions a.btn i.fa::before{
 	vertical-align: middle;
 }
+
+.menu_text {
+	display: inline-block;
+	text-transform: lowercase
+}
+.menu_text:first-letter {
+	text-transform: uppercase;
+}
