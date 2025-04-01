@@ -5311,18 +5311,6 @@
                 <status>1</status>
                 <position>80</position>
                 <block>
-                    <block_txt_id>newsletter_signup</block_txt_id>
-                    <controller>blocks/newsletter_signup</controller>
-                    <templates>
-                        <template>
-                            <parent_block>footer</parent_block>
-                            <template_name>blocks/newsletter_signup_footer.tpl</template_name>
-                        </template>
-                    </templates>
-                    <status>1</status>
-                    <position>40</position>
-                </block>
-                <block>
                     <block_txt_id>content</block_txt_id>
                     <controller>blocks/content</controller>
                     <templates>
