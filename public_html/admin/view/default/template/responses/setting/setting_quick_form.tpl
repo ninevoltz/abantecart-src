@@ -1,6 +1,6 @@
 <?php include($tpl_common_dir . 'action_confirm.tpl'); ?>
 <div class="modal-header">
-	<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+	<button aria-label="close" data-dismiss="modal" class="close" type="button">&times;</button>
 	<h4 class="modal-title"><?php echo $title; ?></h4>
 </div>
 <?php if(!empty($form_store_switch)) { ?>

@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -18,8 +18,6 @@
  *    needs please refer to http://www.AbanteCart.com for more information.
  */
 
-use JetBrains\PhpStorm\NoReturn;
-
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
@@ -27,12 +25,13 @@ if (!defined('DIR_CORE')) {
 /**
  * Class ControllerPagesSettingSetting
  *
- * @property AConfigManager $conf_mngr
+ * @property AConfigManager $configManager
  */
 class ControllerPagesSettingSetting extends AController
 {
     public $error = [];
     public $groups = [];
+    protected $configManager;
 
     /**
      * @param Registry $registry
@@ -47,6 +46,8 @@ class ControllerPagesSettingSetting extends AController
         parent::__construct($registry, $instance_id, $controller, $parent_controller);
         //load available groups for settings
         $this->groups = $this->config->groups;
+        $this->load->library('config_manager');
+        $this->configManager = new AConfigManager();
     }
 
     public function main()
@@ -60,7 +61,7 @@ class ControllerPagesSettingSetting extends AController
         $get = $this->request->get ?? [];
 
         if ($this->request->is_POST() && $this->_validate($get['active'], $get['store_id'])) {
-            //do not touch password when it ten stars
+            //do not touch password when 10 stars
             if (isset($post['config_smtp_password']) && $post['config_smtp_password'] == str_repeat('*', 10)) {
                 unset($post['config_smtp_password']);
             }
@@ -177,11 +178,10 @@ class ControllerPagesSettingSetting extends AController
         $this->data['cancel'] = $this->html->getSecureURL('setting/setting');
         $this->data['action'] = $this->html->getSecureURL('setting/setting');
 
-        $this->load->library('config_manager');
-        $this->conf_mngr = new AConfigManager();
 
         //activate quick start guide button
         $this->loadLanguage('common/quick_start');
+        /** @see ControllerResponsesSettingSettingQuickForm */
         $this->data['quick_start_url'] = $this->html->getSecureURL('setting/setting_quick_form/quick_start');
         $group = $this->data['active'];
 
@@ -531,7 +531,7 @@ class ControllerPagesSettingSetting extends AController
                     if (!in_array($parts[1], $field_names)) {
                         //use template id if set.
                         // otherwise use default
-                        $tmpl_id = $this->request->get['tmpl_id'];
+                        $tmpl_id = (string)$this->request->get['tmpl_id'];
                         if (!$tmpl_id) {
                             $extManager = new AExtensionManager();
                             $extInfo = $extManager->getExtensionInfo($this->request->get['extension']);
@@ -541,7 +541,12 @@ class ControllerPagesSettingSetting extends AController
                                 $tmpl_id = $this->config->get('config_storefront_template');
                             }
                         }
-                        redirect($this->html->getSecureURL('design/template/edit', '&tmpl_id=' . $tmpl_id));
+                        redirect(
+                            $this->html->getSecureURL(
+                                'design/template/edit',
+                                '&' . http_build_query(['tmpl_id' => $tmpl_id])
+                            )
+                        );
                     }
                 }
 
@@ -569,58 +574,59 @@ class ControllerPagesSettingSetting extends AController
      * @return array
      * @throws AException
      */
-    protected function _build_details($form, $data)
+    protected function _build_details(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form_language_switch'] = $this->html->getContentLanguageSwitcher();
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('details', $form, $data),
+            'fields' => $this->configManager->getFormFields('details', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
      */
-    protected function _build_general($form, $data)
+    protected function _build_general(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('general', $form, $data),
+            'fields' => $this->configManager->getFormFields('general', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
      */
-    protected function _build_checkout($form, $data)
+    protected function _build_checkout(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('checkout', $form, $data),
+            'fields' => $this->configManager->getFormFields('checkout', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
+     * @throws AException
      */
-    protected function _build_appearance($form, $data)
+    protected function _build_appearance(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form_language_switch'] = $this->html->getContentLanguageSwitcher();
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('appearance', $form, $data),
+            'fields' => $this->configManager->getFormFields('appearance', $form, $data),
         ];
 
         return $ret_data;
@@ -628,56 +634,57 @@ class ControllerPagesSettingSetting extends AController
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
      */
-    protected function _build_mail($form, $data)
+    protected function _build_mail(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('mail', $form, $data),
+            'fields' => $this->configManager->getFormFields('mail', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
      */
-    protected function _build_im($form, $data)
+    protected function _build_im(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('im', $form, $data),
+            'fields' => $this->configManager->getFormFields('im', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
      */
-    protected function _build_api($form, $data)
+    protected function _build_api(AForm $form, array $data)
     {
         $ret_data = [];
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('api', $form, $data),
+            'fields' => $this->configManager->getFormFields('api', $form, $data),
         ];
         return $ret_data;
     }
 
     /**
      * @param AForm $form
-     * @param       $data
+     * @param array $data
      *
      * @return array
+     * @throws AException
      */
-    protected function _build_system($form, $data)
+    protected function _build_system(AForm $form, array $data)
     {
         $ret_data = [];
 
@@ -719,7 +726,7 @@ class ControllerPagesSettingSetting extends AController
         }
 
         $ret_data['form'] = [
-            'fields' => $this->conf_mngr->getFormFields('system', $form, $data),
+            'fields' => $this->configManager->getFormFields('system', $form, $data),
         ];
 
         return $ret_data;
@@ -738,9 +745,7 @@ class ControllerPagesSettingSetting extends AController
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-        $this->load->library('config_manager');
-        $cManager = new AConfigManager();
-        $result = $cManager->validate($group, $this->request->post, $store_id);
+        $result = $this->configManager->validate($group, $this->request->post, $store_id);
         $this->error = $result['error'];
         $this->request->post = $result['validated']; // for changed data saving
 
@@ -756,7 +761,7 @@ class ControllerPagesSettingSetting extends AController
         }
     }
 
-    #[NoReturn] public function phpinfo()
+    public function phpinfo()
     {
         if (defined('IS_DEMO') && IS_DEMO) {
             echo "Not supported in the demo mode";

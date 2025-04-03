@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -49,7 +49,7 @@ class ControllerResponsesSettingSettingQuickForm extends AController
         $this->data['store_id'] = !isset($this->session->data['current_store_id'])
             ? $setting[2]
             : $this->session->data['current_store_id'];
-        $this->request->get['active'] = $this->data['group'].'-'.$this->data['setting_key'].'-'.$this->data['store_id'];
+        $this->request->get['active'] = $this->data['group'] . '-' . $this->data['setting_key'] . '-' . $this->data['store_id'];
         //for multilingual settings
         foreach (['config_description', 'config_title', 'config_meta_description', 'config_meta_keywords'] as $n) {
             if (is_int(strpos($this->data['setting_key'], $n))) {
@@ -58,7 +58,7 @@ class ControllerResponsesSettingSettingQuickForm extends AController
                     0,
                     strrpos($this->data['setting_key'], '_')
                 );
-                $this->request->get['active'] = $this->data['group'].'-'.$setting[1].'-'.$this->data['store_id'];
+                $this->request->get['active'] = $this->data['group'] . '-' . $setting[1] . '-' . $this->data['store_id'];
                 break;
             }
         }
@@ -110,14 +110,14 @@ class ControllerResponsesSettingSettingQuickForm extends AController
 
         $this->data['action'] = $this->html->getSecureURL(
             'setting/setting_quick_form',
-            '&'.http_build_query(
+            '&' . http_build_query(
                 [
                     'target' => $this->request->get['target'],
                     'active' => $this->request->get['active']
                 ]
             )
         );
-        $this->data['heading_title'] = $this->language->get('text_edit').' '.$this->language->get('text_setting');
+        $this->data['heading_title'] = $this->language->get('text_edit') . ' ' . $this->language->get('text_setting');
         $form = new AForm('HT');
         $this->data['setting_id'] = (int)$this->request->get['setting_id'];
 
@@ -173,9 +173,9 @@ class ControllerResponsesSettingSettingQuickForm extends AController
             }
 
             $ext_url = $this->html->getSecureURL(
-                'setting/setting',
-                '&active='.$this->data['group'])
-                .'#'.$field->element_id;
+                    'setting/setting',
+                    '&active=' . $this->data['group'])
+                . '#' . $field->element_id;
             $label_text = sprintf($this->language->get('text_texteditor_extended_mode'), $ext_url);
 
             $field = $form->getFieldHtml(
@@ -196,7 +196,7 @@ class ControllerResponsesSettingSettingQuickForm extends AController
         $this->data['form_store_switch'] = $this->html->getStoreSwitcher();
         $this->data['template_image'] = $this->html->getSecureURL('setting/template_image');
 
-        $this->data['form_title'] = $this->language->get('tab_'.$this->data['group']);
+        $this->data['form_title'] = $this->language->get('tab_' . $this->data['group']);
         $this->data['help_url'] = $this->gen_help_url('setting_edit');
         $this->data['active'] = $this->request->get['active'];
         $this->data['title'] = $this->data['heading_title'];
@@ -253,19 +253,19 @@ class ControllerResponsesSettingSettingQuickForm extends AController
 
                 if ($group == 'appearance') {
                     $section = $this->request->get['tmpl_id'] == 'default'
-                                ? 'appearance'
-                                : $this->request->get['tmpl_id'];
+                        ? 'appearance'
+                        : $this->request->get['tmpl_id'];
 
                     foreach (['config_logo', 'config_mail_logo', 'config_icon'] as $n) {
                         //use resource id as value
                         //also check if language specific logo presents
-                        if (isset($post[$n.'_'.$languageId.'_resource_id'])) {
-                            $post[$n.'_'.$languageId] = $post[$n.'_'.$languageId.'_resource_id'];
-                            unset($post[$n.'_'.$languageId.'_resource_id']);
+                        if (isset($post[$n . '_' . $languageId . '_resource_id'])) {
+                            $post[$n . '_' . $languageId] = $post[$n . '_' . $languageId . '_resource_id'];
+                            unset($post[$n . '_' . $languageId . '_resource_id']);
                         }
-                        if (isset($post[$n.'_resource_id'])) {
-                            $post[$n] = $post[$n.'_resource_id'];
-                            unset($post[$n.'_resource_id']);
+                        if (isset($post[$n . '_resource_id'])) {
+                            $post[$n] = $post[$n . '_resource_id'];
+                            unset($post[$n . '_resource_id']);
                         } elseif (isset($post[$n])) {
                             $post[$n] = html_entity_decode($post[$n], ENT_COMPAT, 'UTF-8');
                         }
@@ -370,7 +370,7 @@ class ControllerResponsesSettingSettingQuickForm extends AController
         if (empty($this->session->data['quick_start_step'])) {
             $this->session->data['quick_start_step'] = 'details';
         }
-        $section = $this->session->data['quick_start_step'];
+        $section = (string)$this->session->data['quick_start_step'];
         //if offers - try to get data first
         $offer_response = [];
         if (in_array($section, ['offer1', 'offer2'])) {
@@ -381,7 +381,7 @@ class ControllerResponsesSettingSettingQuickForm extends AController
                 'zoneId'    => $this->config->get('config_zone_id'),
                 'storeId'   => UNIQUE_ID,
             ];
-            $url = $this->model_tool_mp_api->getMPURL().'?rt=embed/mpjs/'.$section.'&'.http_build_query($params);
+            $url = $this->model_tool_mp_api->getMPURL() . '?rt=embed/mpjs/' . $section . '&' . http_build_query($params);
             $connect = new AConnect();
             $offer_response = $connect->getResponse($url);
             $this->load->library('json');
@@ -400,7 +400,9 @@ class ControllerResponsesSettingSettingQuickForm extends AController
         if (in_array($section, ['offer1', 'offer2'])) {
             $this->getOfferButtons($section);
             $this->data['quick_start_note'] = '';
-            $template = "responses/setting/{$section}.tpl";
+            /** @see public_html/admin/view/default/template/responses/setting/offer1.tpl */
+            /** @see public_html/admin/view/default/template/responses/setting/offer2.tpl */
+            $template = "responses/setting/" . $section . ".tpl";
             if (!empty($offer_response['html'])) {
                 $this->data['title'] = $offer_response['title'];
                 $this->data['html'] = $offer_response['html'];
@@ -434,22 +436,22 @@ class ControllerResponsesSettingSettingQuickForm extends AController
             } else {
                 $data = $this->model_setting_setting->getSetting($section, $this->data['store_id']);
             }
-            $this->getQuickStartForm($section, $data);
+            $this->getQuickStartForm($section, (array)$data);
 
             if ($section == 'details') {
                 //welcome message for the first step
                 $this->data['quick_start_note'] = $this->language->get('text_quick_start_note');
             }
             $this->data['quick_start_note'] .= sprintf(
-                $this->language->get('text_quick_start_'.$section),
-                $this->html->getSecureURL('setting/setting/'.$section));
+                $this->language->get('text_quick_start_' . $section),
+                $this->html->getSecureURL('setting/setting/' . $section));
         }
 
         $back_step = $this->_prior_step($section);
         if ($back_step) {
             $this->data['back'] = $this->html->getSecureURL(
                 'setting/setting_quick_form/quick_start_back',
-                '&store_id='.$this->data['store_id']);
+                '&store_id=' . $this->data['store_id']);
         }
 
         $this->data['error'] = $this->error;
@@ -466,14 +468,15 @@ class ControllerResponsesSettingSettingQuickForm extends AController
     {
         $this->data['action'] = $this->html->getSecureURL(
             'setting/setting_quick_form/quick_start_save_next',
-            '&active='.$step.'&store_id='.$this->data['store_id']
+            '&active=' . $step . '&store_id=' . $this->data['store_id']
         );
         $this->view->assign('language_code', $this->session->data['language']);
         $form = new AForm('HS');
         $form->setForm(
             [
                 'form_name' => 'settingFrm',
-            ]);
+            ]
+        );
 
         $this->data['form']['id'] = 'settingFrm';
         $this->data['form']['form_open'] = $form->getFieldHtml(
@@ -482,38 +485,49 @@ class ControllerResponsesSettingSettingQuickForm extends AController
                 'name'   => 'settingFrm',
                 'attr'   => 'data-confirm-exit="true" class="aform form-horizontal"',
                 'action' => $this->data['action'],
-            ]);
-        $this->data['form']['submit'] = $form->getFieldHtml([
-            'type'  => 'button',
-            'name'  => 'submit',
-            'text'  => $this->language->get('button_save'),
-            'style' => 'button1',
-        ]);
-        $this->data['form']['reset'] = $form->getFieldHtml([
-            'type' => 'button',
-            'name' => 'reset',
-            'text' => $this->language->get('button_reset'),
-        ]);
+            ]
+        );
+        $this->data['form']['submit'] = $form->getFieldHtml(
+            [
+                'type'  => 'button',
+                'name'  => 'submit',
+                'text'  => $this->language->get('button_save'),
+                'style' => 'button1',
+            ]
+        );
+        $this->data['form']['reset'] = $form->getFieldHtml(
+            [
+                'type' => 'button',
+                'name' => 'reset',
+                'text' => $this->language->get('button_reset'),
+            ]
+        );
 
     }
 
-    protected function getQuickStartForm($section, $settings_data)
+    /**
+     * @param string $section
+     * @param array $settings_data
+     * @return void
+     * @throws AException
+     */
+    protected function getQuickStartForm(string $section, array $settings_data)
     {
         if ($settings_data['tmpl_id']) {
             //template settings
             $this->data['action'] = $this->html->getSecureURL(
                 'setting/setting_quick_form/quick_start_save_next',
-                '&active='.$section.'&store_id='.$this->data['store_id'].'&tmpl_id='.$settings_data['tmpl_id']);
+                '&active=' . $section . '&store_id=' . $this->data['store_id'] . '&tmpl_id=' . $settings_data['tmpl_id']);
             $this->data['update'] = $this->html->getSecureURL(
                 'listing_grid/setting/update_field',
-                '&group='.$settings_data['tmpl_id'].'&store_id='.$this->data['store_id'].'&tmpl_id='.$settings_data['tmpl_id']);
+                '&group=' . $settings_data['tmpl_id'] . '&store_id=' . $this->data['store_id'] . '&tmpl_id=' . $settings_data['tmpl_id']);
         } else {
             $this->data['action'] = $this->html->getSecureURL(
                 'setting/setting_quick_form/quick_start_save_next',
-                '&active='.$section.'&store_id='.$this->data['store_id']);
+                '&active=' . $section . '&store_id=' . $this->data['store_id']);
             $this->data['update'] = $this->html->getSecureURL(
                 'listing_grid/setting/update_field',
-                '&group='.$section.'&store_id='.$this->data['store_id']);
+                '&group=' . $section . '&store_id=' . $this->data['store_id']);
         }
 
         $this->view->assign('language_code', $this->session->data['language']);
@@ -522,7 +536,8 @@ class ControllerResponsesSettingSettingQuickForm extends AController
             [
                 'form_name' => 'settingFrm',
                 'update'    => $this->data['update'],
-            ]);
+            ]
+        );
 
         $this->data['form']['id'] = 'settingFrm';
         $this->data['form']['form_open'] = $form->getFieldHtml(
@@ -531,28 +546,33 @@ class ControllerResponsesSettingSettingQuickForm extends AController
                 'name'   => 'settingFrm',
                 'attr'   => 'data-confirm-exit="true" class="aform form-horizontal"',
                 'action' => $this->data['action'],
-            ]);
-        $this->data['form']['submit'] = $form->getFieldHtml([
-            'type'  => 'button',
-            'name'  => 'submit',
-            'text'  => $this->language->get('button_save'),
-            'style' => 'button1',
-        ]);
-        $this->data['form']['reset'] = $form->getFieldHtml([
-            'type' => 'button',
-            'name' => 'reset',
-            'text' => $this->language->get('button_reset'),
-        ]);
+            ]
+        );
+        $this->data['form']['submit'] = $form->getFieldHtml(
+            [
+                'type'  => 'button',
+                'name'  => 'submit',
+                'text'  => $this->language->get('button_save'),
+                'style' => 'button1',
+            ]
+        );
+        $this->data['form']['reset'] = $form->getFieldHtml(
+            [
+                'type' => 'button',
+                'name' => 'reset',
+                'text' => $this->language->get('button_reset'),
+            ]
+        );
 
         $this->data['form']['fields'] = [];
         $this->load->library('config_manager');
-        $conf_mngr = new AConfigManager();
-        $set_fields = $conf_mngr->getFormFields($section, $form, $settings_data);
+        $configManager = new AConfigManager();
+        $set_fields = $configManager->getFormFields($section, $form, $settings_data);
         foreach ($this->data['qs_fields'][$section] as $field_name) {
             $field = $set_fields[$field_name];
             //replace wysiwyg text editor to textarea inside modal-mode!
             if ($field->type == 'texteditor') {
-                $ext_url = $this->html->getSecureURL('setting/setting', '&active='.$section).'#'.$field->element_id;
+                $ext_url = $this->html->getSecureURL('setting/setting', '&active=' . $section) . '#' . $field->element_id;
                 $label_text = sprintf($this->language->get('text_texteditor_extended_mode'), $ext_url);
                 $field = $form->getFieldHtml(
                     [
@@ -574,7 +594,11 @@ class ControllerResponsesSettingSettingQuickForm extends AController
 
     }
 
-    protected function _next_step($current_step)
+    /**
+     * @param string $current_step
+     * @return string
+     */
+    protected function _next_step(string $current_step)
     {
         $steps = [
             'details'    => 'offer1',
@@ -588,7 +612,11 @@ class ControllerResponsesSettingSettingQuickForm extends AController
         return $steps[$current_step];
     }
 
-    protected function _prior_step($current_step)
+    /**
+     * @param string $current_step
+     * @return string
+     */
+    protected function _prior_step(string $current_step)
     {
         $steps = [
             'details'    => '',
