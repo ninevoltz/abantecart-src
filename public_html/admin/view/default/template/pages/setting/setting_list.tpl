@@ -60,11 +60,6 @@ echo $this->html->buildElement(
                     $(this).attr('data-toggle', 'modal').attr('data-target', '#setting_modal');
                 }
             });
-
-            $('td[aria-describedby="setting_grid_value"], td[aria-describedby="setting_grid_value"] button').click(function () {
-                $(this).parents('tr').find('.grid_action_edit').click();
-            });
-
         }
 
         $('#store_switcher').change(function () {
