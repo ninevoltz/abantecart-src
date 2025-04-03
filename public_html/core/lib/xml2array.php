@@ -1,47 +1,45 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2020 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
 
-// ???? Posibly discontinued
-
 class MyDOMDocument extends DOMDocument
 {
-    public function toArray(DOMNode $oDomNode = null)
+    public function toArray(?DOMNode $oDomNode = null)
     {
         // return empty array if dom is blank
         if (is_null($oDomNode) && !$this->hasChildNodes()) {
-            return array();
+            return [];
         }
         $oDomNode = (is_null($oDomNode)) ? $this->documentElement : $oDomNode;
         if (!$oDomNode->hasChildNodes()) {
             $mResult = $oDomNode->nodeValue;
         } else {
-            $mResult = array();
+            $mResult = [];
             foreach ($oDomNode->childNodes as $oChildNode) {
                 // how many of these child nodes do we have?
                 // this will give us a clue as to what the result structure should be
                 $oChildNodeList = $oDomNode->getElementsByTagName($oChildNode->nodeName);
                 $iChildCount = 0;
-                // there are x number of childs in this node that have the same tag name
+                // there are x number of children in this node that have the same tag name
                 // however, we are only interested in the # of siblings with the same tag name
                 foreach ($oChildNodeList as $oNode) {
                     if ($oNode->parentNode->isSameNode($oChildNode->parentNode)) {
@@ -65,9 +63,9 @@ class MyDOMDocument extends DOMDocument
             }
         }
         // get our attributes if we have any
-        $arAttributes = array();
+        $arAttributes = [];
         if ($oDomNode->hasAttributes()) {
-            foreach ($oDomNode->attributes as $sAttrName => $oAttrNode) {
+            foreach ($oDomNode->attributes as $oAttrNode) {
                 // retain namespace prefixes
                 $arAttributes["@{$oAttrNode->nodeName}"] = $oAttrNode->nodeValue;
             }
@@ -78,11 +76,10 @@ class MyDOMDocument extends DOMDocument
         }
         if (count($arAttributes)) {
             if (!is_array($mResult)) {
-                $mResult = (trim($mResult)) ? array($mResult) : array();
+                $mResult = (trim($mResult)) ? [$mResult] : [];
             }
             $mResult = array_merge($mResult, $arAttributes);
         }
-        $arResult = array($oDomNode->nodeName => $mResult);
-        return $arResult;
+        return [$oDomNode->nodeName => $mResult];
     }
 }
