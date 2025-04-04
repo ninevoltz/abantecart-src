@@ -240,13 +240,38 @@ class AView
     /**
      * @param string $name
      * @param string $value
+     * @param string|null $mode
+     * @param string|null $key
+     * @return bool
      */
-    public function addHookVar($name, $value)
+    public function addHookVar(string $name, mixed $value, ?string $mode = 'concat', ?string $key = null)
     {
-        if (!empty($name) && !in_array($name, $this->hook_vars_replaces)
-        ){
-            $this->hook_vars[$name] .= $value;
+        if(!$name || !$value){
+            return false;
         }
+
+        if (!in_array($name, $this->hook_vars_replaces)
+        ){
+            if($mode == 'concat') {
+                $this->hook_vars[$name] .= $value;
+            }else{
+                $key = $key ?: genToken(4);
+                $this->hook_vars[$name][$key] = $value;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $name
+     * @param string $key
+     * @param mixed $value
+     * @return bool
+     */
+    public function addHookVarArrayItem(string $name, string $key, mixed $value)
+    {
+        return $this->addHookVar($name, $value, 'array', $key);
     }
 
     /**

@@ -356,18 +356,12 @@ if ($error){ ?>
             </a>
         </li>
         <?php }
-        if ($this->getHookVar('product_features')){ ?>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="features" data-bs-toggle="tab" href="#collapseFeatures" role="tab" aria-controls="collapseFeatures" aria-selected="false" tabindex="-1">
-                <?php echo $this->getHookVar('product_features_tab'); ?>
-            </a>
-        </li>
-        <?php }
         $hookVarArray = $this->getHookVar('product_description_array');
         if( $hookVarArray ){
             foreach($hookVarArray as $key=>$hkVar){ ?>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="ecomtab-tab-4" data-bs-toggle="tab" href="#collapse<?php echo $key; ?>" role="tab" aria-controls="collapse<?php echo $key; ?>" aria-selected="false" tabindex="-1">  
+                <a class="nav-link" id="ecomtab-tab-4" data-bs-toggle="tab"
+                   href="#collapse<?php echo $key; ?>" role="tab" aria-controls="collapse<?php echo $key; ?>" aria-selected="false" tabindex="-1">
                     <?php echo $hkVar['title']; ?>
                 </a>
             </li>
@@ -544,20 +538,12 @@ if ($error){ ?>
         </div>
         <!-- downloads Tab Content Ends -->
         <?php }
-        if ($this->getHookVar('product_features')){ ?>
-        <!-- features Products Tab Content Starts -->
-            <div class="tab-pane" id="collapseFeatures" role="tabpanel" aria-labelledby="features">
-                <div class="tab-pane-body">
-                    <?php echo $this->getHookVar('product_features'); ?>
-                </div>
-            </div>
-        <!-- features Products Tab Content Ends -->
-        <?php }
+
         $hookVarArray = $this->getHookVar('product_description_array');
         if( $hookVarArray ){
             foreach($hookVarArray as $key=>$hkVar){ ?>
                 <div class="tab-content">
-                    <div class="tab-pane" id="ecomtab-3" role="tabpanel" aria-labelledby="ecomtab-tab-4">
+                    <div class="tab-pane" id="collapse<?php echo $key?>" role="tabpanel" aria-labelledby="<?php echo $key?>">
                         <div class="tab-pane-body">
                             <?php echo $hkVar['html']; ?>
                         </div>

@@ -513,23 +513,7 @@ if ($downloads){ ?>
                     </div>
                 </div>
 <?php }
-//deprecated. Left for compatibility. See new way below!
-if($this->getHookVar('product_features')){ ?>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingFeatures">
-                        <button id="features" class="accordion-button" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#collapseFeatures"
-                                aria-expanded="true" aria-controls="collapseFeatures">
-                            <i class="fa-solid fa-tags me-2"></i><?php echo $this->getHookVar('product_features_tab'); ?>
-                        </button>
-                    </h2>
-                    <div id="collapseFeatures" class="accordion-collapse collapse" aria-labelledby="headingFeatures" data-bs-parent="#productDetailsAccordion">
-                        <div class="accordion-body">
-                            <?php echo $this->getHookVar('product_features'); ?>
-                        </div>
-                    </div>
-                </div>
-<?php }
+
 $hookVarArray = $this->getHookVar('product_description_array');
 if( $hookVarArray ){
     foreach($hookVarArray as $key=>$hkVar){ ?>
@@ -537,7 +521,10 @@ if( $hookVarArray ){
                     <h2 class="accordion-header" id="heading<?php echo $key; ?>>">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo $key; ?>"
                                 aria-expanded="true" aria-controls="collapse<?php echo $key; ?>">
-                            <?php echo $hkVar['title']; ?>
+                            <?php if($hkVar['iconCss']){ ?>
+                            <i class="<?php echo $hkVar['iconCss']?> me-2 "></i>
+                            <?php }
+                            echo $hkVar['title']; ?>
                         </button>
                     </h2>
                     <div id="collapse<?php echo $key; ?>" class="accordion-collapse collapse" aria-labelledby="heading<?php echo $key; ?>" data-bs-parent="#productDetailsAccordion">
