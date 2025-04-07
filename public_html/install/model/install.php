@@ -223,7 +223,7 @@ class ModelInstall extends Model
         $content .= "const DB_DRIVER = '" . $data['db_driver'] . "';\n";
         $content .= "const DB_HOSTNAME = '" . $data['db_host'] . "';\n";
         if ($data['db_port']) {
-            $content .= "const DB_PORT = '" . (int)$data['db_port'] . "';\n";
+            $content .= "const DB_PORT = " . (int)$data['db_port'] . ";\n";
         }
         $content .= "const DB_USERNAME = '" . $data['db_user'] . "';\n";
         $content .= "const DB_PASSWORD = '" . $data['db_password'] . "';\n";
@@ -371,7 +371,7 @@ const MAILER = [
         try {
             $db->query("SET NAMES 'utf8mb4';");
             $db->query("SET CHARACTER SET utf8mb4;");
-            $file = DIR_APP_SECTION . ($file ?: 'abantecart_sample_data.sql');
+            $file = $file ?: DIR_APP_SECTION .'abantecart_sample_data.sql';
             if (!is_file($file)) {
                 return;
             } else {
