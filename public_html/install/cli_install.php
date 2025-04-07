@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -34,12 +34,12 @@ if (defined('IS_WINDOWS')) {
 }
 define('DIR_ROOT', $root_path);
 
-define('DIR_APP_SECTION', str_replace('\'', '/', realpath(dirname(__FILE__))).'/');
-define('DIR_CORE', str_replace('\'', '/', realpath(dirname(__FILE__).'/../')).'/core/');
-define('DIR_SYSTEM', str_replace('\'', '/', realpath(dirname(__FILE__).'/../')).'/system/');
-define('DIR_CACHE', str_replace('\'', '/', realpath(dirname(__FILE__).'/../')).'/system/cache/');
-define('DIR_LOGS', str_replace('\'', '/', realpath(dirname(__FILE__).'/../')).'/system/logs/');
-define('DIR_ABANTECART', str_replace('\'', '/', realpath(DIR_APP_SECTION.'../')).'/');
+define('DIR_APP_SECTION', str_replace('\'', '/', realpath(dirname(__FILE__))) . '/');
+define('DIR_CORE', str_replace('\'', '/', realpath(dirname(__FILE__) . '/../')) . '/core/');
+define('DIR_SYSTEM', str_replace('\'', '/', realpath(dirname(__FILE__) . '/../')) . '/system/');
+define('DIR_CACHE', str_replace('\'', '/', realpath(dirname(__FILE__) . '/../')) . '/system/cache/');
+define('DIR_LOGS', str_replace('\'', '/', realpath(dirname(__FILE__) . '/../')) . '/system/logs/');
+define('DIR_ABANTECART', str_replace('\'', '/', realpath(DIR_APP_SECTION . '../')) . '/');
 const DIR_STOREFRONT = DIR_ABANTECART . DS . 'storefront' . DS;
 const DIR_DATABASE = DIR_CORE . 'database' . DS;
 const DIR_TEMPLATE = DIR_APP_SECTION . 'view' . DS . 'template' . DS;
@@ -48,10 +48,9 @@ const INSTALL = true;
 const RDIR_TEMPLATE = 'view' . DS;
 
 
-
 //Check if cart is already installed
-if (file_exists(DIR_SYSTEM.'config.php')) {
-    require_once(DIR_SYSTEM.'config.php');
+if (file_exists(DIR_SYSTEM . 'config.php')) {
+    require_once(DIR_SYSTEM . 'config.php');
 }
 
 // Startup with local init
@@ -85,7 +84,7 @@ switch ($command) {
     case "install":
 
         if ($installed) {
-            echo "\n\n"."AbanteCart is already installed!"."\n\n";
+            echo "\n\n" . "AbanteCart is already installed!" . "\n\n";
             exit(1);
         }
 
@@ -95,17 +94,17 @@ switch ($command) {
             if (!$validateOptions[0]) {
                 echo "\n\n";
                 echo "FAILED! Following inputs were missing or invalid: ";
-                echo implode(', ', $validateOptions[1])."\n\n";
+                echo implode(', ', $validateOptions[1]) . "\n\n";
                 exit(1);
             }
             define('HTTP_ABANTECART', $options['http_server']);
             install($options);
             echo "\n";
             echo "SUCCESS! AbanteCart successfully installed on your server\n\n";
-            echo "\t"."Store link: ".$options['http_server']."\n\n";
-            echo "\t"."Admin link: ".$options['http_server']."?s=".$options['admin_path']."\n\n";
+            echo "\t" . "Store link: " . $options['http_server'] . "\n\n";
+            echo "\t" . "Admin link: " . $options['http_server'] . "?s=" . $options['admin_path'] . "\n\n";
         } catch (Exception|Error $e) {
-            echo 'FAILED!: '.$e->getMessage().". File: ".$e->getFile()." Line ".$e->getLine()."\n".$e->getTraceAsString();
+            echo 'FAILED!: ' . $e->getMessage() . ". File: " . $e->getFile() . " Line " . $e->getLine() . "\n" . $e->getTraceAsString();
             exit(1);
         }
         break;
@@ -124,11 +123,11 @@ switch ($command) {
  */
 
 /**
- * @param int    $errno
+ * @param int $errno
  * @param string $errStr
  * @param string $errFile
- * @param int    $errLine
- * @param array  $errContext
+ * @param int $errLine
+ * @param array $errContext
  *
  * @return bool
  * @throws ErrorException
@@ -172,22 +171,22 @@ function getOptionList()
 function help()
 {
     global $optsRequired;
-    $output = "Usage:"."\n";
-    $output .= "------------------------------------------------"."\n";
+    $output = "Usage:" . "\n";
+    $output .= "------------------------------------------------" . "\n";
     $output .= "\n";
-    $output .= "Commands:"."\n";
-    $output .= "\t"."usage - get help"."\n";
-    $output .= "\t"."install - run installation process"."\n\n";
+    $output .= "Commands:" . "\n";
+    $output .= "\t" . "usage - get help" . "\n";
+    $output .= "\t" . "install - run installation process" . "\n\n";
 
-    $output .= "Required Parameters:"."\n";
+    $output .= "Required Parameters:" . "\n";
     $options = getOptionList();
 
     foreach ($options as $opt => $ex) {
-        $output .= "\t".$opt;
-        if (in_array(str_replace('--','',$opt), $optsRequired)) {
-            $output .= "=<value>"."\t"."[ \e[0;31mrequired \e[m]";
+        $output .= "\t" . $opt;
+        if (in_array(str_replace('--', '', $opt), $optsRequired)) {
+            $output .= "=<value>" . "\t" . "[ \e[0;31mrequired \e[m]";
         } else {
-            $output .= "\t\t"."[ \e[0;32moptional \e[m]";
+            $output .= "\t\t" . "[ \e[0;32moptional \e[m]";
         }
         $output .= "\n\n";
 
@@ -197,7 +196,7 @@ function help()
 
     $output .= 'php cli_install.php install ';
     foreach ($options as $opt => $ex) {
-        $output .= $opt.($ex ? "=".$ex : '')."  ";
+        $output .= $opt . ($ex ? "=" . $ex : '') . "  ";
     }
     $output .= " \n\n";
 
@@ -214,7 +213,7 @@ function getOptionValues($opt_name = '')
 {
     global $args;
     $args = !$args ? $_SERVER['argv'] : $args;
-    $options = ['template' => 'novator' ];
+    $options = ['template' => 'novator'];
     foreach ($args as $v) {
         $is_flag = preg_match('/^--(.*)$/', $v, $match);
         //skip commands
@@ -232,12 +231,12 @@ function getOptionValues($opt_name = '')
         }
 
         if ($name == 'http_server') {
-            $value = rtrim($value, '/.\\').'/';
+            $value = rtrim($value, '/.\\') . '/';
 
             //put server name into environment based on url.
             // it will add into config.php
             $server_name = parse_url($value, PHP_URL_HOST);
-            putenv("SERVER_NAME=".$server_name);
+            putenv("SERVER_NAME=" . $server_name);
         }
 
         $options[$name] = $value;
@@ -271,7 +270,7 @@ function validateOptions($options)
 
 /**
  * @param $options
- * @throws AException
+ * @throws AException|DOMException
  */
 function install($options)
 {
@@ -279,19 +278,26 @@ function install($options)
     if (!$errors) {
         writeConfigFile($options);
         setupDB($options);
+        $db = Registry::getInstance()->get('db');
+        //install default template anyway
+        $layout = new ALayoutManager('default');
+        $file = DIR_ABANTECART . DS . 'storefront' . DS . 'view' . DS . 'default' . DS . 'layout.xml';
+        $layout->loadXml(['file' => $file]);
+        unset($layout);
+
         $ext = $options['template'];
-        if($ext && $ext != 'default'){
+        if ($ext && $ext != 'default') {
             $db = Registry::getInstance()->get('db');
             $template = new ExtensionUtils($ext);
             $em = new AExtensionManager();
-            $em->install( $ext, $template->getConfig() );
-            if($em->errors){
+            $em->install($ext, $template->getConfig());
+            if ($em->errors) {
                 throw new Exception(implode("\n", $em->errors));
             }
-            $em->editSetting($ext,['novator_status' => 1]);
+            $em->editSetting($ext, ['novator_status' => 1]);
             $db->query(
-                "UPDATE ".$db->table("settings")." 
-                        SET `value` = '".$db->escape($ext)."' 
+                "UPDATE " . $db->table("settings") . " 
+                        SET `value` = '" . $db->escape($ext) . "' 
                         WHERE `key` = 'config_storefront_template'"
             );
         }
@@ -301,7 +307,7 @@ function install($options)
         $cache->enableCache();
         $cache->remove('*');
     } else {
-        echo 'FAILED! Pre-installation check failed: '.implode("\n\t", $errors)."\n\n";
+        echo 'FAILED! Pre-installation check failed: ' . implode("\n\t", $errors) . "\n\n";
         exit(1);
     }
 }
@@ -340,12 +346,12 @@ function setupDB($data)
             htmlspecialchars_decode($data['db_name']),
             (int)$data['db_port']
         );
-    }catch(Exception|Error $e){
+    } catch (Exception|Error $e) {
         echo $e->getMessage();
         exit;
     }
     $registry->set('db', $db);
-    define('DIR_LANGUAGE', DIR_ABANTECART.'admin/language/');
+    define('DIR_LANGUAGE', DIR_ABANTECART . 'admin/language/');
 
     // Cache
     $registry->set('cache', new ACache());
