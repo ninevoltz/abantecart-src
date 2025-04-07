@@ -419,17 +419,20 @@
 				if ( $field.is("select") ) {
 					//for select data-orgvalue is present in each option regardless of multiselect or single
 					$changed = 0;
-					$field.find('option').each(function () {
-
-
-						if ( $(this).attr('data-orgvalue') === "true" && $(this).attr('selected') !== 'selected' ) {
-							$changed++;
-						} else if ($(this).attr('data-orgvalue') === "false" && $(this).attr('selected') ) {
-							$changed++;
-						} else if ( !$(this).attr('data-orgvalue') ) {
-							$changed++;
-						}
-					});
+					const selectOption = $field.find('option');
+					if(value !== undefined) {
+						selectOption.each(function () {
+							if ($(this).attr('data-orgvalue') === "true" && $(this).attr('selected') !== 'selected') {
+								$changed++;
+							} else if ($(this).attr('data-orgvalue') === "false" && $(this).attr('selected')) {
+								$changed++;
+							} else if (!$(this).attr('data-orgvalue')) {
+								$changed++;
+							}
+						});
+					}else if(orgvalue.length > 0) {
+						$changed++;
+					}
 				}
 
 				if ( (typeof value === 'string' && value !== orgvalue)

@@ -1,6 +1,7 @@
 <?php //NOTE: For multivalue, need to pass attribute multiple="multiple" ?>
 <select id="<?php echo $id ?>" name="<?php echo $name ?>" data-placeholder="<?php echo $placeholder; ?>"
 		class="chosen-select form-control aselect <?php echo ($style ?: ''); ?>"
+        data-orgvalue="<?php echo_html2view(implode(',',$value)); ?>"
 		<?php
         echo $attr;
         echo str_contains($attr,'multiple') ? 'style="display: none;"' : '' ?>>
