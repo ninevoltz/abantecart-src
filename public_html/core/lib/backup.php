@@ -163,7 +163,7 @@ class ABackup
          * @var $db AMySQLi
          */
         // use driver directly to exclude hooks calls
-        $db = new $driver(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+        $db = new $driver(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, DB_PORT );
         $prefix_len = strlen(DB_PREFIX);
         // get sizes of tables
 

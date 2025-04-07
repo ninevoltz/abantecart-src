@@ -155,6 +155,7 @@ function getOptionList()
         '--db_name'          => 'abantecart',
         '--db_driver'        => 'amysqli',
         '--db_prefix'        => 'ac_',
+        '--db_port'          => '3306',
         '--admin_path'       => '{your-secret-word}',
         '--username'         => 'admin',
         '--password'         => 'admin',
@@ -241,6 +242,8 @@ function getOptionValues($opt_name = '')
 
         $options[$name] = $value;
     }
+
+    $options['db_port'] = (int)$options['db_port'] ?: 3306;
 
     if ($opt_name) {
         return $options[$opt_name] ?? null;
@@ -344,7 +347,7 @@ function setupDB($data)
             htmlspecialchars_decode($data['db_user']),
             htmlspecialchars_decode($data['db_password']),
             htmlspecialchars_decode($data['db_name']),
-            (int)$data['db_port']
+            (int)$data['db_port'] ?: 3306
         );
     } catch (Exception|Error $e) {
         echo $e->getMessage();

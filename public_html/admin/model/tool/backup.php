@@ -95,7 +95,6 @@ class ModelToolBackup extends Model
         $dbName = $this->db->dbName();
         $table_data = [];
         $tablePrefix = $this->db->tablePrefix();
-        $prefixLen = strlen($tablePrefix);
 
         $query = $this->db->query("SHOW TABLES FROM `" . $dbName . "`", true);
         if (!$query) {
@@ -112,7 +111,7 @@ class ModelToolBackup extends Model
         foreach ($query->rows as $result) {
             $table_name = $result['Tables_in_' . $dbName];
             //if database prefix present - select only AbanteCart tables. Otherwise, select all
-            if ($tablePrefix && !str_starts_with($table_name, $prefixLen)) {
+            if ($tablePrefix && !str_starts_with($table_name, $tablePrefix)) {
                 continue;
             }
             $table_data[] = $result['Tables_in_' . $dbName];
