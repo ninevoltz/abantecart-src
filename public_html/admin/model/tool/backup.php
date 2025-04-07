@@ -1,23 +1,22 @@
 <?php
-
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2021 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -59,21 +58,21 @@ class ModelToolBackup extends Model
      */
     public function load($xml_source, $mode = 'string')
     {
-        $xml_obj = null;
+        $xmlObj = null;
         if ($mode == 'string') {
-            $xml_obj = simplexml_load_string($xml_source);
+            $xmlObj = simplexml_load_string($xml_source);
         } elseif ($mode == 'file') {
-            $xml_obj = simplexml_load_file($xml_source);
+            $xmlObj = simplexml_load_file($xml_source);
         }
-        if ($xml_obj) {
-            $xmlname = $xml_obj->getName();
-            if ($xmlname == 'template_layouts') {
+        if ($xmlObj) {
+            $xmlName = $xmlObj->getName();
+            if ($xmlName == 'template_layouts') {
                 $load = new ALayoutManager();
                 $load->loadXML(['xml' => $xml_source]);
-            } elseif ($xmlname == 'datasets') {
+            } elseif ($xmlName == 'datasets') {
                 $load = new ADataset();
                 $load->loadXML(['xml' => $xml_source]);
-            } elseif ($xmlname == 'forms') {
+            } elseif ($xmlName == 'forms') {
                 $load = new AFormManager();
                 $load->loadXML(['xml' => $xml_source]);
             } else {
@@ -93,14 +92,16 @@ class ModelToolBackup extends Model
      */
     public function getTables()
     {
+        $dbName = $this->db->dbName();
         $table_data = [];
-        $prefix_len = strlen(DB_PREFIX);
+        $tablePrefix = $this->db->tablePrefix();
+        $prefixLen = strlen($tablePrefix);
 
-        $query = $this->db->query("SHOW TABLES FROM `".DB_DATABASE."`", true);
+        $query = $this->db->query("SHOW TABLES FROM `" . $dbName . "`", true);
         if (!$query) {
             $sql = "SELECT TABLE_NAME
 					FROM information_schema.TABLES
-					WHERE information_schema.TABLES.table_schema = '".DB_DATABASE."' ";
+					WHERE information_schema.TABLES.table_schema = '" . $dbName . "' ";
             $query = $this->db->query($sql, true);
         }
 
@@ -109,12 +110,12 @@ class ModelToolBackup extends Model
         }
 
         foreach ($query->rows as $result) {
-            $table_name = $result['Tables_in_'.DB_DATABASE];
-            //if database prefix present - select only abantecart tables. If not - select all
-            if (DB_PREFIX && substr($table_name, 0, $prefix_len) != DB_PREFIX) {
+            $table_name = $result['Tables_in_' . $dbName];
+            //if database prefix present - select only AbanteCart tables. Otherwise, select all
+            if ($tablePrefix && !str_starts_with($table_name, $prefixLen)) {
                 continue;
             }
-            $table_data[] = $result['Tables_in_'.DB_DATABASE];
+            $table_data[] = $result['Tables_in_' . $dbName];
         }
         return $table_data;
     }
@@ -130,7 +131,7 @@ class ModelToolBackup extends Model
      */
     public function backup($tables, $rl = true, $config = false, $sql_dump_mode = 'data_only')
     {
-        $bkp = new ABackup('manual_backup'.'_'.date('Y-m-d-H-i-s'));
+        $bkp = new ABackup('manual_backup' . '_' . date('Y-m-d-H-i-s'));
 
         if ($bkp->error) {
             return false;
@@ -147,9 +148,9 @@ class ModelToolBackup extends Model
             $bkp->backupDirectory(DIR_RESOURCE, false);
         }
         if ($config) {
-            $bkp->backupFile(DIR_ROOT.'/system/config.php', false);
+            $bkp->backupFile(DIR_ROOT . '/system/config.php', false);
         }
-        $result = $bkp->archive(DIR_BACKUP.$bkp->getBackupName().'.tar.gz', DIR_BACKUP, $bkp->getBackupName());
+        $result = $bkp->archive(DIR_BACKUP . $bkp->getBackupName() . '.tar.gz', DIR_BACKUP, $bkp->getBackupName());
         if (!$result) {
             $this->errors = array_merge($this->errors, $bkp->error);
         } else {
@@ -173,7 +174,7 @@ class ModelToolBackup extends Model
         }
 
         //NOTE: remove temp backup dir before process to prevent progressive increment of directory date if some backup-steps will be failed
-        $backupName = "manual_backup_".date('Ymd_His');
+        $backupName = "manual_backup_" . date('Ymd_His');
         $bkp = new ABackup($backupName);
         $bkp->removeBackupDirectory();
         unset($bkp);
@@ -190,7 +191,7 @@ class ModelToolBackup extends Model
                 'created_by'         => $this->user->getId(),
                 // schedule it!
                 'status'             => 1,
-                'start_time'         => date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), (int) date('d') + 1, date('Y'))),
+                'start_time'         => date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), (int)date('d') + 1, date('Y'))),
                 'last_time_run'      => '0000-00-00 00:00:00',
                 'progress'           => '0',
                 'last_result'        => '0',
@@ -214,13 +215,16 @@ class ModelToolBackup extends Model
                 } // clean
                 $table_list[] = $this->db->escape($table);
             }
-            $sql = "SELECT SUM(data_length/8 + index_length/8 - data_free/8) AS 'db_size'
+            $sql = "SELECT data_length, index_length, data_free
                     FROM information_schema.TABLES
-                    WHERE information_schema.TABLES.table_schema = '".DB_DATABASE."'
-                        AND TABLE_NAME IN ('".implode("','", $table_list)."')";
-
+                    WHERE information_schema.TABLES.table_schema = '" . $this->db->dbName() . "'
+                        AND TABLE_NAME IN ('" . implode("','", $table_list) . "')";
             $result = $this->db->query($sql);
-            $db_size = $result->row['db_size'] * 8; //size in bytes
+
+            //size in bytes
+            $db_size = array_sum(array_column($result->rows, 'data_length'))
+                + array_sum(array_column($result->rows, 'index_length'))
+                - array_sum(array_column($result->rows, 'data_free'));
 
             // get eta in seconds. 2794843 - "bytes per seconds" of dumping for Pentium(R) Dual-Core CPU E5200 @ 2.50GHz × 2
             $eta = ceil($db_size / 2794843) * 4;
@@ -383,17 +387,21 @@ class ModelToolBackup extends Model
         }
 
         $sql = "SELECT TABLE_NAME AS 'table_name',
-                    table_rows AS 'num_rows', (data_length + index_length - data_free) AS 'size'
+                    table_rows AS 'num_rows', 
+                    data_free, 
+                    data_length, 
+                    index_length
                 FROM information_schema.TABLES
-                WHERE information_schema.TABLES.table_schema = '".DB_DATABASE."'
-                    AND TABLE_NAME IN ('".implode("','", $tables)."')	";
+                WHERE information_schema.TABLES.table_schema = '" . $this->db->dbName() . "'
+                    AND TABLE_NAME IN ('" . implode("','", $tables) . "')	";
         $result = $this->db->query($sql);
         $output = [];
         foreach ($result->rows as $row) {
+            $row['size'] = $row['data_length'] + $row['index_length'] - $row['data_free'];
             if ($row['size'] > 1048576) {
-                $text = round(($row['size'] / 1048576), 1).'Mb';
+                $text = round(($row['size'] / 1048576), 1) . 'Mb';
             } else {
-                $text = round($row['size'] / 1024, 1).'Kb';
+                $text = round($row['size'] / 1024, 1) . 'Kb';
             }
 
             $output[$row['table_name']] = [
@@ -425,7 +433,7 @@ class ModelToolBackup extends Model
             if (in_array($d, $content_dirs)) {
                 continue;
             }
-            $item = DIR_ROOT.'/'.$d;
+            $item = DIR_ROOT . '/' . $d;
             if (is_dir($item)) {
                 $dirs_size += $this->_get_directory_size($item);
             } elseif (is_file($item)) {
@@ -440,15 +448,11 @@ class ModelToolBackup extends Model
      */
     public function getContentSize()
     {
-        $content_dirs = [
-            // white list
-            'resources',
-            'image',
-            'download',
-        ];
+        // white list
+        $content_dirs = [ 'resources', 'image', 'download' ];
         $dirs_size = 0;
         foreach ($content_dirs as $d) {
-            $dirs_size += $this->_get_directory_size(DIR_ROOT.'/'.$d);
+            $dirs_size += $this->_get_directory_size(DIR_ROOT . '/' . $d);
         }
         return $dirs_size;
     }
@@ -461,30 +465,27 @@ class ModelToolBackup extends Model
     private function _get_directory_size($dir)
     {
         $count_size = 0;
-        $count = 0;
         $dir_array = scandir($dir);
         foreach ($dir_array as $filename) {
             //skip backup, cache and logs
-            if (is_int(strpos($dir."/".$filename, '/backup'))
-                || is_int(strpos($dir."/".$filename, '/cache'))
-                || is_int(strpos($dir."/".$filename, '/logs'))
+            if (str_contains($dir . "/" . $filename, '/backup')
+                || str_contains($dir . "/" . $filename, '/cache')
+                || str_contains($dir . "/" . $filename, '/logs')
             ) {
                 continue;
             }
 
             if ($filename != ".." && $filename != ".") {
-                if (is_dir($dir."/".$filename)) {
-                    $new_dir_size = $this->_get_directory_size($dir."/".$filename);
+                if (is_dir($dir . "/" . $filename)) {
+                    $new_dir_size = $this->_get_directory_size($dir . "/" . $filename);
                     $count_size = $count_size + $new_dir_size;
                 } else {
-                    if (is_file($dir."/".$filename)) {
-                        $count_size = $count_size + filesize($dir."/".$filename);
-                        $count++;
+                    if (is_file($dir . "/" . $filename)) {
+                        $count_size = $count_size + filesize($dir . "/" . $filename);
                     }
                 }
             }
         }
         return $count_size;
     }
-
 }
