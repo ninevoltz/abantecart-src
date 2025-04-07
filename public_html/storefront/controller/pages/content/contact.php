@@ -130,33 +130,31 @@ class ControllerPagesContentContact extends AController
             $view = new AView($this->registry, 0);
             $view->batchAssign($this->data['mail_template_data']);
 
-            $mail->setTo($this->config->get('store_main_email'));
-            $mail->setFrom($this->config->get('store_main_email'));
-            $mail->setReplyTo($post_data['email']);
-            $mail->setSender($post_data['first_name']);
-            $mail->setTemplate('storefront_contact_us_mail', $this->data['mail_template_data']);
-            $attachment = [];
-            if (is_file(DIR_RESOURCE.$mailLogo)) {
-                $attachment = [
-                    'file' => DIR_RESOURCE.$mailLogo,
-                    'name' => md5(pathinfo($mailLogo, PATHINFO_FILENAME))
-                        .'.'
-                        .pathinfo($mailLogo, PATHINFO_EXTENSION),
-                ];
-                $mail->addAttachment(
-                    $attachment['file'],
-                    $attachment['name']
-                );
+            if($post_data['first_name']) {
+                $mail->setTo($this->config->get('store_main_email'));
+                $mail->setFrom($this->config->get('store_main_email'));
+                $mail->setReplyTo($post_data['email']);
+                $mail->setSender($post_data['first_name']);
+                $mail->setTemplate('storefront_contact_us_mail', $this->data['mail_template_data']);
+                $attachment = [];
+                if (is_file(DIR_RESOURCE . $mailLogo)) {
+                    $attachment = [
+                        'file' => DIR_RESOURCE . $mailLogo,
+                        'name' => md5(pathinfo($mailLogo, PATHINFO_FILENAME))
+                            . '.'
+                            . pathinfo($mailLogo, PATHINFO_EXTENSION),
+                    ];
+                    $mail->addAttachment( $attachment['file'], $attachment['name'] );
+                }
+                $mail->send();
+            }else{
+                $this->messages->saveError( "Contact form Error", 'Sender name is empty. Please check form settings!' );
             }
-            $mail->send();
 
             //get success_page
-            if ($form['success_page']) {
-                $success_url = $this->html->getSecureURL($form['success_page']);
-            } else {
-                $success_url = $this->html->getSecureURL('content/contact/success');
-            }
-
+            $success_url = $this->html->getSecureURL(
+                $form['success_page'] ?: 'content/contact/success'
+            );
             //notify admin
             $this->loadLanguage('common/im');
             $message_arr = [

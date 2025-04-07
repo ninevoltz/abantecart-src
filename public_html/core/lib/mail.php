@@ -1,23 +1,22 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2022 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
-
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\Mailer;
@@ -134,7 +133,7 @@ class AMail
     /**
      * @param string $name - sender's name
      */
-    public function setSender($name, $from = null)
+    public function setSender(string $name, $from = null)
     {
         $from = $from ?? current($this->email->getFrom());
         $from = $from instanceof Address ? $from->getAddress() : (string)$from;
@@ -199,7 +198,7 @@ class AMail
 
         $db = Registry::getInstance()->get('db');
         if (!$languageId) {
-            /** @var ALanguageManager */
+            /** @var ALanguageManager $language */
             $language = Registry::getInstance()->get('language');
             $languageId = IS_ADMIN ? $language->getContentLanguageID() : $language->getLanguageID();
         }
@@ -287,7 +286,7 @@ class AMail
 
     /**
      * @return bool
-     * @throws TransportExceptionInterface
+     * @throws TransportExceptionInterface|AException
      */
     public function send(?bool $silent = false)
     {

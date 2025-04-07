@@ -64,7 +64,7 @@ final class ADB
     )
     {
         $driverDir = $options['driver_dir'] ?: DIR_DATABASE;
-        $this->table_prefix = $options['table_prefix'] ?: DB_PREFIX;
+        $this->table_prefix = $options['table_prefix'] ?: (defined('DB_PREFIX') ? DB_PREFIX : '');
 
         $filename = $driverDir . $driver . '.php';
         if (file_exists($filename)) {
