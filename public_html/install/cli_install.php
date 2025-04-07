@@ -281,29 +281,12 @@ function install($options)
     if (!$errors) {
         writeConfigFile($options);
         setupDB($options);
-        $db = Registry::getInstance()->get('db');
-        //install default template anyway
-        $layout = new ALayoutManager('default');
-        $file = DIR_ABANTECART . DS . 'storefront' . DS . 'view' . DS . 'default' . DS . 'layout.xml';
-        $layout->loadXml(['file' => $file]);
-        unset($layout);
 
-        $ext = $options['template'];
-        if ($ext && $ext != 'default') {
-            $db = Registry::getInstance()->get('db');
-            $template = new ExtensionUtils($ext);
-            $em = new AExtensionManager();
-            $em->install($ext, $template->getConfig());
-            if ($em->errors) {
-                throw new Exception(implode("\n", $em->errors));
-            }
-            $em->editSetting($ext, ['novator_status' => 1]);
-            $db->query(
-                "UPDATE " . $db->table("settings") . " 
-                        SET `value` = '" . $db->escape($ext) . "' 
-                        WHERE `key` = 'config_storefront_template'"
-            );
-        }
+        $registry = Registry::getInstance();
+        /** @var ModelInstall $mdl */
+        $mdl = $registry->get('load')->model('install');
+        $options['install_step_data']['template'] = $options['template'];
+        $mdl->preInstallExtensions($options);
 
         $cache = new ACache();
         $cache->setCacheStorageDriver('file');

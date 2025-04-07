@@ -264,7 +264,7 @@ const MAILER = [
             $data['db_password'],
             $data['db_name'],
             $data['db_port'],
-            [ 'table_prefix' => $data['db_prefix'] ]
+            ['table_prefix' => $data['db_prefix']]
         );
 
         $file = DIR_APP_SECTION . 'abantecart_database.sql';
@@ -272,11 +272,11 @@ const MAILER = [
             try {
                 //and check is InnoDb supported
                 $engines = $db->query("SHOW ENGINES");
-                $engines = array_map('strtolower',array_column($engines->rows, 'Engine'));
-                if(!in_array('innodb', $engines)) {
+                $engines = array_map('strtolower', array_column($engines->rows, 'Engine'));
+                if (!in_array('innodb', $engines)) {
                     throw new Exception(
                         'InnoDB Engine of your database-server required for '
-                        .'AbanteCart to work properly! Please contact your system administrator or host service provider.'
+                        . 'AbanteCart to work properly! Please contact your system administrator or host service provider.'
                     );
                 }
 
@@ -371,7 +371,7 @@ const MAILER = [
         try {
             $db->query("SET NAMES 'utf8mb4';");
             $db->query("SET CHARACTER SET utf8mb4;");
-            $file = $file ?: DIR_APP_SECTION .'abantecart_sample_data.sql';
+            $file = $file ?: DIR_APP_SECTION . 'abantecart_sample_data.sql';
             if (!is_file($file)) {
                 return;
             } else {
@@ -398,9 +398,67 @@ const MAILER = [
             $cache->enableCache();
             $cache->remove('*');
         } catch (Exception $e) {
-            exit( nl2br($e->getMessage()) );
+            exit(nl2br($e->getMessage()));
         }
         return null;
+    }
+
+    /**
+     * @param array|null $options
+     * @return void
+     * @throws AException
+     * @throws DOMException
+     */
+    public function preInstallExtensions(?array $options = [])
+    {
+        $db = Registry::getInstance()->get('db');
+        //install default template anyway
+        $layout = new ALayoutManager('default');
+        $file = DIR_ABANTECART . DS . 'storefront' . DS . 'view' . DS . 'default' . DS . 'layout.xml';
+        $layout->loadXml(['file' => $file]);
+        unset($layout);
+
+        $ext = trim($options['install_step_data']['template']);
+        if ($ext && $ext != 'default') {
+            $template = new ExtensionUtils($ext);
+            $em = new AExtensionManager();
+            $em->install($ext, $template->getConfig());
+            if ($em->errors) {
+                throw new Exception(implode("\n", $em->errors));
+            }
+            $em->editSetting($ext, [$ext . '_status' => 1]);
+            $db->query(
+                "UPDATE " . $db->table("settings") . " 
+                SET `value` = '" . $db->escape($ext) . "' 
+                WHERE `key` = 'config_storefront_template'"
+            );
+        }
+
+        //preinstall extensions for example PageBuilder
+        $preinstall = $options['install_step_data']['install_extensions'] ?: ['page_builder'];
+        foreach ($preinstall as $pre) {
+            $installSql = DIR_ABANTECART . DS . 'extensions' . DS . $pre . DS . 'install.sql';
+            if (is_file($installSql) && is_readable($installSql)) {
+                if ($sql = file($installSql)) {
+                    $query = '';
+                    foreach ($sql as $line) {
+                        $tsl = trim($line);
+                        if (!str_starts_with($tsl, "--") && !str_starts_with($tsl, '#')) {
+                            $query .= $line;
+                            if (preg_match('/;\s*$/', $line)) {
+                                $query = str_replace("`ac_", "`" . $db->tablePrefix(), $query);
+                                $db->query($query); //no silence mode! if error - will throw to exception
+                                $query = '';
+                            }
+                        }
+                    }
+                }
+            }
+            $installPhp = DIR_ABANTECART . DS . 'extensions' . DS . $pre . DS . 'install.php';
+            if (is_file($installPhp) && is_readable($installPhp)) {
+                require_once $installPhp;
+            }
+        }
     }
 
     public function getLanguages()
