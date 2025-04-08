@@ -29,7 +29,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, gd, soap, zip, iconv, pdo_mysql
-          tools: phpunit
+          tools: phpunit:11.5.15
 
       - name: Setup MariaDB
         if: ${{ matrix.db.ver == 'mariadb' }}
