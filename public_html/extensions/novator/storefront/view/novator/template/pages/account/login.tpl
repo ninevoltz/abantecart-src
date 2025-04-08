@@ -64,6 +64,7 @@
                 <h4 class="mb-3 text-nowrap w-100"><?php echo $text_returning_customer; ?></h4>
                 <h6 class="mb-3 w-100"><?php echo $text_i_am_returning_customer; ?></h6>
                 <?php
+                $formCss = "mt-auto mb-0 w-100";
                 $form2['form_open']->style .= $formCss;
                 echo str_replace('novalidate','',$form2['form_open']); ?>
                     <fieldset class="w-100">
