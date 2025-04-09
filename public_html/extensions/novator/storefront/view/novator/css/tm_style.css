@@ -3849,18 +3849,18 @@ input[type="number"] {
 
 @media (min-width: 768px) {
 
-    #MegaMenuCategoryCarousel .card{
+    .MegaMenuCategoryCarousel .card{
         margin: 0 auto;
         border: none;
     }
-    #MegaMenuCategoryCarousel .card>a{
+    .MegaMenuCategoryCarousel .card>a{
         min-width: 250px;
     }
 
-    #MegaMenuCategoryCarousel .card .img-wrapper {
+    .MegaMenuCategoryCarousel .card .img-wrapper {
         min-width: 173px;
         height: 240px;
-        display: flex;
+        display: inline-block;
         justify-content: center;
         align-items: center;
         border: 1px solid #e0e0e0;
@@ -3868,10 +3868,10 @@ input[type="number"] {
         width: 90%;
         margin: auto 5px;
     }
-    #MegaMenuCategoryCarousel .card .img-wrapper img{
+    .MegaMenuCategoryCarousel .card .img-wrapper img{
         max-height: 100%;
         width: auto;
-        max-width: 250px;
+        max-width: 220px;
         margin: auto;
         border-radius: 13px;
         min-width: 170px;
