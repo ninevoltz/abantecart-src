@@ -1,23 +1,22 @@
 <?php
-
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2021 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -34,11 +33,6 @@ class ControllerResponsesListingGridCustomer extends AController
         $this->loadLanguage('sale/customer');
         $this->loadModel('sale/customer');
         $this->load->library('json');
-
-        $approved = [
-            1 => $this->language->get('text_yes'),
-            0 => $this->language->get('text_no'),
-        ];
 
         $page = $this->request->post['page'];  // get the requested page
         $limit = $this->request->post['rows']; // get how many rows we want to have into the grid
@@ -61,7 +55,7 @@ class ControllerResponsesListingGridCustomer extends AController
             $data['filter']['approved'] = $this->request->get['approved'];
         }
 
-        $allowedFields = array_merge(['customer_id', 'name', 'email'], (array) $this->data['allowed_fields']);
+        $allowedFields = array_merge(['customer_id', 'name', 'email'], (array)$this->data['allowed_fields']);
 
         if (isset($this->request->post['_search']) && $this->request->post['_search'] == 'true') {
             $searchData = AJson::decode(htmlspecialchars_decode($this->request->post['filters']), true);
@@ -111,27 +105,27 @@ class ControllerResponsesListingGridCustomer extends AController
         $i = 0;
         foreach ($results as $result) {
             if ($mode) {
-                $order_cnt = (int) $orders_count[$result['customer_id']];
+                $order_cnt = (int)$orders_count[$result['customer_id']];
             } else {
-                $order_cnt = (int) $result['orders_count'];
+                $order_cnt = (int)$result['orders_count'];
             }
             $response->rows[$i]['id'] = $result['customer_id'];
             $response->rows[$i]['cell'] = [
                 $result['customer_id'],
                 $result['name'],
-                '<a href="'.$this->html->getSecureURL('sale/contact', '&email[]='.$result['email']).'">'
-                    .$result['email'].'</a>',
+                '<a href="' . $this->html->getSecureURL('sale/contact', '&email[]=' . $result['email']) . '">'
+                . $result['email'] . '</a>',
                 $result['customer_group'],
                 $this->html->buildCheckbox(
                     [
-                        'name'  => 'status['.$result['customer_id'].']',
+                        'name'  => 'status[' . $result['customer_id'] . ']',
                         'value' => $result['status'],
                         'style' => 'btn_switch',
                     ]
                 ),
                 $this->html->buildCheckbox(
                     [
-                        'name'  => 'approved['.$result['customer_id'].']',
+                        'name'  => 'approved[' . $result['customer_id'] . ']',
                         'value' => $result['approved'],
                         'style' => 'btn_switch',
                     ]
@@ -142,8 +136,8 @@ class ControllerResponsesListingGridCustomer extends AController
                             'name'   => 'view orders',
                             'text'   => $order_cnt,
                             'style'  => 'btn btn-default btn-xs',
-                            'href'   => $this->html->getSecureURL('sale/order', '&customer_id='.$result['customer_id']),
-                            'title'  => $this->language->get('text_view').' '.$this->language->get('tab_history'),
+                            'href'   => $this->html->getSecureURL('sale/order', '&customer_id=' . $result['customer_id']),
+                            'title'  => $this->language->get('text_view') . ' ' . $this->language->get('tab_history'),
                             'target' => '_blank',
                         ]
                     )
@@ -179,25 +173,23 @@ class ControllerResponsesListingGridCustomer extends AController
             );
             return;
         }
-
+        $ids = filterIntegerIdList(explode(',', $this->request->post['id']));
         switch ($this->request->post['oper']) {
             case 'del':
-                $ids = explode(',', $this->request->post['id']);
-                if (!empty($ids)) {
+                if ($ids) {
                     foreach ($ids as $id) {
                         $this->model_sale_customer->deleteCustomer($id);
                     }
                 }
                 break;
             case 'save':
-                $ids = explode(',', $this->request->post['id']);
-                if (!empty($ids)) {
+                if ($ids) {
                     foreach ($ids as $id) {
                         $err = $this->_validateForm('status', $this->request->post['status'][$id], $id);
                         if (!$err) {
                             $this->model_sale_customer->editCustomerField(
-                                $id, 
-                                'status', 
+                                $id,
+                                'status',
                                 $this->request->post['status'][$id]
                             );
                         } else {
@@ -332,7 +324,7 @@ class ControllerResponsesListingGridCustomer extends AController
             }
             //update controller data
             $this->extensions->hk_UpdateData($this, __FUNCTION__);
-            return ;
+            return;
         }
 
         //request sent from jGrid. ID is key of array
@@ -449,7 +441,7 @@ class ControllerResponsesListingGridCustomer extends AController
             foreach ($customers as $cdata) {
                 $customers_data[] = [
                     'id'   => $cdata['customer_id'],
-                    'name' => $cdata['firstname'].' '.$cdata['lastname'],
+                    'name' => $cdata['firstname'] . ' ' . $cdata['lastname'],
                 ];
             }
         }
@@ -462,5 +454,4 @@ class ControllerResponsesListingGridCustomer extends AController
         $this->response->addJSONHeader();
         $this->response->setOutput(AJson::encode($this->data['customers_data']));
     }
-
 }
