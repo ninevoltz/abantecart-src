@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -24,6 +24,7 @@ if (!defined('DIR_CORE')) {
 
 class ControllerPagesContentContact extends AController
 {
+    const formTxtId = 'ContactUsFrm';
     public $error = [];
     /**
      * @var AForm
@@ -33,10 +34,10 @@ class ControllerPagesContentContact extends AController
     public function main()
     {
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->form = new AForm('ContactUsFrm');
+        $this->form = new AForm(self::formTxtId);
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
-        $this->form->loadFromDb('ContactUsFrm');
+        $this->form->loadFromDb(self::formTxtId);
         $form = $this->form->getForm();
         $languageId = $this->language->getContentLanguageID() ?? $this->language->getLanguageID();
 
@@ -46,14 +47,14 @@ class ControllerPagesContentContact extends AController
             $file_paths = $this->form->processFileUploads($this->request->files);
             $subject = $this->config->get('store_name')
                 .' '
-                .sprintf(
-                    $this->language->get('email_subject'),
-                    strip_tags($post_data['first_name'])
+                .$this->language->getAndReplace(
+                    key: 'email_subject',
+                    replaces: strip_tags($post_data['first_name'])
                 );
+
             $this->data['mail_template_data']['subject'] = $subject;
 
-            $mailLogo = $this->config->get('config_mail_logo_'.$languageId)
-                        ?: $this->config->get('config_mail_logo');
+            $mailLogo = $this->config->get('config_mail_logo_'.$languageId) ?: $this->config->get('config_mail_logo');
             $mailLogo = $mailLogo ?: $this->config->get('config_logo_'.$languageId);
             $mailLogo = $mailLogo ?: $this->config->get('config_logo');
 
@@ -66,8 +67,8 @@ class ControllerPagesContentContact extends AController
             $this->data['mail_template_data']['store_name'] = $this->config->get('store_name');
             $this->data['mail_template_data']['store_url'] = $this->config->get('config_url').$this->config->get('seo_prefix');
             $this->data['mail_template_data']['text_project_label'] = htmlspecialchars_decode(project_base());
-            $this->data['mail_template_data']['entry_enquiry'] =
-            $this->data['mail_plain_text'] = $this->language->get('entry_enquiry');
+            $this->data['mail_template_data']['entry_enquiry'] = $this->data['mail_plain_text']
+                = $this->language->get('entry_enquiry');
             $this->data['mail_plain_text'] .= "\r\n".$post_data['enquiry']."\r\n";
             $this->data['mail_template_data']['enquiry'] = nl2br($post_data['enquiry']."\r\n");
 
@@ -98,15 +99,13 @@ class ControllerPagesContentContact extends AController
                 $this->data['mail_plain_text'] .= "\r\n".$this->language->get('entry_attached').": \r\n";
                 foreach ($file_paths as $file_info) {
                     $basename = pathinfo(str_replace(' ', '_', $file_info['path']), PATHINFO_BASENAME);
+                    $size = " (".round(filesize($file_info['path']) / 1024, 2)."Kb)";
                     $this->data['mail_plain_text'] .= "\t"
                         .$file_info['display_name']
                         .': '
-                        .$basename
-                        ." (".round(filesize($file_info['path']) / 1024, 2)
-                        ."Kb)\r\n";
+                        .$basename .$size."\r\n";
                     $mail->addAttachment($file_info['path'], $basename);
-                    $this->data['mail_template_data']['form_fields'][$file_info['display_name']] =
-                        $basename." (".round(filesize($file_info['path']) / 1024, 2)."Kb)";
+                    $this->data['mail_template_data']['form_fields'][$file_info['display_name']] = $basename.$size;
                 }
             }
 
@@ -118,9 +117,9 @@ class ControllerPagesContentContact extends AController
             $text_body = strip_tags(html_entity_decode($this->data['mail_plain_text'], ENT_QUOTES, 'UTF-8'));
             if ($this->config->get('config_duplicate_contact_us_to_message')) {
                 $this->messages->saveNotice(
-                    sprintf(
-                        $this->language->get('entry_duplicate_message_subject'), $post_data['first_name'],
-                        $post_data['email']
+                    $this->language->getAndReplace(
+                        key:'entry_duplicate_message_subject',
+                        replaces:[ $post_data['first_name'], $post_data['email'] ]
                     ),
                     $text_body,
                     false
@@ -129,14 +128,13 @@ class ControllerPagesContentContact extends AController
 
             $view = new AView($this->registry, 0);
             $view->batchAssign($this->data['mail_template_data']);
-
+            $attachment = [];
             if($post_data['first_name']) {
                 $mail->setTo($this->config->get('store_main_email'));
                 $mail->setFrom($this->config->get('store_main_email'));
                 $mail->setReplyTo($post_data['email']);
                 $mail->setSender($post_data['first_name']);
                 $mail->setTemplate('storefront_contact_us_mail', $this->data['mail_template_data']);
-                $attachment = [];
                 if (is_file(DIR_RESOURCE . $mailLogo)) {
                     $attachment = [
                         'file' => DIR_RESOURCE . $mailLogo,
@@ -184,8 +182,14 @@ class ControllerPagesContentContact extends AController
             }
         }else{
             if($this->customer->isLogged()){
-                $this->form->assign('first_name', $this->session->data['guest']['payment_firstname'] ?: $this->customer->getFirstName());
-                $this->form->assign('email', $this->session->data['guest']['email'] ?: $this->customer->getEmail());
+                $this->form->assign(
+                    'first_name',
+                    $this->session->data['guest']['payment_firstname'] ?: $this->customer->getFirstName()
+                );
+                $this->form->assign(
+                    'email',
+                    $this->session->data['guest']['email'] ?: $this->customer->getEmail()
+                );
             }
             if($this->request->get['product_name']) {
                 $this->form->assign(
@@ -317,9 +321,7 @@ class ControllerPagesContentContact extends AController
     protected function _validate()
     {
         $this->error = array_merge($this->form->validateFormData($this->request->post), $this->error);
-
         $this->extensions->hk_ValidateData($this);
-
         if (!$this->error) {
             return true;
         } else {
