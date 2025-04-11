@@ -321,6 +321,9 @@ class AForm
             $fields[$field['field_name']] = [
                 'value'    => $field['value'],
                 'required' => $field['required'] == 'Y',
+                'element_type' => $field['element_type'],
+                'title'      => $field['name'],
+                'id'      => $field['field_id'],
             ];
         }
 

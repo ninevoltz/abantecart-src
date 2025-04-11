@@ -42,14 +42,14 @@ class ControllerPagesContentContact extends AController
         $languageId = $this->language->getContentLanguageID() ?? $this->language->getLanguageID();
 
         if ($this->request->is_POST() && $this->_validate()) {
-            $post_data = $this->request->post;
+            $post = $this->request->post;
             // move all uploaded files to their directories
             $file_paths = $this->form->processFileUploads($this->request->files);
             $subject = $this->config->get('store_name')
                 .' '
                 .$this->language->getAndReplace(
                     key: 'email_subject',
-                    replaces: strip_tags($post_data['first_name'])
+                    replaces: strip_tags($post['first_name'])
                 );
 
             $this->data['mail_template_data']['subject'] = $subject;
@@ -69,30 +69,35 @@ class ControllerPagesContentContact extends AController
             $this->data['mail_template_data']['text_project_label'] = htmlspecialchars_decode(project_base());
             $this->data['mail_template_data']['entry_enquiry'] = $this->data['mail_plain_text']
                 = $this->language->get('entry_enquiry');
-            $this->data['mail_plain_text'] .= "\r\n".$post_data['enquiry']."\r\n";
-            $this->data['mail_template_data']['enquiry'] = nl2br($post_data['enquiry']."\r\n");
+            $this->data['mail_plain_text'] .= "\r\n".$post['enquiry']."\r\n";
+            $this->data['mail_template_data']['enquiry'] = nl2br($post['enquiry']."\r\n");
 
             $form_fields = $this->form->getFields();
             $this->data['mail_template_data']['form_fields'] = [];
-            foreach ($form_fields as $field_name => $field_info) {
-                if (has_value($post_data[$field_name]) && !in_array($field_name, ['enquiry', 'captcha'])) {
-                    $field_value = $post_data[$field_name];
-                    if (is_array($field_value)) {
-                        $field_value = implode("; ", $field_value);
-                    }
-                    $field_details = $this->form->getField($field_name);
-                    $this->data['mail_plain_text'] .= "\r\n"
-                        .rtrim($field_details['name'], ':')
-                        .":\t"
-                        .$field_value;
-                    $this->data['mail_template_data']['form_fields'][rtrim($field_details['name'], ':')] = $field_value;
-                    $this->data['mail_template_data']['tpl_form_fields'][] = [
-                        'name'  => rtrim($field_details['name'], ':'),
-                        'value' => $field_value,
-                    ];
+            foreach ($form_fields as $elmName => $fieldInfo) {
+                if(!$fieldInfo['status']
+                    //skip captcha
+                    || in_array($fieldInfo['element_type'], ['J', 'K'])
+                    || $elmName == 'enquiry'
+                    || !isset($post[$elmName])
+                ){
+                    continue;
                 }
+
+                $fieldValue = implode("; ",(array)$post[$elmName]);
+                $fieldTitle  = rtrim($fieldInfo['title'], ':');
+
+                $this->data['mail_plain_text'] .= "\r\n"
+                    .$fieldTitle
+                    .":\t"
+                    .$fieldValue;
+                $this->data['mail_template_data']['form_fields'][$fieldTitle] = $fieldValue;
+                $this->data['mail_template_data']['tpl_form_fields'][] = [
+                    'name'  => $fieldTitle,
+                    'value' => $fieldValue,
+                ];
             }
-            $this->data['mail_template_data']['first_name'] = strip_tags($post_data['first_name']);
+            $this->data['mail_template_data']['first_name'] = strip_tags($post['first_name']);
 
             $mail = new AMail($this->config);
             if ($file_paths) {
@@ -119,7 +124,7 @@ class ControllerPagesContentContact extends AController
                 $this->messages->saveNotice(
                     $this->language->getAndReplace(
                         key:'entry_duplicate_message_subject',
-                        replaces:[ $post_data['first_name'], $post_data['email'] ]
+                        replaces:[ $post['first_name'], $post['email'] ]
                     ),
                     $text_body,
                     false
@@ -129,11 +134,11 @@ class ControllerPagesContentContact extends AController
             $view = new AView($this->registry, 0);
             $view->batchAssign($this->data['mail_template_data']);
             $attachment = [];
-            if($post_data['first_name']) {
+            if($post['first_name']) {
                 $mail->setTo($this->config->get('store_main_email'));
                 $mail->setFrom($this->config->get('store_main_email'));
-                $mail->setReplyTo($post_data['email']);
-                $mail->setSender($post_data['first_name']);
+                $mail->setReplyTo($post['email']);
+                $mail->setSender($post['first_name']);
                 $mail->setTemplate('storefront_contact_us_mail', $this->data['mail_template_data']);
                 if (is_file(DIR_RESOURCE . $mailLogo)) {
                     $attachment = [
@@ -159,8 +164,8 @@ class ControllerPagesContentContact extends AController
                 1 => [
                     'message' => sprintf(
                         $this->language->get('im_customer_contact_admin_text'),
-                        $post_data['email'],
-                        $post_data['first_name']
+                        $post['email'],
+                        $post['first_name']
                     ),
                 ],
             ];
@@ -168,7 +173,7 @@ class ControllerPagesContentContact extends AController
                 'customer_contact',
                 $message_arr,
                 'storefront_contact_us_mail_admin_notify',
-                $post_data,
+                $post,
                 $attachment ? [$attachment] : []
             );
 
