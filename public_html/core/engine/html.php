@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -473,7 +473,7 @@ class AHtml extends AController
         );
         if (in_array($seo_key, $kList)) {
             $url = HTTP_CATALOG . $seo_key;
-            return $this->language->getAndReplace('error_seo_keyword','', [$url, $seo_key]);
+            return $this->language->getAndReplace('error_seo_keyword', '', [$url, $seo_key]);
         }
 
         return '';
@@ -917,6 +917,7 @@ class HtmlElementFactory
  * @property array $disabled_options
  * @property bool $required
  * @property string $template
+ * @property array $history
  */
 abstract class HtmlElement
 {
@@ -1016,9 +1017,11 @@ abstract class HtmlElement
 
     public function addHookVars(array $vars)
     {
-        if(!$vars){ return; }
+        if (!$vars) {
+            return;
+        }
         //add hook variables into tpl. can be used in *.post.tpl or *.pre.tpl
-        foreach($vars as $hkvName => $hkvValue){
+        foreach ($vars as $hkvName => $hkvValue) {
             $this->view->addHookVar($hkvName, $hkvValue);
         }
     }
@@ -1399,6 +1402,8 @@ class ColorHtmlElement extends HtmlElement
  */
 class PasswordHtmlElement extends HtmlElement
 {
+    static $starPassword = '**********';
+
     /**
      * @return string
      */
@@ -1411,7 +1416,7 @@ class PasswordHtmlElement extends HtmlElement
             $this->value = $this->default;
         }
         if (!$this->required && $this->value) {
-            $value = str_repeat('*', 10);
+            $value = self::$starPassword;
         } else {
             $value = '';
         }

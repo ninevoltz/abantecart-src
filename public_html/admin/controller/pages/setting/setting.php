@@ -18,6 +18,8 @@
  *    needs please refer to http://www.AbanteCart.com for more information.
  */
 
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
@@ -737,7 +739,7 @@ class ControllerPagesSettingSetting extends AController
      * @param int $store_id
      *
      * @return bool
-     * @throws AException
+     * @throws AException|TransportExceptionInterface
      */
     protected function _validate($group, $store_id = 0)
     {
@@ -751,6 +753,33 @@ class ControllerPagesSettingSetting extends AController
 
         $this->extensions->hk_ValidateData($this);
 
+        //check mailer. just send mail loop
+        if ($group == 'mail' && !$this->error && $this->config->get('config_store_id') == $store_id) {
+            try {
+                foreach ($this->request->post as $key => $value) {
+                    if ($key == 'smtp_password' && $value == PasswordHtmlElement::$starPassword) {
+                        continue;
+                    }
+                    $this->config->set($key, $value);
+                }
+                if ($this->config->get('store_main_email')) {
+                    $mail = new AMail($this->config);
+                    $mail->setTo($this->config->get('store_main_email'));
+                    $mail->setFrom($this->config->get('store_main_email'));
+                    $mail->setSender($this->config->get('config_owner'));
+                    $mail->setSubject('Your store mailer validation email');
+                    $mail->setText('Is you read this it\'s means all fine.');
+                    $result = $mail->send();
+                    if (!$result) {
+                        throw new Exception(implode(PHP_EOL, $mail->error));
+                    }
+                }
+            } catch (Exception $e) {
+                $this->error['warning'] = 'Mailer Validation Error: ' . $e->getMessage();
+            }
+        }
+
+
         if (!$this->error) {
             return true;
         } else {
@@ -761,6 +790,7 @@ class ControllerPagesSettingSetting extends AController
         }
     }
 
+    /** @noinspection PhpNoReturnAttributeCanBeAddedInspection */
     public function phpinfo()
     {
         if (defined('IS_DEMO') && IS_DEMO) {
