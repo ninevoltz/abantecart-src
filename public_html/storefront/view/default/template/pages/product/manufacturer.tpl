@@ -1,5 +1,4 @@
 <h1 class="ms-3 mt-2 heading-title ">
-  <?php echo $heading_title; ?>
     <?php echo $heading_title;
     if($manufacturer_icon){ ?>
         <span class="subtext ms-4">
