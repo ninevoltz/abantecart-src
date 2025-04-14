@@ -483,25 +483,25 @@ class ControllerPagesCatalogProduct extends AController
 
     private function _getForm($args = [])
     {
-        $product_id = null;
+        $productId = null;
         $product_info = [];
         $viewport_mode = $args[0]['viewport_mode'] ?? '';
         $content_language_id = $this->language->getContentLanguageID();
         $history = [];
         if (isset($this->request->get['product_id'])) {
-            $product_id = (int)$this->request->get['product_id'];
+            $productId = (int)$this->request->get['product_id'];
             $history = [
                 'table'     => 'product_descriptions',
-                'record_id' => $product_id,
+                'record_id' => $productId,
             ];
-            $product_info = $this->model_catalog_product->getProduct($product_id);
+            $product_info = $this->model_catalog_product->getProduct($productId);
             $product_info['featured'] = $product_info['featured'] ? 1 : 0;
-            $product_info['has_track_options'] = $this->model_catalog_product->hasTrackOptions($product_id);
-            $product_info['stock_locations'] = $this->model_catalog_product->getProductStockLocations($product_id);
+            $product_info['has_track_options'] = $this->model_catalog_product->hasTrackOptions($productId);
+            $product_info['stock_locations'] = $this->model_catalog_product->getProductStockLocations($productId);
             if ($product_info['has_track_options']) {
-                $product_info['quantity'] = $this->model_catalog_product->hasAnyStock($product_id);
+                $product_info['quantity'] = $this->model_catalog_product->hasAnyStock($productId);
             }
-            $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($product_id);
+            $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($productId);
             $title = $this->language->get('text_edit')
                 . '&nbsp;'
                 . $this->language->get('text_product')
@@ -622,7 +622,7 @@ class ControllerPagesCatalogProduct extends AController
         if (isset($this->request->post['product_category'])) {
             $this->data['product_category'] = $this->request->post['product_category'];
         } elseif (isset($product_info)) {
-            $this->data['product_category'] = $this->model_catalog_product->getProductCategories($product_id);
+            $this->data['product_category'] = $this->model_catalog_product->getProductCategories($productId);
         } else {
             $this->data['product_category'] = [];
         }
@@ -630,7 +630,7 @@ class ControllerPagesCatalogProduct extends AController
         if (isset($this->request->post['product_store'])) {
             $this->data['product_store'] = $this->request->post['product_store'];
         } elseif (isset($product_info)) {
-            $this->data['product_store'] = $this->model_catalog_product->getProductStores($product_id);
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
         } else {
             $this->data['product_store'] = [(int)$this->session->data['current_store_id']];
         }
@@ -639,7 +639,7 @@ class ControllerPagesCatalogProduct extends AController
             $this->data['product_description'] = $this->request->post['product_description'];
         } elseif (isset($product_info)) {
             $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
-                $product_id,
+                $productId,
                 $content_language_id
             );
         } else {
@@ -658,7 +658,7 @@ class ControllerPagesCatalogProduct extends AController
             $this->data['product_tags'] = $this->request->post['product_tags'];
         } elseif (isset($product_info)) {
             $this->data['product_tags'] = $this->model_catalog_product->getProductTags(
-                $product_id,
+                $productId,
                 $content_language_id
             );
         } else {
@@ -703,17 +703,17 @@ class ControllerPagesCatalogProduct extends AController
         }
 
         $this->data['active'] = 'details';
-        if (!isset($product_id)) {
+        if (!isset($productId)) {
             $this->data['action'] = $this->html->getSecureURL('catalog/product/insert');
             $this->data['form_title'] = $this->language->get('text_insert') . $this->language->get('text_product');
             $this->data['update'] = '';
             $form = new AForm('ST');
             $this->data['summary_form'] = '';
         } else {
-            $this->data['action'] = $this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id);
+            $this->data['action'] = $this->html->getSecureURL('catalog/product/update', '&product_id=' . $productId);
             $this->data['form_title'] = $this->language->get('text_edit')
                 . '&nbsp;' . $this->language->get('text_product');
-            $this->data['update'] = $this->html->getSecureURL('listing_grid/product/update_field', '&id=' . $product_id);
+            $this->data['update'] = $this->html->getSecureURL('listing_grid/product/update_field', '&id=' . $productId);
             $form = new AForm('HS');
 
             $this->data['active'] = 'general';
@@ -855,7 +855,7 @@ class ControllerPagesCatalogProduct extends AController
                 'name'        => 'product_store[]',
                 // if new product - take selected store from storeSwitcher
                 //otherwise - take product data
-                'value'       => $product_id
+                'value'       => $productId
                     ? $this->data['product_store']
                     : ($this->data['product_store'] ?: [$this->config->get('current_store_id')]),
                 'options'     => $this->data['stores'],
@@ -1057,7 +1057,7 @@ class ControllerPagesCatalogProduct extends AController
         );
         $this->data['generate_seo_url'] = $this->html->getSecureURL(
             'common/common/getseokeyword',
-            '&object_key_name=product_id&id=' . $product_id
+            '&object_key_name=product_id&id=' . $productId
         );
 
         $this->data['form']['fields']['data']['keyword'] = $form->getFieldHtml(
@@ -1155,7 +1155,7 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        if ($product_id && !$this->data['length_class_id']) {
+        if ($productId && !$this->data['length_class_id']) {
             $this->data['length_classes'][0] = $this->language->get('text_none');
         }
 
@@ -1169,7 +1169,7 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        if ( $product_id
+        if ( $productId
             && $this->data['shipping']
             && (!(float)$this->data['weight'] || !$this->data['weight_class_id'])
             && !(float)$this->data['shipping_price']
@@ -1182,7 +1182,7 @@ class ControllerPagesCatalogProduct extends AController
             }
         }
 
-        if ($product_id
+        if ($productId
             && (!$this->data['weight_class_id']
                 || !$this->data['weight_classes'][$this->data['weight_class_id']])
         ) {
@@ -1210,12 +1210,15 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        $this->data['product_id'] = $product_id;
-        if ($product_id && $this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+        $this->data['product_id'] = $productId;
+        if ($productId && $this->config->get('config_embed_status')) {
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $product_id
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->data['text_clone'] = $this->language->get('text_clone');

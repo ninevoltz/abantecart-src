@@ -192,10 +192,16 @@ class ControllerPagesCatalogManufacturerLayout extends AController
             ]
         );
         if ($this->config->get('config_embed_status')) {
-            $this->view->assign(
-                'embed_url',
-                $this->html->getSecureURL('common/do_embed/manufacturers', '&manufacturer_id=' . $manufacturer_id)
+            $this->data['manufacturer_store'] = $this->model_catalog_manufacturer->getManufacturerStores(
+                $manufacturer_id
             );
+            $btnData = getEmbedButtonsData(
+                'common/do_embed/manufacturers',
+                ['manufacturer_id' => $manufacturer_id],
+                $this->data['manufacturer_store']
+            );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->view->batchAssign($this->data);

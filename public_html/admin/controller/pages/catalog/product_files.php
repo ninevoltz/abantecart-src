@@ -215,10 +215,14 @@ class ControllerPagesCatalogProductFiles extends AController
             ]
         );
         if ($this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $productId
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->addChild('pages/catalog/product_summary', 'summary_form', 'pages/catalog/product_summary.tpl');

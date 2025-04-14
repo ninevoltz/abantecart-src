@@ -167,23 +167,25 @@ class ControllerPagesCatalogCollections extends AController
     {
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
+
+        $collectionId = (int)$this->request->get['id'];
         $this->buildHeader();
 
         $this->loadModel('catalog/collection');
         $this->loadModel('localisation/language');
 
         if ($this->request->is_POST()) {
-            $collection = $this->model_catalog_collection->getById((int)$this->request->get['id']);
+            $collection = $this->model_catalog_collection->getById($collectionId);
 
             if ($collection && $this->validate($this->request->post)) {
                 try {
-                    $this->model_catalog_collection->update((int)$this->request->get['id'], $this->request->post);
+                    $this->model_catalog_collection->update($collectionId, $this->request->post);
                     $this->session->data['success'] = $this->language->get('save_complete');
                     $this->extensions->hk_ProcessData($this, 'update');
                     redirect(
                         $this->html->getSecureURL(
                             'catalog/collections/update',
-                            '&id=' . (int)$this->request->get['id']
+                            '&id=' . $collectionId
                         )
                     );
                 } catch (Exception $e) {
@@ -197,7 +199,7 @@ class ControllerPagesCatalogCollections extends AController
             }
         }
 
-        if (!(int)$this->request->get['id']) {
+        if (!$collectionId) {
             redirect($this->html->getSecureURL('catalog/collections'));
         }
 
@@ -220,13 +222,12 @@ class ControllerPagesCatalogCollections extends AController
         $this->getForm();
 
         if ($this->config->get('config_embed_status')) {
-            $this->view->assign(
-                'embed_url',
-                $this->html->getSecureURL(
-                    'common/do_embed/collections',
-                    '&collection_id=' . (int)$this->request->get['id']
-                )
+            $btnData = getEmbedButtonsData(
+                'common/do_embed/collections',
+                ['collection_id' => $collectionId]
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->view->batchAssign($this->data);

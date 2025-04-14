@@ -189,3 +189,30 @@ function renderAdminMenu(array $menu, ?int $level = 0, ?string $currentRt = '')
     }
     return $result;
 }
+
+/**
+ * @param string $rt
+ * @param array $httpQuery
+ * @param array|null $storeList
+ * @return array
+ * @throws AException
+ */
+function getEmbedButtonsData(string $rt, array $httpQuery, ?array $storeList = [0])
+{
+    if(IS_ADMIN !== true){
+        return[];
+    }
+    $registry = Registry::getInstance();
+    $output['embed_url'] = $registry->get('html')->getSecureURL( $rt, '&'.http_build_query($httpQuery) );
+    if(count($storeList) > 1){
+        $mdl = $registry->get('load')->model('setting/store');
+        $output['embed_stores'] = array_column(
+            $mdl->getStores( ['filter' => ['include' => $storeList]] ),
+            'name',
+            'store_id'
+        );
+    }else{
+        $output['embed_stores'] = [];
+    }
+    return $output;
+}

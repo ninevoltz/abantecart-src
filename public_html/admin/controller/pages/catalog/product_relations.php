@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -29,14 +29,14 @@ class ControllerPagesCatalogProductRelations extends AController
     {
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
-        $product_id = (int)$this->request->get['product_id'];
-        $language_id = $this->language->getContentLanguageID();
+        $productId = (int)$this->request->get['product_id'];
+        $languageId = $this->language->getContentLanguageID();
 
         $this->loadLanguage('catalog/product');
         $this->loadModel('catalog/product');
 
-        if ($product_id && ($this->request->is_GET())) {
-            $product_info = $this->model_catalog_product->getProduct($product_id);
+        if ($productId && ($this->request->is_GET())) {
+            $product_info = $this->model_catalog_product->getProduct($productId);
             if (!$product_info) {
                 $this->session->data['warning'] = $this->language->get('error_product_not_found');
                 redirect($this->html->getSecureURL('catalog/product'));
@@ -45,16 +45,19 @@ class ControllerPagesCatalogProductRelations extends AController
 
         if ($this->request->is_POST()) {
             //cast for model
-            foreach( ['product_store', 'product_related', 'product_category'] as $n){
+            foreach (['product_store', 'product_related', 'product_category'] as $n) {
                 $this->request->post[$n] = (array)$this->request->post[$n];
             }
-            $this->model_catalog_product->updateProductLinks($product_id, $this->request->post);
+            $this->model_catalog_product->updateProductLinks($productId, $this->request->post);
             $this->extensions->hk_ProcessData($this, __FUNCTION__);
             $this->session->data['success'] = $this->language->get('text_success');
-            redirect($this->html->getSecureURL('catalog/product_relations', '&product_id=' . $product_id));
+            redirect($this->html->getSecureURL('catalog/product_relations', '&product_id=' . $productId));
         }
 
-        $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($product_id);
+        $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
+            $productId,
+            $languageId
+        );
 
         $this->view->assign('error_warning', $this->error['warning']);
         $this->view->assign('success', $this->session->data['success']);
@@ -78,10 +81,10 @@ class ControllerPagesCatalogProductRelations extends AController
         );
         $title = $this->language->get('text_edit') . '&nbsp;'
             . $this->language->get('text_product') . ' - '
-            . $this->data['product_description'][$language_id]['name'];
+            . $this->data['product_description']['name'];
         $this->document->addBreadcrumb(
             [
-                'href'      => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id),
+                'href'      => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $productId),
                 'text'      => $title,
                 'separator' => ' :: ',
             ]
@@ -89,7 +92,7 @@ class ControllerPagesCatalogProductRelations extends AController
         $this->document->setTitle($title);
         $this->document->addBreadcrumb(
             [
-                'href'      => $this->html->getSecureURL('catalog/product_relations', '&product_id=' . $product_id),
+                'href'      => $this->html->getSecureURL('catalog/product_relations', '&product_id=' . $productId),
                 'text'      => $this->language->get('tab_relations'),
                 'separator' => ' :: ',
                 'current'   => true,
@@ -116,9 +119,9 @@ class ControllerPagesCatalogProductRelations extends AController
             $this->data['stores'][$r['store_id']] = $r['name'];
         }
 
-        $this->data['product_category'] = $this->model_catalog_product->getProductCategories($product_id);
-        $this->data['product_store'] = $this->model_catalog_product->getProductStores($product_id);
-        $this->data['product_related'] = $this->model_catalog_product->getProductRelated($product_id);
+        $this->data['product_category'] = $this->model_catalog_product->getProductCategories($productId);
+        $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
+        $this->data['product_related'] = $this->model_catalog_product->getProductRelated($productId);
 
         $this->data['active'] = 'relations';
         //load tabs controller
@@ -128,11 +131,11 @@ class ControllerPagesCatalogProductRelations extends AController
 
         $this->data['category_products'] = $this->html->getSecureURL('product/product/category');
         $this->data['related_products'] = $this->html->getSecureURL('product/product/related');
-        $this->data['action'] = $this->html->getSecureURL('catalog/product_relations', '&product_id=' . $product_id);
+        $this->data['action'] = $this->html->getSecureURL('catalog/product_relations', '&product_id=' . $productId);
         $this->data['form_title'] = $this->language->get('text_edit') . '&nbsp;' . $this->language->get('text_product');
         $this->data['update'] = $this->html->getSecureURL(
             'listing_grid/product/update_relations_field',
-            '&id=' . $product_id
+            '&id=' . $productId
         );
         $form = new AForm('HS');
 
@@ -163,7 +166,7 @@ class ControllerPagesCatalogProductRelations extends AController
         $this->data['form']['cancel'] = $form->getFieldHtml(
             [
                 'type'  => 'button',
-                'href'  => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id),
+                'href'  => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $productId),
                 'name'  => 'cancel',
                 'text'  => $this->language->get('button_cancel'),
                 'style' => 'button2',
@@ -209,11 +212,11 @@ class ControllerPagesCatalogProductRelations extends AController
 
             foreach ($results as $r) {
                 $this->data['products'][$r['product_id']] =
-                [
-                    'name' => $r['name'] . " (" . $r['model'] . ")",
-                    'image' => $thumbnails[$r['product_id']]['thumb_html'],
-                    'url' => $this->html->getSecureURL('catalog/product/update', '&product_id='. $r['product_id'])
-                ];
+                    [
+                        'name'  => $r['name'] . " (" . $r['model'] . ")",
+                        'image' => $thumbnails[$r['product_id']]['thumb_html'],
+                        'url'   => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $r['product_id'])
+                    ];
             }
         }
 
@@ -224,7 +227,7 @@ class ControllerPagesCatalogProductRelations extends AController
                 'value'       => $this->data['product_related'],
                 'options'     => $this->data['products'],
                 'style'       => 'chosen',
-                'ajax_url'    => $this->html->getSecureURL('r/product/product/products', '&exclude[]=' . $product_id),
+                'ajax_url'    => $this->html->getSecureURL('r/product/product/products', '&exclude[]=' . $productId),
                 'placeholder' => $this->language->get('text_select_from_lookup'),
             ]
         );
@@ -239,10 +242,13 @@ class ControllerPagesCatalogProductRelations extends AController
             ]
         );
         if ($this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $product_id
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
         $this->addChild(
             'pages/catalog/product_summary',

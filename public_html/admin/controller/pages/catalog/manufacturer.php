@@ -217,12 +217,16 @@ class ControllerPagesCatalogManufacturer extends AController
             redirect($this->html->getSecureURL('catalog/manufacturer/update', '&manufacturer_id='.$manufacturer_id));
         }
 
+        $this->_getForm($args);
+
         if ($this->config->get('config_embed_status')) {
-            $this->view->assign(
-                'embed_url', $this->html->getSecureURL(
-                'common/do_embed/manufacturers', '&manufacturer_id='.$manufacturer_id
-            )
+            $btnData = getEmbedButtonsData(
+                'common/do_embed/manufacturers',
+                ['manufacturer_id' => $manufacturer_id],
+                $this->data['manufacturer_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->_getForm($args);
