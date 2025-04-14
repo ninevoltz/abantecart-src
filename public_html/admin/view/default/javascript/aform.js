@@ -647,14 +647,14 @@
 			var $data = $wrapper.find('input, select, textarea').serialize();
 
 			//if empty and we have select, need to pass blank value
-			if (!$data) {
-				$wrapper.find('select').each(function () {
-					$data += $(this).attr('name')+'=\'\'&';
+			if ($data.length < 1) {
+				$wrapper.find('select[name]').each(function () {
+					$data += '&' + $(this).attr('name') + '=';
 				});
 			}
 
-			$wrapper.find('input.aswitcher').each(function () {
-				$data += '&' + $(this).attr('name')+'='+$(this).val();
+			$wrapper.find('input.aswitcher[name]').each(function () {
+				$data += '&' + $(this).attr('name') + '=' + $(this).val();
 				if (!need_reload) {
 					if ($(this).attr("reload_on_save")) {
 						need_reload = true;
@@ -663,7 +663,9 @@
 			});
 
 			$wrapper.find('input:checkbox').each(function () {
-				if (!$(this).prop("checked")) $data += '&' + $(this).attr('name') + '=0';
+				if (!$(this).prop("checked")){
+					$data += '&' + $(this).attr('name') + '=0';
+				}
 				if (!need_reload) {
 					if ($(this).attr("reload_on_save")) {
 						need_reload = true;
