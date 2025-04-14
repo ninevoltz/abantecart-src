@@ -591,25 +591,22 @@ class ModelToolImportProcess extends Model
             $option_vals = $data[$i]['product_option_values'];
 
             //find largest key by count
-            $cc = function ($value) {
-                return is_array($value) ? count($value) : 1;
-            };
-            $counts = array_map(
-                $cc,
-                (array)$option_vals
-            );
+            $cc = function ($value) { return is_array($value) ? count($value) : 1; };
+            $counts = array_map( $cc, (array)$option_vals );
 
-            if (max($counts) == 1) {
-                //single option value case
-                $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $option_vals);
-            } else {
-                for ($j = 0; $j < max($counts); $j++) {
-                    //build flat associative array options value
-                    $opt_val_data = [];
-                    foreach (array_keys($option_vals) as $key) {
-                        $opt_val_data[$key] = $option_vals[$key][$j];
+            if($counts) {
+                if (max($counts) == 1) {
+                    //single option value case
+                    $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $option_vals);
+                } else {
+                    for ($j = 0; $j < max($counts); $j++) {
+                        //build flat associative array options value
+                        $opt_val_data = [];
+                        foreach (array_keys($option_vals) as $key) {
+                            $opt_val_data[$key] = $option_vals[$key][$j];
+                        }
+                        $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $opt_val_data);
                     }
-                    $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $opt_val_data);
                 }
             }
         }
