@@ -591,10 +591,12 @@ class ModelToolImportProcess extends Model
             $option_vals = $data[$i]['product_option_values'];
 
             //find largest key by count
-            $cc = function ($value) { return is_array($value) ? count($value) : 1; };
-            $counts = array_map( $cc, (array)$option_vals );
+            $cc = function ($value) {
+                return is_array($value) ? count($value) : 1;
+            };
+            $counts = array_map($cc, (array)$option_vals);
 
-            if($counts) {
+            if ($counts) {
                 if (max($counts) == 1) {
                     //single option value case
                     $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $option_vals);
@@ -722,7 +724,7 @@ class ModelToolImportProcess extends Model
             }
             //check if image is absolute path or remote URL
             $host = parse_url($srcUrl, PHP_URL_HOST);
-            $imageBasename = basename(parse_url($srcUrl, PHP_URL_PATH));;
+            $imageBasename = basename(parse_url($srcUrl, PHP_URL_PATH));
             $dstFileName = DIR_RESOURCE . $rm->getTypeDir() . $imageBasename;
             if (!is_dir(DIR_RESOURCE . $rm->getTypeDir())) {
                 @mkdir(DIR_RESOURCE . $rm->getTypeDir(), 0777);
@@ -741,6 +743,13 @@ class ModelToolImportProcess extends Model
                     $this->toLog("Error: Unable to download file from " . $srcUrl);
                     continue;
                 }
+                //check if destination filename does not have an extension
+                if (!pathinfo($dstFileName, PATHINFO_EXTENSION)) {
+                    $fExt = getFileExtensionByMimeType($file->content_type);
+                    $dstFileName .= '.' . $fExt;
+                    $imageBasename .= '.' . $fExt;
+                }
+
                 if (!$fl->writeDownloadToFile($file, $dstFileName)) {
                     $this->toLog("Error: Unable to save downloaded file to " . $dstFileName);
                     continue;

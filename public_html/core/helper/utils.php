@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -146,10 +146,10 @@ function is_multi($array)
 }
 
 /**
- * Function convert input text to alpha numeric string for SEO URL use
+ * Function convert input text to alpha-numeric string for SEO URL use
  * if optional parameter object_key_name (product, category, content etc) given function will return unique SEO keyword
  *
- * @param        $string_value
+ * @param string $string_value
  * @param string $object_key_name
  * @param int $object_id
  *
@@ -171,7 +171,7 @@ function SEOEncode($string_value, $object_key_name = '', $object_id = 0)
 }
 
 /**
- * @param        $seo_key
+ * @param string $seo_key
  * @param string $object_key_name
  * @param int $object_id
  *
@@ -207,7 +207,7 @@ function getUniqueSeoKeyword($seo_key, $object_key_name = '', $object_id = 0)
 }
 
 /*
-* Echo array with readable formal. Useful in debugging of array data.
+* Echo array with readable format. Useful in debugging of array data.
 */
 function echo_array($array_data)
 {
@@ -221,10 +221,12 @@ function echo_array($array_data)
     echo '</div>';
 }
 
-/*
+/**
  * returns list of files from directory with subdirectories
+ * @param string $dir
+ * @param string $file_ext
+ * @return array
  */
-
 function getFilesInDir($dir, $file_ext = '')
 {
     if (!is_dir($dir)) {
@@ -246,8 +248,14 @@ function getFilesInDir($dir, $file_ext = '')
     return $result;
 }
 
-//Custom function for version compare between store version and extensions
-//NOTE: Function will return false if major versions do not match.
+/**
+ * Custom function for version compare between store version and extensions
+ * NOTE: Function will return false if major versions do not match.
+ * @param string $version1
+ * @param string $version2
+ * @param string $operator
+ * @return bool|int
+ */
 function versionCompare($version1, $version2, $operator)
 {
     $version1 = explode('.', preg_replace('/[^0-9.]/', '', $version1));
@@ -870,70 +878,17 @@ function compressZIP($zip_filename, $zip_dir)
 {
 }
 
-function getMimeType($filename)
+/**
+ * @param string|null $filename
+ * @return string
+ */
+function getMimeType(?string $filename = '')
 {
-    $filename = (string)$filename;
-    $mime_types = [
-        'txt'  => 'text/plain',
-        'htm'  => 'text/html',
-        'html' => 'text/html',
-        'php'  => 'text/html',
-        'css'  => 'text/css',
-        'js'   => 'application/javascript',
-        'json' => 'application/json',
-        'xml'  => 'application/xml',
-        'swf'  => 'application/x-shockwave-flash',
-        'flv'  => 'video/x-flv',
-
-        // images
-        'png'  => 'image/png',
-        'jpe'  => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'jpg'  => 'image/jpeg',
-        'gif'  => 'image/gif',
-        'bmp'  => 'image/bmp',
-        'ico'  => 'image/vnd.microsoft.icon',
-        'tiff' => 'image/tiff',
-        'tif'  => 'image/tiff',
-        'svg'  => 'image/svg+xml',
-        'svgz' => 'image/svg+xml',
-
-        // archives
-        'zip'  => 'application/zip',
-        'gz'   => 'application/gzip',
-        'rar'  => 'application/x-rar-compressed',
-        'exe'  => 'application/x-msdownload',
-        'msi'  => 'application/x-msdownload',
-        'cab'  => 'application/vnd.ms-cab-compressed',
-
-        // audio/video
-        'mp3'  => 'audio/mpeg',
-        'qt'   => 'video/quicktime',
-        'mov'  => 'video/quicktime',
-
-        // adobe
-        'pdf'  => 'application/pdf',
-        'psd'  => 'image/vnd.adobe.photoshop',
-        'ai'   => 'application/postscript',
-        'eps'  => 'application/postscript',
-        'ps'   => 'application/postscript',
-
-        // ms office
-        'doc'  => 'application/msword',
-        'rtf'  => 'application/rtf',
-        'xls'  => 'application/vnd.ms-excel',
-        'ppt'  => 'application/vnd.ms-powerpoint',
-
-        // open office
-        'odt'  => 'application/vnd.oasis.opendocument.text',
-        'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
-    ];
-
     $pieces = explode('.', $filename);
     $ext = strtolower(array_pop($pieces));
 
-    if (has_value($mime_types[$ext])) {
-        return $mime_types[$ext];
+    if (has_value(AC_MIME_TYPES[$ext])) {
+        return AC_MIME_TYPES[$ext];
     } elseif (function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME);
         $mimetype = finfo_file($finfo, $filename);
@@ -942,6 +897,15 @@ function getMimeType($filename)
     } else {
         return 'application/octet-stream';
     }
+}
+
+/**
+ * @param string $mimeType
+ * @return false|int|string
+ */
+function getFileExtensionByMimeType(string $mimeType)
+{
+    return array_search($mimeType, AC_MIME_TYPES);
 }
 
 // function detect is maximum execution time can be changed
@@ -1600,7 +1564,7 @@ function generateOrderToken($orderId, $email, $secToken = '')
     $registry = Registry::getInstance();
     $enc = new AEncryption($registry->get('config')->get('encryption_key'));
     /** @var ModelCheckoutFastCheckout $mdl */
-    $mdl = $registry->get('load')->model('checkout/fast_checkout','storefront');
+    $mdl = $registry->get('load')->model('checkout/fast_checkout', 'storefront');
     $secToken = $secToken ?: genToken(32);
     $mdl->saveGuestToken($orderId, $secToken);
     return $enc->encrypt($orderId . '::' . $email . '::' . $secToken);
@@ -1636,15 +1600,15 @@ function getUniqueTags($string)
 function getBSCssClass(?string $styleAttribute)
 {
     $styleAttribute = (string)$styleAttribute;
-    if( str_contains($styleAttribute, 'large-field') ) {
+    if (str_contains($styleAttribute, 'large-field')) {
         $output = "col-sm-7";
-    }elseif( str_contains($styleAttribute, 'medium-field') || str_contains($styleAttribute, 'date') ) {
+    } elseif (str_contains($styleAttribute, 'medium-field') || str_contains($styleAttribute, 'date')) {
         $output = "col-sm-6";
-    }elseif( str_contains($styleAttribute, 'small-field') || str_contains($styleAttribute, 'btn_switch') ) {
+    } elseif (str_contains($styleAttribute, 'small-field') || str_contains($styleAttribute, 'btn_switch')) {
         $output = "col-sm-3";
-    }elseif( str_contains($styleAttribute, 'tiny-field') ) {
+    } elseif (str_contains($styleAttribute, 'tiny-field')) {
         $output = "col-sm-2";
-    }else{
+    } else {
         $output = "col-sm-7";
     }
     $output .= " col-xs-12";

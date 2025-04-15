@@ -276,6 +276,8 @@ try {
     require_once(DIR_CORE.'engine'.DS.'promotion.php');
     require_once(DIR_CORE.'engine'.DS.'language.php');
 
+    require_once(DIR_CORE.'helper'.DS.'constants.php');
+
     require_once(DIR_CORE.'helper'.DS.'html.php');
     require_once(DIR_CORE.'helper'.DS.'utils.php');
     require_once(DIR_CORE.'helper'.DS.'system_check.php');
