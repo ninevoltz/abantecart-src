@@ -203,7 +203,6 @@ function getEmbedButtonsData(string $rt, array $httpQuery, ?array $storeList = [
         return[];
     }
     $registry = Registry::getInstance();
-    $output['embed_url'] = $registry->get('html')->getSecureURL( $rt, '&'.http_build_query($httpQuery) );
     if(count($storeList) > 1){
         $mdl = $registry->get('load')->model('setting/store');
         $output['embed_stores'] = array_column(
@@ -212,7 +211,11 @@ function getEmbedButtonsData(string $rt, array $httpQuery, ?array $storeList = [
             'store_id'
         );
     }else{
+        if($storeList){
+            $httpQuery['store_id'] = (int)current($storeList);
+        }
         $output['embed_stores'] = [];
     }
+    $output['embed_url'] = $registry->get('html')->getSecureURL( $rt, '&'.http_build_query($httpQuery) );
     return $output;
 }
