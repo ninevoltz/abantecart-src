@@ -21,9 +21,53 @@
             }?>
         </datalist>
         <?php }
+    if($type=='password'){ ?>
+        <div class="input-group-text">
+            <a href="Javascript:void(0);"><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+        </div>
+        <script type="application/javascript">
+            $(document).ready(function() {
+                const pwdwrp = $("#<?php echo $id ?>").parent();
+                const pwd = $('#<?php echo $id ?>');
+                pwdwrp.find("a").on('click', function(event) {
+                    event.preventDefault();
+                    if(pwd.attr("type") === "text"){
+                        pwd.attr('type', 'password');
+                        pwdwrp.find('i')
+                            .addClass( "fa-eye-slash" )
+                            .removeClass( "fa-eye" );
+                    }else if($('#<?php echo $id ?>').attr("type") === "password"){
+                        pwd.attr('type', 'text');
+                        pwdwrp.find('i')
+                            .removeClass( "fa-eye-slash" )
+                            .addClass( "fa-eye" );
+                    }
+                });
+                $(document).on('keypress', function ( e ) {
+                    if(e.target.getAttribute('id') !== '<?php echo $id ?>'){
+                        console.log(e.target.getAttribute('id'))
+                        console.log('<?php echo $id ?>')
+                        return;
+                    }
+                    e = e || window.event;
+                    var s = String.fromCharCode( e.keyCode || e.which );
+                    if ( (s.toUpperCase() === s) !== e.shiftKey ) {
+                        pwdwrp.find('.pwdhelp').removeClass('d-none').addClass('d-block');
+                    }else{
+                        pwdwrp.find('.pwdhelp').removeClass('d-block').addClass('d-none');
+                    }
+                });
+            });</script>
+    <?php }
+
     if ( $required ) { ?>
         <span class="input-group-text text-danger">*</span>
-    <?php } ?>
-<?php if(!$no_wrapper){?>
+    <?php }
+    if($type == 'password'){ ?>
+        <div class="pwdhelp text-dark fw-bold form-text d-none w-100">
+            <?php echo $this->language->get('warning_capslock')?>
+        </div>
+    <?php }
+    if(!$no_wrapper){?>
     </div>
 <?php } ?>

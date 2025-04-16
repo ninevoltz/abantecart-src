@@ -4017,3 +4017,9 @@ a.share{
 .content-footer .nav-link{
     margin-right: 15px;
 }
+
+#loginFrm input[type=password]::placeholder {
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
+    color: var(--bs-body-color);
+}

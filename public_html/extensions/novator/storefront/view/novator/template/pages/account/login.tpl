@@ -74,18 +74,18 @@
                             $form2['loginname']->attr .= ' autocomplete="username email" required  aria-required="true"';
                             echo $form2['loginname'];
                             ?>
-                            <label for="<?php echo $form2['loginname']->element_id; ?>">
+                            <label class="h-6" for="<?php echo $form2['loginname']->element_id; ?>">
                             <?php
                                 echo $noemaillogin ? $entry_loginname : $entry_email_address;
                             ?>
                             </label>
                         </div>
-                        <div class="form-floating mb-3">
+                        <div class="mb-3">
                             <?php
                             $form2['password']->no_wrapper = true;
                             $form2['password']->attr .= ' autocomplete="current-password" aria-required="true" required';
+                            $form2['password']->placeholder = $entry_password;
                             echo $form2['password']?>
-                            <label for="<?php echo $form2['password']->element_id; ?>"><?php echo $entry_password; ?></label>
                         </div>
                     </fieldset>
                     <div class="d-flex w-100 align-items-center">
