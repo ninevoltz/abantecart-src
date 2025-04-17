@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 /*
  *   $Id$
  *
@@ -127,15 +127,14 @@ class AHtml extends AController
         }
 
         //if in embed mode add response prefix
-        if ($this->registry->get('config')->get('embed_mode') == true) {
+        if ($this->registry->get('config')->get('embed_mode')) {
             $subUrl .= '&embed_mode=1';
             if (substr($rt, 0, 2) != 'r/') {
                 $rt = 'r/' . $rt;
             }
         }
 
-        $subUrl = '?' . ($rt ? 'rt=' . $rt : '') . $params . $subUrl;
-        return $subUrl;
+        return '?' . ($rt ? 'rt=' . $rt : '') . $params . $subUrl;
     }
 
     /**
@@ -487,7 +486,7 @@ class AHtml extends AController
      *               $data = array(
      *               'type' => 'input' //(hidden, textarea, selectbox, file...)
      *               'name' => 'input name'
-     *               'value' => 'input value' // could be array for select
+     *               'value' => 'input value' // can be an array for select
      *               'style' => 'my-form'
      *               'form' => 'form id' // needed for unique element ID     *
      *               );
@@ -627,7 +626,7 @@ class AHtml extends AController
      * @param string $html - text that might contain internal links #admin# or #storefront#
      *                          $mode  - 'href' create complete a tag or default just replace URL
      * @param string $type - can be 'message' to convert url into <a> tag or empty
-     * @param bool $for_admin - force mode for converting links to admin side from storefront scope (see AIM-class etc)
+     * @param bool $for_admin - force mode for converting links to admin side from storefront scope (see AIM-class etc.)
      *
      * @return string - html code with parsed internal URLs
      * @throws AException
@@ -916,31 +915,28 @@ class HtmlElementFactory
  * @property array $options
  * @property array $disabled_options
  * @property bool $required
+ * @property bool $multilingual
  * @property string $template
  * @property array $history
+ * @property AMessage $messages
+ *
+ * @property ARequest $request
+ * @property AConfig $config
+ * @property ALoader $load
+ * @property ALanguageManager|ALanguage $language
+ * @property AHtml $html
+ * @property ADocument $document
+ * @property CSRFToken $csrftoken
  */
 abstract class HtmlElement
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $data = [];
-    /**
-     * @var AView
-     */
-    protected $view;
-    /**
-     * @var string
-     */
+    /** @var string */
     public $element_id;
-    /**
-     * @var Registry
-     */
-    protected $registry;
-    /**
-     * @var ALanguageManager
-     */
-    protected $language;
+
+    /** @var AView */
+    protected $view;
 
     /**
      * @param array $data
@@ -956,9 +952,6 @@ abstract class HtmlElement
             $data['required'] = 'Y';
         }
 
-        $this->registry = Registry::getInstance();
-        $this->language = $this->registry->get('language');
-        $this->view = new AView($this->registry, 0);
         $this->data = $data;
         $this->element_id = ($data['id'] ?? '')
             ? preformatTextID($data['id'])
@@ -966,6 +959,7 @@ abstract class HtmlElement
         if ($data['form'] ?? '') {
             $this->element_id = $data['form'] . '_' . $this->element_id;
         }
+        $this->view = new AView(Registry::getInstance(), 0);
     }
 
     /**
@@ -978,7 +972,7 @@ abstract class HtmlElement
         if (array_key_exists($name, $this->data)) {
             return $this->data[$name];
         }
-        return null;
+        return Registry::getInstance()->get($name);
     }
 
     /**
@@ -1013,6 +1007,26 @@ abstract class HtmlElement
             $javascript = $this->data['javascript'];
         }
         return $javascript . $this->getHtml();
+    }
+
+    public function __serialize(): array
+    {
+        $viewData = $this->view->getData();
+        $this->data['view_data'] = $viewData;
+        $this->view = null;
+        return (array)$this;
+    }
+
+    public function __unserialize($data)
+    {
+        $this->view = new AView(Registry::getInstance(), 0);
+        $this->view->batchAssign((array)$this->data['view_data']);
+        unset($this->data['view_data']);
+        if ($data) {
+            foreach ($data as $key => $val) {
+                $this->{$key} = $val;
+            }
+        }
     }
 
     public function addHookVars(array $vars)
@@ -1069,16 +1083,16 @@ abstract class HtmlElement
             }
             $this->value = [0];
             if ($this->required) {
-                $seo_prefix = $this->registry->get('config')->get('seo_prefix');
+                $seo_prefix = $this->config->get('seo_prefix');
                 $url = HTTPS_SERVER . $seo_prefix;
-                $query_string = $this->registry->get('request')->server['QUERY_STRING'];
+                $query_string = $this->request->server['QUERY_STRING'];
                 if (!str_contains($query_string, '_route_=')) {
                     $url .= '?';
                 } else {
                     $query_string = str_replace('_route_=', '', $query_string);
                 }
                 $url .= $query_string;
-                $this->registry->get('messages')->saveWarning(
+                $this->messages->saveWarning(
                     'Form Field #' . $this->element_id . ' Issue',
                     'Abnormal situation. All options of required field "' . $this->data['name']
                     . '" are disabled. URL: <a href="' . $url . '">' . $url . "</a>"
@@ -1101,6 +1115,7 @@ class HiddenHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1185,6 +1200,7 @@ class MultiValueHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1198,7 +1214,7 @@ class MultiValueHtmlElement extends HtmlElement
             'postvars'      => ($this->postvars ? json_encode($this->postvars) : ''),
             'form_name'     => $this->form,
             'return_to'     => ($this->return_to ?: $this->element_id . '_item_count'),
-            'no_save'       => (isset($this->no_save) && (bool)$this->no_save),
+            'no_save'       => (isset($this->no_save) && $this->no_save),
             'popup_height'  => ((int)$this->popup_height ?: 620),
             'popup_width'   => ((int)$this->popup_width ?: 800),
             // custom triggers for dialog events (custom functions calls)
@@ -1233,6 +1249,7 @@ class SubmitHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1272,6 +1289,7 @@ class InputHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1293,7 +1311,7 @@ class InputHtmlElement extends HtmlElement
                 $fieldName = $this->name;
             }
 
-            $history_url = $this->registry->get('html')->getSecureURL(
+            $history_url = $this->html->getSecureURL(
                 'r/common/common/getDescriptionHistory',
                 '&' . http_build_query(
                     [
@@ -1355,6 +1373,7 @@ class ColorHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1406,6 +1425,7 @@ class PasswordHtmlElement extends HtmlElement
 
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1459,6 +1479,7 @@ class TextareaHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -1472,7 +1493,7 @@ class TextareaHtmlElement extends HtmlElement
             } else {
                 $fieldName = $this->name;
             }
-            $history_url = $this->registry->get('html')->getSecureURL(
+            $history_url = $this->html->getSecureURL(
                 'r/common/common/getDescriptionHistory',
                 '&' . http_build_query(
                     [
@@ -1562,7 +1583,7 @@ class TextEditorHtmlElement extends HtmlElement
             } else {
                 $fieldName = $this->name;
             }
-            $data['history_url'] = $this->registry->get('html')->getSecureURL(
+            $data['history_url'] = $this->html->getSecureURL(
                 'r/common/common/getDescriptionHistory',
                 '&' . http_build_query(
                     [
@@ -1760,10 +1781,11 @@ class CheckboxHtmlElement extends HtmlElement
      */
     public function getHtml()
     {
+        $checked = false;
         if ($this->template) {
             $tpl = $this->template;
         } elseif (str_contains($this->style, 'btn_switch')) { //for switch button NOTE: value is binary (1 or 0)!!!
-            $checked = is_null($this->checked) && $this->value ? true : (bool)$this->checked;
+            $checked = is_null($this->checked) && $this->value || (bool)$this->checked;
             if ($checked) {
                 $this->value = 1;
             } else {
@@ -2008,7 +2030,7 @@ class FormHtmlElement extends HtmlElement
         ];
         //add CSRF token
         if ($this->csrf === true) {
-            $csrftoken = $this->registry->get('csrftoken');
+            $csrftoken = $this->csrftoken;
             $data['csrfinstance'] = $csrftoken->setInstance();
             $data['csrftoken'] = $csrftoken->setToken();
         }
@@ -2097,7 +2119,7 @@ class ReCaptchaHtmlElement extends HtmlElement
                 'attr'               => $this->attr . ' data-aform-field-type="captcha"',
                 'language_code'      => $this->language_code,
                 'recaptcha_site_key' => trim($this->recaptcha_site_key),
-                'recaptcha_v3'       => $this->registry->get('config')->get('account_recaptcha_v3') ?: 0,
+                'recaptcha_v3'       => $this->config->get('account_recaptcha_v3') ?: 0,
             ]
         );
         return $this->view->fetch($this->template ?: 'form/recaptcha.tpl');
@@ -2311,6 +2333,7 @@ class EmailHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -2363,6 +2386,7 @@ class NumberHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -2416,6 +2440,7 @@ class PhoneHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -2426,17 +2451,16 @@ class PhoneHtmlElement extends HtmlElement
             $this->value = $this->default;
         }
 
-        /**
-         * @var $doc ADocument
-         */
-        $doc = $this->registry->get('document');
-        $doc->addScript($this->view->templateResource('/javascript/intl-tel-input/js/intlTelInput.min.js'));
-        $doc->addStyle(
-            [
-                'href' => $this->view->templateResource('/javascript/intl-tel-input/css/intlTelInput.css'),
-                'rel'  => 'stylesheet',
-            ]
-        );
+        $telJs = '/javascript/intl-tel-input/js/intlTelInput.min.js';
+        if (is_file($this->view->templateResource($telJs, 'file'))) {
+            $this->document->addScript($this->view->templateResource($telJs));
+            $this->document->addStyle(
+                [
+                    'href' => $this->view->templateResource('/javascript/intl-tel-input/css/intlTelInput.css'),
+                    'rel'  => 'stylesheet',
+                ]
+            );
+        }
 
         $this->extendAndBatchAssign(
             [
@@ -2475,7 +2499,7 @@ class IPAddressHtmlElement extends HtmlElement
             [
                 'id'    => $this->element_id,
                 'name'  => $this->name,
-                'value' => $this->registry->get('request')->getRemoteIP(),
+                'value' => $this->request->getRemoteIP(),
                 //TODO: remove deprecated attribute aform_field_type
                 'attr'  => 'aform_field_type="ipaddress" ' . $this->attr . ' data-aform-field-type="captcha"',
             ]
@@ -2504,13 +2528,10 @@ class CountriesHtmlElement extends HtmlElement
     public function __construct($data)
     {
         parent::__construct($data);
-        $this->registry->get('load')->model('localisation/country');
-        $results = $this->registry->get('model_localisation_country')->getCountries();
-        $options = [];
-        foreach ($results as $c) {
-            $options[$c['name']] = $c['name'];
-        }
-        $this->options = $options;
+        /** @var ModelLocalisationCountry $mdl */
+        $mdl = $this->load->model('localisation/country');
+        $results = $mdl->getCountries();
+        $this->options = array_column($results, 'name', 'name');
     }
 
     public function getHtml()
@@ -2563,16 +2584,18 @@ class ZonesHtmlElement extends HtmlElement
     public function __construct($data)
     {
         parent::__construct($data);
-        $this->registry->get('load')->model('localisation/country');
-        $results = $this->registry->get('model_localisation_country')->getCountries();
+        /** @var ModelLocalisationCountry $mdl */
+        $mdl = $this->load?->model('localisation/country');
+        $results = $mdl->getCountries();
         $this->zone_options = [];
         $this->default_zone_field_name = 'zone_id';
-        $config_country_id = $this->registry->get('config')->get('config_country_id');
+        $config_country_id = $this->config->get('config_country_id');
         $options = [];
         foreach ($results as $c) {
             if ($c['country_id'] == $config_country_id) {
-                $this->default_value =
-                    $this->submit_mode == 'id' ? [$config_country_id] : [$c['name'] => $c['name']];
+                $this->default_value = $this->submit_mode == 'id'
+                    ? [$config_country_id]
+                    : [$c['name'] => $c['name']];
             }
             if ($this->submit_mode == 'id') {
                 $options[$c['country_id']] = $c['name'];
@@ -2598,7 +2621,7 @@ class ZonesHtmlElement extends HtmlElement
         $this->options = !$this->options ? [] : $this->options;
         $this->element_id = preg_replace('/[\[+\]+]/', '_', $this->element_id);
 
-        $html = new AHtml($this->registry);
+        $html = new AHtml(Registry::getInstance());
 
         if ($this->submit_mode == 'id') {
             $url = $html->getSecureURL('common/zone');
@@ -2606,10 +2629,9 @@ class ZonesHtmlElement extends HtmlElement
             $url = $html->getSecureURL('common/zone/names');
         }
 
-        $this->registry->get('load')->model('localisation/zone');
         /** @var ModelLocalisationZone $model_zone */
-        $model_zone = $this->registry->get('model_localisation_zone');
-        $config_country_id = $this->registry->get('config')->get('config_country_id');
+        $model_zone = $this->load->model('localisation/zone');
+        $config_country_id = $this->config->get('config_country_id');
         if ($this->submit_mode == 'id') {
             $id = $this->value ? key($this->value) : $config_country_id;
             $results = $model_zone->getZonesByCountryId($id);
@@ -2617,8 +2639,9 @@ class ZonesHtmlElement extends HtmlElement
             if ($this->value) {
                 $name = current($this->value);
             } else {
-                $this->registry->get('load')->model('localisation/country');
-                $temp = $this->registry->get('model_localisation_country')->getCountry($config_country_id);
+                /** @var ModelLocalisationCountry $mdl */
+                $mdl = $this->load->model('localisation/country');
+                $temp = $mdl->getCountry($config_country_id);
                 $name = $temp['name'];
             }
             $results = $model_zone->getZonesByCountryName($name);
@@ -2628,7 +2651,7 @@ class ZonesHtmlElement extends HtmlElement
             $this->zone_value =
                 $this->zone_value ? [(string)$this->zone_value => (string)$this->zone_value] : [];
         }
-        $config_zone_id = $this->registry->get('config')->get('config_zone_id');
+        $config_zone_id = $this->config->get('config_zone_id');
         $zone_options = [];
         foreach ($results as $result) {
             // default zone_id is zone of shop
@@ -2691,7 +2714,7 @@ class PaginationHtmlElement extends HtmlElement
         //default settings
         $this->sts['total'] = 0;
         $this->sts['page'] = 1;
-        $this->sts['limit'] = (int)$this->registry?->get('config')->get('config_catalog_limit') ?: 20;
+        $this->sts['limit'] = (int)$this->config?->get('config_catalog_limit') ?: 20;
         $this->sts['split'] = $data['split'] ?: 10;
         $this->sts['limits'] = [];
         //max pages to show in pagination
@@ -2735,10 +2758,7 @@ class PaginationHtmlElement extends HtmlElement
     public function getHtml()
     {
         //Build pagination data and display
-        /**
-         * @var $registry Registry
-         */
-        $registry = $this->registry;
+        $registry = Registry::getInstance();
         $html = new AHtml($registry);
         $s = $this->sts;
         $s['no_perpage'] = $s['no_perpage'] ?? 0;
@@ -2872,6 +2892,7 @@ class ModalHtmlElement extends HtmlElement
 
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {
@@ -2914,6 +2935,7 @@ class LabelHtmlElement extends HtmlElement
 {
     /**
      * @return string
+     * @throws AException
      */
     public function getHtml()
     {

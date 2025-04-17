@@ -26,6 +26,8 @@
     },
     "suggest": {
         "mysql": ">=8.0",
-        "mariadb": ">=10.5"
+        "mariadb": ">=10.5",
+        "ext-pdo": "*",
+        "ext-mysql": "*"
     }
 }
