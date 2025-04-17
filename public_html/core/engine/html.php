@@ -2091,7 +2091,7 @@ class CaptchaHtmlElement extends HtmlElement
                 'attr'        => 'aform_field_type="captcha" ' . $this->attr . ' data-aform-field-type="captcha"',
                 'style'       => $this->style,
                 'required'    => $this->required,
-                'captcha_url' => $this->registry->get('html')->getURL('common/captcha'),
+                'captcha_url' => $this->html->getURL('common/captcha'),
                 'placeholder' => $this->placeholder,
             ]
         );
