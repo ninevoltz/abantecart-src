@@ -254,10 +254,7 @@ class ControllerPagesAccountCreate extends AController
         if (count($countries) > 1) {
             $options = ["FALSE" => $this->language->get('text_select')];
         }
-        $options = array_merge(
-            $options,
-            array_column($countries, 'name','country_id')
-        );
+        $options = $options + array_column($countries, 'name','country_id');
 
         $this->data['form']['fields']['address']['country'] = $form->getFieldHtml(
             [
