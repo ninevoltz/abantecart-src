@@ -331,8 +331,10 @@ class AMail
             $this->email->ensureValidity();
             $this->mailer->send($this->email);
         }catch(Exception|Error $e){
-            $this->log->write(__CLASS__.'. transport: '.Registry::getInstance()->get('current_mail_transport').': '.$e->getMessage());
-            $this->error[] = $e->getMessage();
+            $this->log->write(
+                __CLASS__.': '.$e->getMessage()."\n".$e->getTraceAsString()
+            );
+            $this->error[] = $e->getMessage()."\n".$e->getTraceAsString();
         }
 
         if ($this->error) {
