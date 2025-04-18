@@ -291,8 +291,7 @@
 			$field.bind({
 				"change.aform":function () {
 					$field.removeClass(o.activeClass);
-					var optionSelected = $("option:selected", this);
-					onChangedAction($field, $(optionSelected).val(), $field.attr('data-orgvalue'));
+					onChangedAction($field, $field.val(), $field.attr('data-orgvalue'));
 				},
 				"focus.aform":function () {
 					$field.addClass(o.focusClass);
@@ -415,21 +414,20 @@
 					}
 				});
 
-				//check if select box and value is returned. 
-				if ( $field.is("select") ) {
-					//for select data-orgvalue is present in each option regardless of multiselect or single
+				//check if select box and value is returned.
+				if ( typeof value === 'object' && $field.is("select") ) {
 					$changed = 0;
 					const selectOption = $field.find('option');
 					if(value !== undefined) {
+						let priorVals = [];
 						selectOption.each(function () {
-							if ($(this).attr('data-orgvalue') === "true" && $(this).attr('selected') !== 'selected') {
-								$changed++;
-							} else if ($(this).attr('data-orgvalue') === "false" && $(this).attr('selected')) {
-								$changed++;
-							} else if (!$(this).attr('data-orgvalue')) {
-								$changed++;
+							if ($(this).attr('data-orgvalue') === "true") {
+								priorVals.push($(this).attr('value'));
 							}
 						});
+						if(!arrEvery(value,priorVals)){
+							$changed++;
+						}
 					}else if(orgvalue.length > 0) {
 						$changed++;
 					}
@@ -922,4 +920,13 @@ var resetAForm = function (selector) {
 		$field.removeClass('changed');
 		$field.parent().find('.quicksave').remove();
 	});
+}
+
+// is two arrays have equal values
+function arrEvery(a1,a2)
+{
+	if((a1.length===0 && a2.length!==0) || (a1.length!==0 && a2.length===0) ){
+		return false;
+	}
+	return a1.every((v,i)=> v === a2[i]);
 }
