@@ -288,6 +288,45 @@ $(document).ready(function(){
         $('#'+$(this).attr('id').replace('child-','card-') + '-pane').addClass('show').css('display','block');
     });
 
+    //capslock check for password fields
+    function enableCapsLockWarnings(container = document) {
+        const passwordFields = container.querySelectorAll('input[type="password"]');
+        passwordFields.forEach(field => {
+
+            const checkCapsLock = (e) => {
+                const warning = $(field).parent().find('.pwdhelp');
+                if (!warning) return;
+                const capsOn = e.getModifierState && e.getModifierState('CapsLock');
+                if(capsOn){
+                    warning.removeClass('d-none');
+                }else{
+                    warning.addClass('d-none');
+                }
+            };
+
+            const attach = () => {
+                window.addEventListener('keydown', checkCapsLock);
+                window.addEventListener('keyup', checkCapsLock);
+            };
+
+            const detach = (e) => {
+                window.removeEventListener('keydown', checkCapsLock);
+                window.removeEventListener('keyup', checkCapsLock);
+                $(field).parent().find('.pwdhelp').addClass('d-none');
+            };
+
+            field.addEventListener('keydown', checkCapsLock);
+            field.addEventListener('keyup', checkCapsLock);
+            field.addEventListener('focus', function(e){
+                attach(e);
+                checkCapsLock(e);
+            });
+            field.addEventListener('blur', detach);
+        });
+    }
+    // Call this once on page load or after dynamic content is added
+    enableCapsLockWarnings();
+
 });
 
 //put submitted or clicked button to loading state

@@ -68,17 +68,13 @@
                 $form2['form_open']->style .= $formCss;
                 echo str_replace('novalidate','',$form2['form_open']); ?>
                     <fieldset class="w-100">
-                        <div class="form-floating mb-3">
+                        <div class="mb-3">
                             <?php
                             $form2['loginname']->no_wrapper = true;
+                            $form2['loginname']->placeholder = $noemaillogin ? $entry_loginname : $entry_email_address;
                             $form2['loginname']->attr .= ' autocomplete="username email" required  aria-required="true"';
                             echo $form2['loginname'];
                             ?>
-                            <label class="h-6" for="<?php echo $form2['loginname']->element_id; ?>">
-                            <?php
-                                echo $noemaillogin ? $entry_loginname : $entry_email_address;
-                            ?>
-                            </label>
                         </div>
                         <div class="mb-3">
                             <?php

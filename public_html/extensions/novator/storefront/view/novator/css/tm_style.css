@@ -4018,7 +4018,7 @@ a.share{
     margin-right: 15px;
 }
 
-#loginFrm input[type=password]::placeholder {
+#loginFrm input::placeholder {
     font-size: var(--bs-body-font-size);
     font-weight: var(--bs-body-font-weight);
     color: var(--bs-body-color);
