@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -28,7 +28,7 @@ class ControllerPagesLicense extends AController
         $this->session->clear();
 
         if ($this->request->is_POST() && ($this->validate())) {
-            redirect(HTTP_SERVER.'index.php?rt=settings');
+            redirect(HTTP_SERVER . 'index.php?rt=settings');
         }
 
         if (isset($this->error['warning'])) {
@@ -37,24 +37,24 @@ class ControllerPagesLicense extends AController
             $template_data['error_warning'] = '';
         }
         $this->view->assign('error_warning', $template_data['error_warning']);
-        $this->view->assign('action', HTTP_SERVER.'index.php?rt=license');
+        $this->view->assign('action', HTTP_SERVER . 'index.php?rt=license');
         $text = nl2br(file_get_contents('../license.txt'));
         $this->view->assign('text', $text);
 
         $this->view->assign('checkbox_agree', $this->html->buildCheckbox(
             [
-            'name'     => 'agree',
-            'value'    => '',
-            'attr'     => '',
-            'required' => '',
-            'form'     => 'form',
+                'name'     => 'agree',
+                'value'    => '',
+                'attr'     => '',
+                'required' => '',
+                'form'     => 'form',
             ]
         )
         );
 
         $this->addChild('common/header', 'header', 'common/header.tpl');
         $this->addChild('common/footer', 'footer', 'common/footer.tpl');
-
+        $this->response->addHeader('Clear-Site-Data: "cache", "storage"');
         $this->processTemplate('pages/license.tpl');
     }
 
