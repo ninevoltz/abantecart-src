@@ -925,7 +925,10 @@ var resetAForm = function (selector) {
 // is two arrays have equal values
 function arrEvery(a1,a2)
 {
-	if((a1.length===0 && a2.length!==0) || (a1.length!==0 && a2.length===0) ){
+	if((a1.length===0 && a2.length!==0)
+		|| (a1.length!==0 && a2.length===0)
+		|| (a1.length !== a2.length)
+	){
 		return false;
 	}
 	return a1.every((v,i)=> v === a2[i]);
