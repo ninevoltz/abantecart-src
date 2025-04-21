@@ -768,7 +768,7 @@ class ControllerPagesSettingSetting extends AController
                     $mail->setFrom($this->config->get('store_main_email'));
                     $mail->setSender($this->config->get('config_owner'));
                     $mail->setSubject('Your store mailer validation email');
-                    $mail->setText('Is you read this it\'s means all fine.');
+                    $mail->setText("If you're reading this, it means the mail-sending feature in your store is working.");
                     $result = $mail->send();
                     if (!$result) {
                         throw new Exception(implode(PHP_EOL, $mail->error));
