@@ -3758,7 +3758,7 @@ blockquote p::after {
 .primary_content_actions .btn-group{
 	margin-right: 5px;
 }
-.primary_content_actions a.btn i.fa::before{
+.primary_content_actions a.btn-primary i.fa{
 	vertical-align: middle;
 }
 
