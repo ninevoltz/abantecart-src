@@ -34,7 +34,7 @@ if (!defined('DIR_CORE')) {
 class AConfigManager
 {
     /** comma-separated alert emails regex pattern  */
-    const ALERT_EMAILS_REGEX = '/^([A-Z0-9._%-]+@[A-Z0-9.-]{0,61}[A-Z0-9]\.[A-Z]{2,16}(,\s)*)*$/i';
+    const ALERT_EMAILS_REGEX = '/^([A-Z0-9._%-]+@[A-Z0-9.-]{0,61}[A-Z0-9]\.[A-Z]{2,16}(,)*(\s)*)*$/i';
     protected $registry;
     protected $groups = [];
     protected $templates = [];
