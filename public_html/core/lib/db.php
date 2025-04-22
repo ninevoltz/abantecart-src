@@ -214,7 +214,7 @@ final class ADB
 
     public function stringOrNull($value)
     {
-        return $value ? "'" . $this->escape($value) . "'" : "NULL";
+        return (string)$value !== '' ? "'" . $this->escape($value) . "'" : "NULL";
     }
 
     public function intOrNull($value)

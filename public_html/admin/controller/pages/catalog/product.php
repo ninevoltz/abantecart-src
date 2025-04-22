@@ -1004,11 +1004,15 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
+        $this->data['stock_checkout'] = (string)$this->data['stock_checkout'];
+        $this->data['stock_checkout'] = $this->data['stock_checkout'] !== ''
+            ? (int)$this->data['stock_checkout']
+            : $this->data['stock_checkout'];
         $this->data['form']['fields']['data']['stock_checkout'] = $form->getFieldHtml(
             [
                 'type'    => 'selectbox',
                 'name'    => 'stock_checkout',
-                'value'   => $this->data['stock_checkout'] ?: '',
+                'value'   => $this->data['stock_checkout'],
                 'options' => [
                     '' => $this->language->get('text_default'),
                     0  => $this->language->get('text_no'),
