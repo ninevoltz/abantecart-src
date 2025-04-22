@@ -26,7 +26,7 @@ class ModelTotalShipping extends Model
     public function getTotal(&$totalList, &$cost, &$taxes, &$customerData)
     {
         $shippingData = $customerData['shipping_method'];
-        if (!isset($shippingData['value'])) {
+        if (!isset($shippingData['cost'])) {
             return;
         }
         if ($this->cart->hasShipping() && isset($shippingData) && $this->config->get('shipping_status')) {
