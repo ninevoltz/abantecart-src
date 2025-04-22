@@ -82,7 +82,16 @@ class ExtensionDefaultStorePickup extends Extension
             && $that->session->data['fc']['guest']['prior_shipping_address']
         ){
             $that->session->data['fc']['guest']['shipping'] = $that->session->data['fc']['guest']['prior_shipping_address'];
-            unset($that->session->data['fc']['guest']['prior_shipping_address']);
+            unset(
+                $that->session->data['fc']['guest']['shipping']['zone_id'],
+                $that->session->data['fc']['guest']['shipping']['zone'],
+                $that->session->data['fc']['guest']['shipping']['zone_code'],
+                $that->session->data['fc']['guest']['shipping']['country_id'],
+                $that->session->data['fc']['guest']['shipping']['country'],
+                $that->session->data['fc']['guest']['shipping']['iso_code_2'],
+                $that->session->data['fc']['guest']['shipping']['iso_code_3'],
+                $that->session->data['fc']['guest']['prior_shipping_address']
+            );
             return;
         }
 
