@@ -1,23 +1,4 @@
 <?php
-/*
- *   $Id$
- *
- *   AbanteCart, Ideal OpenSource Ecommerce Solution
- *   http://www.AbanteCart.com
- *
- *   Copyright © 2011-2024 Belavier Commerce LLC
- *
- *   This source file is subject to Open Software License (OSL 3.0)
- *   License details is bundled with this package in the file LICENSE.txt.
- *   It is also available at this URL:
- *   <http://www.opensource.org/licenses/OSL-3.0>
- *
- *  UPGRADE NOTE:
- *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
- *    versions in the future. If you wish to customize AbanteCart for your
- *    needs please refer to http://www.AbanteCart.com for more information.
- */
-
 $readonly = count($all_addresses) == 1 ? ' readonly ' : '';
 if ($this->cart->hasShipping()) {  ?>
         <div class="flex-item flex-fill pe-sm-0 pe-md-1 pb-1">
@@ -26,9 +7,7 @@ if ($this->cart->hasShipping()) {  ?>
                 <div class="input-group-text">
                     <i class="fa fa-home" id="delivery_icon"></i>
                 </div>
-                <select id="shipping_address_id"
-                        aria-label="shipping_address_id"
-                        class="form-select form-select-lg"
+                <select id="shipping_address_id" aria-label="shipping_address_id" class="form-select form-select-lg"
                         name="shipping_address_id" <?php echo $readonly; ?>>
                     <option disabled><?php echo $fast_checkout_text_shipping_address; ?>:</option>
                     <option disabled></option>
@@ -48,22 +27,20 @@ if ($this->cart->hasShipping()) {  ?>
                 </select>
             </div>
             <?php // see JS?>
-            <div class="d-flex justify-content-between col-12 bg-light border shipping_address_details"></div>
+            <div class="d-flex justify-content-between col-12 bg-light-primary border rounded shipping_address_details"></div>
         </div>
 <?php } //eof if product has shipping
 
-if ($show_payment == true) {
+if ($show_payment) {
     $readonly = count((array)$csession['shipping_methods']) == 1 ? ' readonly ' : '' ;
 ?>
-    <div class="flex-item flex-fill ps-md-1 ps-0 pt-0 pb-1">
+    <div class="flex-item flex-fill ps-0 pt-0 pb-1">
         <h4 class="shipping_address_label"><?php echo $fast_checkout_text_payment_address; ?></h4>
         <div class="input-group">
             <div class="input-group-text">
                 <i class="fa fa-bank" id="delivery_icon"></i>
             </div>
-            <select aria-label="payment_address_id"
-                    class="form-select form-select-lg"
-                    id="payment_address_id"
+            <select id="payment_address_id" aria-label="payment_address_id" class="form-select form-select-lg"
                     name="payment_address_id" <?php echo $readonly .' '.($payment_equal_shipping_address ? 'disabled' : ''); ?>>
                 <option disabled><?php echo $fast_checkout_text_payment_address; ?>:</option>
                 <option disabled></option>
@@ -84,12 +61,12 @@ if ($show_payment == true) {
         </div>
 
         <?php // see JS?>
-        <div class="d-flex justify-content-between px-2 col-12 bg-light border payment_address_details"></div>
+        <div class="d-flex justify-content-between px-2 col-12 bg-light-primary border rounded payment_address_details"></div>
     </div>
 <?php } ?>
 <script type="application/javascript">
     var getAddressHtml = function (address) {
-        let html = '<div class="card border-0 bg-light ms-3">'
+        let html = '<div class="card border-0 bg-light-primary ms-3">'
                     + '<div class="card-body">';
 
         if (typeof address != "undefined") {
