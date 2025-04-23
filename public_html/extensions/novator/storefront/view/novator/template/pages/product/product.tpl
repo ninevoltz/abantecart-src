@@ -106,6 +106,7 @@ if ($error){ ?>
                            data-title="<?php echo_html2view($heading_title);?>"
                            data-url="<?php echo_html2view( $product_url);?>">
                         <i class="bi bi-share"></i></a>
+                        <?php echo $this->getHookVar('small_buttons');?>
                     </div>
                 </div>
             </div>
@@ -255,19 +256,18 @@ if ($error){ ?>
                                         <?php echo $form['product_id'] . $form['redirect']; ?>
                                     </div>
 
-                                    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-lg-between">
+                                    <div class="d-flex flex-column flex-lg-row align-items-center justify-content-lg-between">
                                         <?php
                                         if(!$product_info['call_to_order']){
                                             if (!$can_buy) { ?>
                                                 <div class="alert alert-warning my-2 no-stock-alert">
                                                     <label class="control-label"><?php echo $stock; ?></label>
                                                 </div>
-                                                <div class="col-9 "><?php echo $this->getHookVar('buttons'); ?></div>
                                         <?php
                                             } else { ?>
                                                 <div class="product-page-add2cart">
                                                     <?php if(!$this->getHookVar('product_add_to_cart_html')) { ?>
-                                                        <a id="product_add_to_cart" class="btn btn-outline-primary cart"
+                                                        <a id="product_add_to_cart" class="btn btn-outline-primary cart mb-2"
                                                         href="Javascript:void(0);">
                                                             <i class="bi bi-handbag"></i>
                                                             <?php echo $button_add_to_cart; ?>
@@ -282,7 +282,7 @@ if ($error){ ?>
                                             if($this->getHookVar('product_call_to_order_html')) {
                                                 echo $this->getHookVar('product_call_to_order_html');
                                             } else { ?>
-                                            <div class="product-page-call_to_order mt-3">
+                                            <div class="product-page-call_to_order mt-3 mb-sm-2">
                                                 <a href="<?php echo $this->html->getSeoUrl('content/contact');?>" class="cart btn btn-success">
                                                     <i class="bi bi-telephone"></i>&nbsp;&nbsp;
                                                     <?php echo $text_call_to_order; ?>
@@ -290,6 +290,7 @@ if ($error){ ?>
                                             </div>
                                             <?php }
                                         } ?>
+                                        <div><?php echo $this->getHookVar('buttons'); ?></div>
                                     </div>
                                     <?php
                                      if($product_info['free_shipping'] && $product_info['shipping_price'] <= 0) { ?>
