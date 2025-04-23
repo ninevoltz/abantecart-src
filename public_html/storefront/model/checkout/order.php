@@ -812,7 +812,7 @@ class ModelCheckoutOrder extends Model
             $this->data['mail_template'] = 'mail/order_confirm_text.tpl';
             $this->extensions->hk_ProcessData($this, 'sf_order_confirm_alert_mail_text');
 
-            $this->sendEmail($this->config->get('store_main_email'));
+            $this->sendEmail($this->config->get('store_main_email'), true);
 
             // Send to additional alert emails
             $emails = array_unique(
@@ -825,7 +825,7 @@ class ModelCheckoutOrder extends Model
                 return preg_match(EMAIL_REGEX_PATTERN, $email);
             });
             foreach ($emails as $email) {
-                $this->sendEmail($email);
+                $this->sendEmail($email, true);
             }
         }
 
@@ -859,19 +859,21 @@ class ModelCheckoutOrder extends Model
 
     /**
      * @param string $to
+     * @param bool|null $alertEmail
      * @return void
      * @throws AException
      * @throws TransportExceptionInterface
      */
-    protected function sendEmail(string $to)
+    protected function sendEmail(string $to, ?bool $alertEmail = false)
     {
         $mail = new AMail($this->config);
         $mail->setTo($to);
         $mail->setFrom($this->config->get('store_main_email'));
         $mail->setReplyTo($this->config->get('store_main_email'));
         $mail->setSender($this->data['sender']);
+        $defaultTpl = $alertEmail ? 'storefront_order_confirm_admin_notify' : 'storefront_order_confirm';
         $mail->setTemplate(
-            $this->data['email_template_text_id'] ?: 'storefront_order_confirm',
+            $this->data['email_template_text_id'] ?: $defaultTpl,
             $this->data['mail_template_data']
         );
         foreach ($this->data['attachments'] as $attachment) {
