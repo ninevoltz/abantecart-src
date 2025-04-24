@@ -1105,7 +1105,7 @@ function echo_html2view($html)
 
 function html2view($html)
 {
-    return htmlspecialchars($html, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)$html, ENT_QUOTES, 'UTF-8');
 }
 
 /**

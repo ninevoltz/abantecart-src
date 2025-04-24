@@ -477,7 +477,7 @@ class ControllerResponsesProductProduct extends AController
                 ]
             );
             //for file-option
-            $option_settings = unserialize($this->data['option_data']['settings']);
+            $option_settings = unserialize((string)$this->data['option_data']['settings']);
             if ($optionElmType == 'U') {
                 $this->data['fields']['advanced']['allowed_extensions'] = $this->html->buildElement(
                     [
@@ -1396,7 +1396,7 @@ class ControllerResponsesProductProduct extends AController
             $resourceInfo = $rl->getResource($resource_id);
             $file_data['filename'] = $resourceInfo['type_dir'] . $resourceInfo['resource_path'];
         } else {
-            $resource_id = $rl->getIdFromHexPath(str_replace($rl_dir, '', $file_data['filename']));
+            $resource_id = $rl->getIdFromHexPath(str_replace($rl_dir, '', (string)$file_data['filename']));
         }
 
         $this->data['form']['fields']['general']['resource'] = $form->getFieldHtml(
@@ -1520,7 +1520,7 @@ class ControllerResponsesProductProduct extends AController
             [
                 'type'     => 'checkboxgroup',
                 'name'     => 'activate_order_status_id[]',
-                'value'    => unserialize($file_data['activate_order_status_id']),
+                'value'    => unserialize((string)$file_data['activate_order_status_id']),
                 'options'  => $options,
                 'required' => true,
                 'style'    => ' no-save chosen ',

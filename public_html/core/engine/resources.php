@@ -283,7 +283,7 @@ class AResource
     /**
      * function returns URL to resource if image it will resize.
      *
-     * @param array $rsrc_info - resource details
+     * @param array $resourceInfo - resource details
      * @param int $width - if 0 - original size
      * @param int $height - if 0 - original size
      *
@@ -292,17 +292,17 @@ class AResource
      * @since 1.2.7
      *
      */
-    public function getResizedImageURL(array $rsrc_info, $width = 0, $height = 0)
+    public function getResizedImageURL(array $resourceInfo, $width = 0, $height = 0)
     {
-        $resource_id = (int)$rsrc_info['resource_id'];
-        $rsrc_info['default_icon'] = $rsrc_info['default_icon'] ?? '';
+        $resource_id = (int)$resourceInfo['resource_id'];
+        $resourceInfo['default_icon'] = $resourceInfo['default_icon'] ?? '';
         //get original file path & details
-        $origin_path = DIR_RESOURCE . $this->type_dir . $rsrc_info['resource_path'];
+        $origin_path = DIR_RESOURCE . $this->type_dir . $resourceInfo['resource_path'];
         $info = pathinfo($origin_path);
         $extension = $info['extension'] ?? '';
         if (in_array($extension, ['ico', 'svg', 'svgz'])) {
             // returns ico-file as original
-            return $this->buildResourceURL($rsrc_info['resource_path'], 'full');
+            return $this->buildResourceURL($resourceInfo['resource_path'], 'full');
         }
 
         $type_image = is_file(DIR_IMAGE . 'icon_resource_' . $this->type . '.png')
@@ -310,30 +310,30 @@ class AResource
             : '';
 
         //is this a resource with code ?
-        if (!empty($rsrc_info['resource_code'])) {
+        if (!empty($resourceInfo['resource_code'])) {
             //we have resource code, nothing to do
-            return $rsrc_info['resource_code'];
+            return $resourceInfo['resource_code'];
         }
         //is this image resource
         switch ($this->type) {
             case 'image' :
-                if (!$rsrc_info['default_icon']) {
-                    $rsrc_info['default_icon'] = 'no_image.jpg';
+                if (!$resourceInfo['default_icon']) {
+                    $resourceInfo['default_icon'] = 'no_image.jpg';
                 }
-                if (!$rsrc_info['resource_path']) {
+                if (!$resourceInfo['resource_path']) {
                     $origin_path = '';
                 }
                 break;
             default :
                 //this is non image type return original
-                if (!$rsrc_info['default_icon'] && !$type_image) {
-                    $rsrc_info['default_icon'] = 'no_image.jpg';
+                if (!$resourceInfo['default_icon'] && !$type_image) {
+                    $resourceInfo['default_icon'] = 'no_image.jpg';
                     $origin_path = '';
                 } elseif ($type_image) {
-                    $rsrc_info['default_icon'] = $type_image;
+                    $resourceInfo['default_icon'] = $type_image;
                     $origin_path = '';
                 } else {
-                    return $this->buildResourceURL($rsrc_info['resource_path'], 'full');
+                    return $this->buildResourceURL($resourceInfo['resource_path'], 'full');
                 }
         }
 
@@ -341,23 +341,23 @@ class AResource
         $height = (int)$height;
         if (!$width || !$height) {
             //if no size, return original
-            return $this->buildResourceURL($rsrc_info['resource_path'], 'full');
+            return $this->buildResourceURL($resourceInfo['resource_path'], 'full');
         }
 
         //resource name MUST be provided here, if missing use resource ID.
-        if (!$rsrc_info['name'] && $resource_id) {
-            $rsrc_info['name'] = $resource_id;
+        if (!$resourceInfo['name']) {
+            $resourceInfo['name'] = $resource_id ?: '';
         }
-        $name = preg_replace('/[^a-zA-Z0-9]/', '_', $rsrc_info['name']);
+        $name = preg_replace('/[^a-zA-Z0-9]/', '_', $resourceInfo['name']);
 
         if (!is_file($origin_path) || !$resource_id) {
             //missing original resource. oops
             $this->load->model('tool/image');
-            return $this->model_tool_image->resize($rsrc_info['default_icon'], $width, $height);
+            return $this->model_tool_image->resize($resourceInfo['default_icon'], $width, $height);
         } else {
             //Build thumbnails path similar to resource library path
             $sub_path = 'thumbnails/'
-                . dirname($rsrc_info['resource_path']) . '/'
+                . dirname($resourceInfo['resource_path']) . '/'
                 . $name . '-'
                 . $resource_id . '-'
                 . $width . 'x' . $height;

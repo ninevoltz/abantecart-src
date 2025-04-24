@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -156,7 +156,9 @@ class ControllerCommonHeader extends AController
                 $resource = $rm->getResource($current_menu ['item_icon_rl_id']);
                 $current_menu['icon'] = $resource['resource_code'];
             }
-            unset($current_menu['item_icon_rl_id']);
+            if($current_menu) {
+                unset($current_menu['item_icon_rl_id']);
+            }
             $this->data['current_menu'] = $current_menu;
         }
         if ($this->user->isLogged()) {

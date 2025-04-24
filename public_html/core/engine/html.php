@@ -353,7 +353,7 @@ class AHtml extends AController
     public function url_encode($url, $encode = false)
     {
         if ($encode) {
-            return str_replace('&', '&amp;', $url);
+            return str_replace('&', '&amp;', (string)$url);
         } else {
             return $url;
         }
@@ -644,7 +644,7 @@ class AHtml extends AController
             );
             if ($matches) {
                 foreach ($matches[0] as $match) {
-                    $href = str_replace('?', '&', $match[0]);
+                    $href = str_replace('?', '&', (string)$match[0]);
 
                     if ($rt_type == 'admin') {
                         if ($for_admin && IS_ADMIN !== true) {
@@ -1333,7 +1333,7 @@ class InputHtmlElement extends HtmlElement
                 'name'                 => $this->name,
                 'id'                   => $this->element_id,
                 'type'                 => 'text',
-                'value'                => str_replace('"', '&quot;', $this->value),
+                'value'                => str_replace('"', '&quot;', (string)$this->value),
                 'default'              => $this->default,
                 'attr'                 => $this->attr,
                 'required'             => $this->required,
@@ -1390,7 +1390,7 @@ class ColorHtmlElement extends HtmlElement
                 'name'         => $this->name,
                 'id'           => $this->element_id,
                 'type'         => 'color',
-                'value'        => str_replace('"', '&quot;', $this->value),
+                'value'        => str_replace('"', '&quot;', (string)$this->value),
                 'default'      => $this->default,
                 'attr'         => $this->attr,
                 'required'     => $this->required,
@@ -2348,7 +2348,7 @@ class EmailHtmlElement extends HtmlElement
                 'name'           => $this->name,
                 'id'             => $this->element_id,
                 'type'           => 'email',
-                'value'          => str_replace('"', '&quot;', $this->value),
+                'value'          => str_replace('"', '&quot;', (string)$this->value),
                 'default'        => $this->default,
                 //TODO: remove deprecated attribute aform_field_type
                 'attr'           => 'aform_field_type="email" ' . $this->attr . ' data-aform-field-type="captcha"',
@@ -2401,7 +2401,7 @@ class NumberHtmlElement extends HtmlElement
                 'name'           => $this->name,
                 'id'             => $this->element_id,
                 'type'           => 'number',
-                'value'          => str_replace('"', '&quot;', $this->value),
+                'value'          => str_replace('"', '&quot;', (string)$this->value),
                 'min'            => $this->min,
                 'max'            => $this->max,
                 'default'        => $this->default,
@@ -2467,7 +2467,7 @@ class PhoneHtmlElement extends HtmlElement
                 'name'           => $this->name,
                 'id'             => $this->element_id,
                 'type'           => 'tel',
-                'value'          => str_replace('"', '&quot;', $this->value),
+                'value'          => str_replace('"', '&quot;', (string)$this->value),
                 'default'        => $this->default,
                 'attr'           => $this->attr,
                 'required'       => $this->required,
@@ -2779,14 +2779,14 @@ class PaginationHtmlElement extends HtmlElement
             }
         }
 
-        $s['url'] = str_replace('--limit--', $s['limit'], $s['url']);
-        $s['direct_url'] = str_replace('--limit--', $s['limit'], $s['direct_url']);
+        $s['url'] = str_replace('--limit--', $s['limit'], (string)$s['url']);
+        $s['direct_url'] = str_replace('--limit--', $s['limit'], (string)$s['direct_url']);
         $s['total_pages'] = ceil($s['total'] / $s['limit']);
 
         if ($s['page'] > 1) {
             //not first page
-            $this->view->assign('first_url', str_replace('--page--', 1, $s['url']));
-            $this->view->assign('prev_url', str_replace('--page--', $s['page'] - 1, $s['url']));
+            $this->view->assign('first_url', str_replace('--page--', 1, (string)$s['url']));
+            $this->view->assign('prev_url', str_replace('--page--', $s['page'] - 1, (string)$s['url']));
         }
 
         if ($s['total_pages'] > 1) {
@@ -2811,8 +2811,8 @@ class PaginationHtmlElement extends HtmlElement
         }
 
         if ($s['page'] < $s['total_pages']) {
-            $this->view->assign('next_url', str_replace('--page--', $s['page'] + 1, $s['url']));
-            $this->view->assign('last_url', str_replace('--page--', $s['total_pages'], $s['url']));
+            $this->view->assign('next_url', str_replace('--page--', $s['page'] + 1, (string)$s['url']));
+            $this->view->assign('last_url', str_replace('--page--', $s['total_pages'], (string)$s['url']));
         }
 
         $replace = [
@@ -2833,7 +2833,7 @@ class PaginationHtmlElement extends HtmlElement
                 $options[$item] = $item;
             }
 
-            $limit_url = str_replace('--page--', 1, $s['url']);
+            $limit_url = str_replace('--page--', 1, (string)$s['url']);
             $limit_url = str_replace('&amp;limit=' . $s['limit'], '', $limit_url);
 
             $limit_select = $html->buildSelectbox(
@@ -2846,7 +2846,7 @@ class PaginationHtmlElement extends HtmlElement
                 ]
             );
 
-            $limit_select = str_replace('&', '&amp;', $limit_select);
+            $limit_select = str_replace('&', '&amp;', (string)$limit_select);
             $this->view->assign('limit_select', $limit_select);
         }
 
@@ -2857,7 +2857,7 @@ class PaginationHtmlElement extends HtmlElement
             '{pages}',
             '--limit--',
         ];
-        $s['text'] = str_replace($find, $replace, $s['text']);
+        $s['text'] = str_replace($find, $replace, (string)$s['text']);
 
         $this->extendAndBatchAssign($s);
         return $this->view->fetch($this->template ?: 'form/pagination.tpl');
