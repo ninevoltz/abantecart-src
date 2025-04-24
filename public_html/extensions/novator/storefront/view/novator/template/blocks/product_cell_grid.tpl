@@ -66,7 +66,7 @@
 					<div class="col-6 col-lg-3">
                         <?php
                         //render one card of product. It can be used by other tpls!
-                        /** @see  product_card.tpl */
+                        /** @see  public_html/extensions/novator/storefront/view/novator/template/blocks/product_card.tpl */
                         include($this->templateResource('/template/blocks/product_card.tpl')); ?>
 					</div>
 				<?php

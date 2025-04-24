@@ -18,71 +18,28 @@
 <?php } ?>
 
 	<div class="container-fluid wishlist product-list">
-		<table class="table table-hover table-bordered">
-			<tr class="text-center">
-				<th><?php echo $column_image; ?></th>
-				<th><?php echo $column_name; ?></th>
-				<th class="d-none d-sm-block"><?php echo $column_model; ?></th>
-            <?php if ($display_price) { ?>
-                <th class="d-none d-sm-block"><?php echo $column_price; ?></th>
-            <?php } ?>
-				<th class="d-none d-sm-block"><?php echo $column_added; ?></th>
-				<th><?php echo $column_actions; ?></th>
-			</tr>
-			<?php
-            foreach ($products as $product) { ?>
-				<tr class="text-center align-middle wishlist_<?php echo $product['product_id'] ?>">
-					<td>
-						<a href="<?php echo $product['href']; ?>"><?php echo $product['thumb']['thumb_html']; ?></a>
-					</td>
-					<td class="text-start">
-						<a class="btn mt-auto" href="<?php echo $product['href']; ?>"><?php echo $product['name']; ?></a>
-					</td>
-					<td class="d-none d-sm-block"><?php echo $product['model']; ?></td>
-					<?php if ($display_price) { ?>
-					<td class="d-none d-sm-block">
-                        <div class="price d-flex justify-content-center align-items-center me-2">
-                            <?php if ($product['special']) { ?>
-                                <div class="me-2 align-center"><?php echo $product['special'] . $tax_message; ?></div>
-                                <div class="text-decoration-line-through"><?php echo $product['price']; ?></div>
-                            <?php } else { ?>
-                                <div class=""><?php echo $product['price'] . $tax_message; ?></div>
-                            <?php } ?>
-                        </div>
-					</td>
-					<?php } ?>
-					<td class="d-none d-sm-block"><?php echo $product['added']; ?></td>
-					<td>
-
-					<?php if ($display_price) { ?>
-						<?php if($product['call_to_order']){ ?>
-							<a data-id="<?php echo $product['product_id'] ?>"
-                               href="#" class="btn btn-sm btn-outline-info call_to_order mb-1"
-                               title="<?php echo $text_call_to_order?>">
-								<i class="fa fa-phone fa-fw"></i>
-							</a>
-						<?php } else if ($product['track_stock'] && !$product['in_stock']) { ?>
-							<span class="btn btn-sm disabled nostock bg-secondary text-light me-2"><?php echo $product['no_stock_text']; ?></span>
-						<?php } else { ?>
-							<a href="<?php echo $product['add']; ?>"
-                               title="<?php echo $button_add_to_cart; ?>"
-                               class="btn btn-sm btn-success mb-1">
-								<i class="fa fa-cart-plus fa-fw"></i>
-							</a>
-						<?php } ?>
-					<?php } ?>
-						<a href="Javascript:void(0);)" title="<?php echo $button_remove_wishlist;?>"
-                           data-product_id="<?php echo $product['product_id'] ?>"
-                           class="remove-from-list btn btn-sm btn-danger bg-opacity-50 mb-1"><i class="text-light fa fa-trash fa-fw"></i></a>
-					</td>
-				</tr>
-			<?php } ?>
-			<?php echo $this->getHookVar('more_wishlist_products'); ?>
-		</table>
-
-
-
-        <div class="ps-4 p-3 col-12 d-flex flex-wrap justify-content-end">
+        <?php if ($products) {
+            //add delete button
+            foreach ($products as &$product) {
+                $product['hide_quickview'] = true;
+                $this->addHookVar(
+                        'product_button_'.$product['product_id'],
+                    '<a href="Javascript:void(0);" class="btn btn-danger btn-sm remove-from-list translate-middle" 
+                        title="' . html2view($button_remove_wishlist) . '" data-product_id="'.$product['product_id'].'">
+                        <i class="fa fa-2x fa-trash"></i></a>'
+                );
+            }
+            ?>
+            <div class="container-fluid">
+                <div id="product_cell_grid">
+                    <?php
+                    /** @see public_html/storefront/view/default/template/blocks/product_cell_grid.tpl */
+                    include( $this->templateResource('/template/blocks/product_cell_grid.tpl') ); ?>
+                </div>
+            </div>
+        <?php } ?>
+        <?php echo $this->getHookVar('more_wishlist_products'); ?>
+        <div class="ps-4 p-3 col-12 d-flex flex-wrap justify-content-center">
             <?php echo $this->getHookVar('top_wishlist_buttons');
             $button_continue->style = 'btn btn-outline-secondary mx-2 mb-1';
             $button_continue->icon = 'fa fa-arrow-right';
@@ -123,7 +80,7 @@
                             target.show();
                         } else {
                             $('.wishlist .alert').remove();
-                            target.parents('tr').remove();
+                            target.parents('.product-card').fadeOut(500);
                         }
                     }
                 });

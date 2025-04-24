@@ -26,7 +26,7 @@
                 <div class="row g-2 align-items-center justify-content-between">
                     <div class="col-auto">
                         <ul class="list-inline mb-0">
-                            <?php if($this->customer->isLogged()){ ?>
+                            <?php if($this->customer->isLogged() && !$product['hide_wishlist']){ ?>
                                 <li class="list-inline-item btn-wishlist">
                                     <a class="wish" href="javascript:void(0)">
                                         <i class="bi <?php
@@ -36,20 +36,25 @@
                                         ?>"></i>
                                     </a>
                                 </li>
-                            <?php } ?>
+                            <?php }
+                            if(!$product['hide_quickview']){ ?>
                             <li class="list-inline-item btn-quickview">
                                 <a href="<?php echo $item['info_url'] ?>" data-bs-toggle="tooltip" title="<?php echo $button_view ?>">
                                     <i class="bi bi-eye" ></i>
                                 </a>
                             </li>
-                            <li class="list-inline-item btn-compare">
+                            <?php }
+                            if(!$product['hide_share']){ ?>
+                            <li class="list-inline-item">
                                 <a class="share"
                                    data-title="<?php echo_html2view($product['name']);?>"
                                    data-url="<?php echo $item['info_url'];?>">
                                     <i class="bi bi-shuffle"></i>
                                 </a>
                             </li>
-                            <?php echo $this->getHookvar('product_button_'.$product['product_id']); ?>
+                            <?php
+                            }
+                            echo $this->getHookvar('product_button_'.$product['product_id']); ?>
                         </ul>
                     </div>
                     <div class="col-auto">
@@ -91,7 +96,10 @@
                                     echo $this->getHookVar('product_add_to_cart_html_'.$product['product_id']);
                                 }else{ ?>
                                     <a class="add-to-cart"
-                                       title="<?php $inCart ? echo_html2view($text_items_in_the_cart) : echo_html2view($button_add_to_cart); ?>"
+                                       title="<?php
+                                       $inCart
+                                           ? echo_html2view($text_items_in_the_cart)
+                                           : echo_html2view($this->language->get('button_add_to_cart')); ?>"
                                        data-id="<?php echo $product['product_id']; ?>"
                                        href="<?php echo $inCart ? $cartUrl : $item['buy_url']; ?>">
                                         <i class="bi <?php echo $inCart ? 'bi-bag-check-fill text-success' :'bi-bag-fill';?>"></i>

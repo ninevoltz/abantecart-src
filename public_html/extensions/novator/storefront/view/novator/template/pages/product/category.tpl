@@ -25,6 +25,6 @@
 
 <?php if ($products) { ?>
     <?php
-    /** @see product_listing.tpl */
+    /** @see public_html/extensions/novator/storefront/view/novator/template/pages/product/product_listing.tpl */
     include( $this->templateResource('/template/pages/product/product_listing.tpl') ) ?>
 <?php } ?>

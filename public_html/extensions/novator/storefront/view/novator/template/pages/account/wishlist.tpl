@@ -1,10 +1,7 @@
-<div class="row title">
-    <div class="col-xl-12">
-        <h1 class="h2 heading-title">
-            <?php echo $heading_title; ?>
-        </h1>
-    </div>
-</div>
+<div class="list-page-desc-block">
+    <h1 class="h4 heading-title">
+        <?php echo $heading_title; ?>
+    </h1>
 
 <?php if ($success) { ?>
     <div class="alert alert-success alert-dismissible" role="alert">
@@ -19,89 +16,93 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php } ?>
+    <div id="product_cell_grid" class="product_cell_grid">
+        <section class="product-sec wishlist product-list" >
+    <?php if ( $block_framed ) { ?>
 
-	<div class="container-fluid wishlist product-list">
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-                <tr class="text-center">
-                    <th><?php echo $column_image; ?></th>
-                    <th><?php echo $column_name; ?></th>
-                    <th class="d-none d-sm-block"><?php echo $column_model; ?></th>
-                <?php if ($display_price) { ?>
-                    <th class="d-none d-sm-block"><?php echo $column_price; ?></th>
-                <?php } ?>
-                    <th class="d-none d-sm-block"><?php echo $column_added; ?></th>
-                    <th><?php echo $column_actions; ?></th>
-                </tr>
+    <div id="block_frame_<?php echo $block_details['block_txt_id'] . '_' . $block_details['instance_id'] ?>"
+         class="block_frame container block_frame_<?php echo $block_details['block_txt_id']; ?>">
+
+        <?php } ?>
+        <div class="row g-4">
+            <?php
+            $text_sale = $this->language->get('text_badge_sale','novator/novator');
+            $text_sale = $text_sale == 'text_badge_sale' ? 'SALE' : $text_sale;
+            $tax_exempt = $this->customer->isTaxExempt();
+            $config_tax = $this->config->get('config_tax');
+            $productImgCss = 'width: '.$imgW.'px;';
+            $productImgCss .= ' height: '.$imgH.'px;';
+            $noRating = noRatingStarsNv($button_write);
+
+            foreach ($products as $product) {
+                $tax_message = '';
+                if ($config_tax && !$tax_exempt && $product['tax_class_id']) {
+                    $tax_message = '&nbsp;&nbsp;' . $price_with_tax;
+                }
+
+                $product['thumb'] = $product['thumb'] ?? $product['image'];
+                $item = [];
+
+                $item['image'] = '<img alt="'.html2view($product['thumb']['title'] ?: $product['name']).'" class="img-fluid h-auto" src="'.$product['thumb']['thumb_url'].'" style="'.$productImgCss.'">';
+                $item['image1'] = '<img class="img-fluid h-auto img-overlay" src="'.$product['thumb']['thumb_url'].'" style="'.$productImgCss.'">';
+                $item['title'] = $product['name'];
+                $item['description'] = $product['model'];
+                $item['rating'] = renderRatingStarsNv($product['rating'], $product['stars']);
+
+                $item['info_url'] = $product['href'];
+                $item['buy_url'] = $product['add'];
+
+                if (!$display_price) {
+                    $item['price'] = '';
+                }
+
+                $review = $noRating;
+                if ($item['rating']) {
+                    $review = $item['rating'];
+                }
+                $product['hide_wishlist'] = $product['hide_quickview'] = $product['hide_share'] = true;
+                //hide text Add to cart
+                $button_add_to_cart = '';
+
+                $this->addHookVar(
+                        'product_button_'.$product['product_id'],
+                        '<li class="list-inline-item btn-compare">
+                            <a href="Javascript:void(0);" title="'.html2view($button_remove_wishlist).'"
+                            data-product_id="'.$product['product_id'].'"
+                            class="remove-from-list"><i class="text-danger bi-trash"></i></a>
+                        </li>'
+                );
+                ?>
+                <div class="col-6 col-lg-3">
+                    <?php
+                    //render one card of product. It can be used by other tpls!
+                    /** @see  product_card.tpl */
+                    include($this->templateResource('/template/blocks/product_card.tpl')); ?>
+                </div>
                 <?php
-                foreach ($products as $product) { ?>
-                    <tr class="text-center align-middle wishlist_<?php echo $product['product_id'] ?>">
-                        <td>
-                            <a href="<?php echo $product['href']; ?>"><?php echo $product['thumb']['thumb_html']; ?></a>
-                        </td>
-                        <td class="text-start">
-                            <a class="btn mt-auto" href="<?php echo $product['href']; ?>"><?php echo $product['name']; ?></a>
-                        </td>
-                        <td class="d-none d-sm-block"><?php echo $product['model']; ?></td>
-                        <?php if ($display_price) { ?>
-                        <td class="d-none d-sm-block">
-                            <div class="price d-flex justify-content-center align-items-center me-2">
-                                <?php if ($product['special']) { ?>
-                                    <div class="me-2 align-center"><?php echo $product['special'] . $tax_message; ?></div>
-                                    <div class="text-decoration-line-through"><?php echo $product['price']; ?></div>
-                                <?php } else { ?>
-                                    <div class=""><?php echo $product['price'] . $tax_message; ?></div>
-                                <?php } ?>
-                            </div>
-                        </td>
-                        <?php } ?>
-                        <td class="d-none d-sm-block"><?php echo $product['added']; ?></td>
-                        <td>
-
-                        <?php if ($display_price) { ?>
-                            <?php if($product['call_to_order']){ ?>
-                                <a data-id="<?php echo $product['product_id'] ?>"
-                                href="#" class="btn btn-sm btn-outline-info call_to_order mb-1"
-                                title="<?php echo $text_call_to_order?>">
-                                    <i class="bi bi-phone"></i>
-                                </a>
-                            <?php } else if ($product['track_stock'] && !$product['in_stock']) { ?>
-                                <span class="btn btn-sm disabled nostock bg-secondary text-light me-2"><?php echo $product['no_stock_text']; ?></span>
-                            <?php } else { ?>
-                                <a href="<?php echo $product['add']; ?>"
-                                title="<?php echo $button_add_to_cart; ?>"
-                                class="btn btn-sm btn-success mb-1">
-                                    <i class="bi bi-cart-plus"></i>
-                                </a>
-                            <?php } ?>
-                        <?php } ?>
-                            <a href="Javascript:void(0);)" title="<?php echo $button_remove_wishlist;?>"
-                            data-product_id="<?php echo $product['product_id'] ?>"
-                            class="remove-from-list btn btn-sm btn-danger bg-opacity-50 mb-1"><i class="text-light bi-trash"></i></a>
-                        </td>
-                    </tr>
-                <?php } ?>
-                <?php echo $this->getHookVar('more_wishlist_products'); ?>
-            </table>
+            }
+            echo $this->getHookVar('more_wishlist_products');
+            ?>
         </div>
-
-
-        <div class="py-3 col-12 d-flex flex-wrap justify-content-end">
-            <?php echo $this->getHookVar('top_wishlist_buttons');
-            $button_continue->style = 'btn btn-outline-secondary mx-2 mb-1';
-            $button_continue->icon = 'fa fa-arrow-right';
-            echo $button_continue;
-
-            $button_cart->style = 'btn btn-success mx-2 mb-1';
-            $button_cart->icon = 'fa fa-shopping-cart';
-            echo $button_cart;
-            echo $this->getHookVar('bottom_wishlist_buttons'); ?>
-        </div>
-
+        <?php
+        if ( $block_framed ) { ?>
     </div>
+<?php } ?>
+    <div class="py-3 col-12 d-flex flex-wrap justify-content-center">
+        <?php echo $this->getHookVar('top_wishlist_buttons');
+        $button_continue->style = 'btn btn-outline-secondary mx-2 mb-1';
+        $button_continue->icon = 'fa fa-arrow-right';
+        echo $button_continue;
 
+        $button_cart->style = 'btn btn-success mx-2 mb-1';
+        $button_cart->icon = 'fa fa-shopping-cart';
+        echo $button_cart;
+        echo $this->getHookVar('bottom_wishlist_buttons'); ?>
+    </div>
+</section>
+    </div>
+</div>
 <script type="text/javascript">
-
     $(document).ready(function(){
         $('a.remove-from-list').on('click',
             function(e){
@@ -127,7 +128,7 @@
                             target.show();
                         } else {
                             $('.wishlist .alert').remove();
-                            target.parents('tr').remove();
+                            target.parents('.product-card').fadeOut(500);
                         }
                     }
                 });

@@ -292,3 +292,10 @@ blockquote p::after {
 li.nav-item .dropdown a.dropdown-toggle {
     padding: 10px 0;
 }
+
+/** wishlist */
+.remove-from-list{
+    position: absolute;
+    top: 23px;
+    right: -18px !important;
+}
