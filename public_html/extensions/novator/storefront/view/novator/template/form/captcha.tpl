@@ -1,11 +1,11 @@
 <?php if(!$no_wrapper){?>
 <div class="input-group h-100">
 <?php } ?>
-    <div class="form-check-inline d-flex flex-nowrap me-0 <?php echo $style; ?>">
-        <img alt="captcha" class="me-2" src="<?php echo $captcha_url ?>"/>
+    <div class="form-check-inline d-flex flex-wrap flex-md-nowrap me-0 <?php echo $style; ?>">
+        <img alt="captcha" class="mb-1 mb-md-0 me-2" src="<?php echo $captcha_url ?>"/>
         <div class="input-group">
         <input class="form-control"
-                id="<?php echo $id ?>"
+               id="<?php echo $id ?>"
                type="text"
                name="<?php echo $name ?>"
                placeholder="<?php echo $placeholder ?>"
