@@ -219,3 +219,18 @@ function getEmbedButtonsData(string $rt, array $httpQuery, ?array $storeList = [
     $output['embed_url'] = $registry->get('html')->getSecureURL( $rt, '&'.http_build_query($httpQuery) );
     return $output;
 }
+
+
+function adminFormFieldBS3CssClasses(?string $style){
+    $style = (string)$style;
+    $cssClasses = "col-sm-7";
+    if ( str_contains($style, 'medium-field') || str_contains($style, 'date') ) {
+        $cssClasses = "col-sm-5";
+    } else if ( str_contains($style, 'small-field') || str_contains($style, 'btn_switch') ) {
+        $cssClasses = "col-sm-4";
+    } else if ( str_contains($style, 'tiny-field') ) {
+        $cssClasses = "col-sm-2";
+    }
+    $cssClasses .= " col-xs-12";
+    return $cssClasses;
+}

@@ -30,7 +30,9 @@ if (!defined('DIR_CORE')) {
 
 class ALanguageManager extends Alanguage
 {
-
+    // property for hook calls
+    /** @see ExtensionsApi::__ExtensionsApiCall() */
+    public $ExtensionsApi;
     private $translatable_fields = [];
     const TAG_REGEX_PATTERN = '/[^\\d\s\p{L}\-_]/u';
 

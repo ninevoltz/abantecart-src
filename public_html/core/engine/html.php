@@ -82,13 +82,13 @@ class AHtml extends AController
     /**
      * Magic method for html-element classes calls
      *
-     * @param $function_name
+     * @param string $function_name
      * @param $args
      *
      * @return null|string
      * @throws AException
      */
-    public function __call($function_name, $args)
+    public function __call(string $function_name, $args)
     {
         $class_name = ltrim($function_name, 'build') . 'HtmlElement';
         if (class_exists($class_name)) {
@@ -1086,7 +1086,7 @@ abstract class HtmlElement
                 $seo_prefix = $this->config->get('seo_prefix');
                 $url = HTTPS_SERVER . $seo_prefix;
                 $query_string = $this->request->server['QUERY_STRING'];
-                if (!str_contains($query_string, '_route_=')) {
+                if (!str_contains((string)$query_string, '_route_=')) {
                     $url .= '?';
                 } else {
                     $query_string = str_replace('_route_=', '', $query_string);
@@ -1339,7 +1339,7 @@ class InputHtmlElement extends HtmlElement
                 'required'             => $this->required,
                 'style'                => $this->style,
                 'placeholder'          => $this->placeholder,
-                'regexp_pattern'       => trim($this->regexp_pattern, '/'),
+                'regexp_pattern'       => trim((string)$this->regexp_pattern, '/'),
                 'error_text'           => $this->error_text,
                 'multilingual'         => $this->getMultiLingual(),
                 'help_url'             => $this->help_url,
@@ -1452,7 +1452,7 @@ class PasswordHtmlElement extends HtmlElement
                 'required'       => $this->required,
                 'style'          => $this->style,
                 'placeholder'    => $this->placeholder,
-                'regexp_pattern' => trim($this->regexp_pattern, '/'),
+                'regexp_pattern' => trim((string)$this->regexp_pattern, '/'),
                 'error_text'     => $this->error_text,
             ]
         );
@@ -1681,7 +1681,7 @@ class SelectboxHtmlElement extends HtmlElement
         ];
         if ($this->template) {
             $template = $this->template;
-        } elseif (str_contains($this->style, 'chosen')) {
+        } elseif (str_contains((string)$this->style, 'chosen')) {
             $data['ajax_url'] = $this->ajax_url; //if mode of data load is ajax based
             $data['text_continue_typing'] = $text_continue_typing;
             $data['text_looking_for'] = $text_looking_for;
@@ -1742,7 +1742,7 @@ class MultiSelectBoxHtmlElement extends HtmlElement
 
         if ($this->template) {
             $template = $this->template;
-        } elseif (str_contains($this->style, 'chosen')) {
+        } elseif (str_contains((string)$this->style, 'chosen')) {
             $option_attr = $this->option_attr && !is_array($this->option_attr)
                 ? [$this->option_attr]
                 : $this->option_attr;
@@ -1784,7 +1784,7 @@ class CheckboxHtmlElement extends HtmlElement
         $checked = false;
         if ($this->template) {
             $tpl = $this->template;
-        } elseif (str_contains($this->style, 'btn_switch')) { //for switch button NOTE: value is binary (1 or 0)!!!
+        } elseif (str_contains((string)$this->style, 'btn_switch')) { //for switch button NOTE: value is binary (1 or 0)!!!
             $checked = is_null($this->checked) && $this->value || (bool)$this->checked;
             if ($checked) {
                 $this->value = 1;
@@ -1876,7 +1876,7 @@ class CheckboxGroupHtmlElement extends HtmlElement
 
         if ($this->template) {
             $template = $this->template;
-        } elseif (str_contains($this->style, 'chosen')) {
+        } elseif (str_contains((string)$this->style, 'chosen')) {
             $template = 'form/chosen_select.tpl';
         } else {
             $template = 'form/checkboxgroup.tpl';
@@ -2118,7 +2118,7 @@ class ReCaptchaHtmlElement extends HtmlElement
                 'id'                 => $this->element_id,
                 'attr'               => $this->attr . ' data-aform-field-type="captcha"',
                 'language_code'      => $this->language_code,
-                'recaptcha_site_key' => trim($this->recaptcha_site_key),
+                'recaptcha_site_key' => trim((string)$this->recaptcha_site_key),
                 'recaptcha_v3'       => $this->config->get('account_recaptcha_v3') ?: 0,
             ]
         );
@@ -2355,7 +2355,7 @@ class EmailHtmlElement extends HtmlElement
                 'required'       => $this->required,
                 'style'          => $this->style,
                 'placeholder'    => $this->placeholder,
-                'regexp_pattern' => trim($this->regexp_pattern, '/'),
+                'regexp_pattern' => trim((string)$this->regexp_pattern, '/'),
                 'error_text'     => $this->error_text,
                 'help_url'       => $this->help_url,
             ]
@@ -2411,7 +2411,7 @@ class NumberHtmlElement extends HtmlElement
                 'required'       => $this->required,
                 'style'          => $this->style,
                 'placeholder'    => $this->placeholder,
-                'regexp_pattern' => trim($this->regexp_pattern, '/'),
+                'regexp_pattern' => trim((string)$this->regexp_pattern, '/'),
                 'error_text'     => $this->error_text,
                 'help_url'       => $this->help_url,
             ]
@@ -2473,7 +2473,7 @@ class PhoneHtmlElement extends HtmlElement
                 'required'       => $this->required,
                 'style'          => $this->style,
                 'placeholder'    => $this->placeholder,
-                'regexp_pattern' => trim($this->regexp_pattern, '/'),
+                'regexp_pattern' => trim((string)$this->regexp_pattern, '/'),
                 'error_text'     => $this->error_text,
                 'help_url'       => $this->help_url,
             ]

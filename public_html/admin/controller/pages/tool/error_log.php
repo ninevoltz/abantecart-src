@@ -91,7 +91,6 @@ class ControllerPagesToolErrorLog extends AController
         );
 
         if (file_exists($file)) {
-            ini_set("auto_detect_line_endings", true);
             $fp = fopen($file, 'r');
             // check filesize
             $filesize = filesize($file);

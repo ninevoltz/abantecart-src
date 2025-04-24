@@ -243,13 +243,9 @@ class ControllerPagesSettingSetting extends AController
 
     protected function validateHttpsUrl()
     {
-        if (strpos($this->data['settings']['config_url'], 'https') === false) {
-            if (!$this->data['settings']['config_ssl_url']
-                || strpos($this->data['settings']['config_ssl_url'], 'https') === false
-                || (
-                    strpos($this->data['settings']['config_url'], 'https') === false
-                    && strpos($this->data['settings']['config_ssl_url'], 'https') !== false
-                )
+        if (!str_starts_with((string)$this->data['settings']['config_url'], 'https')) {
+            if ( !$this->data['settings']['config_ssl_url']
+                || !str_starts_with((string)$this->data['settings']['config_ssl_url'], 'https')
             ) {
                 $this->data['error_https'] = $this->language->get('warning_https_store_url');
             }

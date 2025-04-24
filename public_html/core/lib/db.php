@@ -34,6 +34,9 @@ class db_result_meta extends stdClass
 
 final class ADB
 {
+    // property for hook calls
+    /** @see ExtensionsApi::__ExtensionsApiCall() */
+    public $ExtensionsApi;
     /**
      * @var AMySQLi
      */
