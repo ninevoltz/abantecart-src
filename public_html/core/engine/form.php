@@ -319,11 +319,12 @@ class AForm
 
         foreach ($this->fields as $field) {
             $fields[$field['field_name']] = [
-                'value'    => $field['value'],
-                'required' => $field['required'] == 'Y',
+                'status'       => $field['status'],
+                'value'        => $field['value'],
+                'required'     => $field['required'] == 'Y',
                 'element_type' => $field['element_type'],
-                'title'      => $field['name'],
-                'id'      => $field['field_id'],
+                'title'        => $field['name'],
+                'id'           => $field['field_id'],
             ];
         }
 
