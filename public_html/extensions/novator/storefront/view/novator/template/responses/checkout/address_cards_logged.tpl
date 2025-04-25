@@ -1,5 +1,13 @@
 <?php
 $readonly = count($all_addresses) == 1 ? ' readonly ' : '';
+
+$addAddress = '
+<div class="input-group-text">
+    <a target="_blank" href="'. $this->html->getSecureUrl('account/address/insert').'" title="'.html2view($this->language->get('button_add_address')).'">
+        <i class="bi bi-plus-circle-fill fs-3"></i>
+    </a>
+</div>';
+
 if ($this->cart->hasShipping()) {  ?>
         <div class="flex-item flex-fill pe-sm-0 pe-md-1 pb-1">
             <h4 class="shipping_address_label"><?php echo $fast_checkout_text_shipping_address; ?></h4>
@@ -25,6 +33,7 @@ if ($this->cart->hasShipping()) {  ?>
                         }
                     } ?>
                 </select>
+                <?php echo $addAddress;?>
             </div>
             <?php // see JS?>
             <div class="d-flex justify-content-between col-12 bg-light-primary border rounded shipping_address_details"></div>
@@ -58,6 +67,7 @@ if ($show_payment) {
                     }
                 } ?>
             </select>
+            <?php echo $addAddress;?>
         </div>
 
         <?php // see JS?>
