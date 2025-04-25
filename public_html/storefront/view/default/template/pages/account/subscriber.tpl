@@ -52,7 +52,7 @@
         <?php echo $this->getHookVar('subscriber_hookvar'); ?>
     </div>
 
-    <div class="ps-4 p-3 col-12 d-flex flex-wrap justify-content-center">
+    <div class="ps-4 p-3 col-12 d-flex flex-wrap justify-content-center justify-content-sm-between">
         <a href="<?php echo $create_account->href; ?>" class="btn btn-secondary me-1 mb-2 mb-sm-0" title="<?php echo $create_account->text ?>">
             <i class="<?php echo $create_account->icon; ?>"></i>
             <?php echo $create_account->text ?>
