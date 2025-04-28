@@ -1,3 +1,75 @@
+AbanteCart version 1.4.2
+
+New Features
+-------------
+- Address Management: Added "Add Address" button for registered customers without saved addresses.
+- Caps Lock Detection: Added CapsLock warning support for password fields in storefront and Novator templates.
+- Supplier Management: New core support for managing product suppliers.
+- Multi-Store Embed Improvements: Embed buttons for products, categories, brands, and collections now fully support multi-store setups.
+- Checkout Improvements: Enhanced checkout flow with better shipping method auto-selection.
+
+Major Improvements
+--------------------
+- PHP 8.4 Compatibility: Full support and compatibility updates for PHP 8.4.
+- MySQL Database:
+  - Switched default storage engine to InnoDB.
+  - Default collation updated to utf8mb4 for better Unicode support.
+- Session Handling: Optimized session serialization and performance.
+- Email System:
+  - Improved debug support for email sending failures.
+  - Added validation during mail settings save.
+- AForm Library: Enhancements for better form handling and improved contact us controller.
+- Language System: New getAndReplace() safe method for sprintf-style translations.
+- Backup System: Backup improvements related to DB port configuration and InnoDB transition.
+
+Bug Fixes
+----------
+Admin Panel:
+- Fixed deprecated function calls.
+- Quick Save for Product Edit now correctly handles store selections.
+- Fixed image import for products without file extensions.
+- Single Chosen-Select CSS and JS fixes across admin.
+- Vertical align fixes for buttons and headings.
+- Fixed capitalization and sorting in menu items and grids.
+
+Storefront:
+- Corrected logo display in order confirmation emails.
+- Shipping total now correctly skips undefined shipping costs.
+- Fixed wishlist layout to use standard responsive product card list.
+- Login and subscriber form page CSS fixes for mobile devices.
+- Cart page and checkout success page layout fixes.
+
+Novator Template:
+- CSS fixes for login page, recently viewed products, mega menu, and category slides.
+
+Extensions:
+- Paypal Commerce improvements:
+  - Supported currency list added.
+  - Bug fixes for order status and shipping method selection.
+- Default Store Pickup shipping extension improvements to fix overwriting of customer shipping address.
+
+Other Enhancements
+-------------------
+- Performance and Code Optimization:
+  - Dispatcher logging enhancements.
+  - ADB and AView improvements (new methods for DB table prefix and name).
+- Security:
+  - Added browser cache clearing headers after upgrade or install processes.
+- Developer Improvements:
+  - Core improvements in ALayout, AView, AForm, AMail, and ALanguage classes.
+  - Better handling of missing or uninstalled extensions in the admin extensions grid.
+  - CLI Installer updates, including demo data fixes.
+
+Upgrade Notes
+--------------
+- After upgrade, it is recommended to clear browser cache to avoid issues due to updated scripts and styles.
+- Database changes are included (InnoDB and utf8mb4). Backup your database before upgrading.
+
+Special Thanks
+---------------
+Thanks to the community members who reported issues and contributed to improvements.
+
+
 AbanteCart version 1.4.1
 
 We’re thrilled to introduce AbanteCart v1.4.1 – packed with exciting new features, enhancements, and important fixes to make your experience even better!
