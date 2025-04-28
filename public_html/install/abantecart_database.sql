@@ -10402,7 +10402,7 @@ create table `ac_suppliers`
     `date_modified` timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     constraint `ac_suppliers_pk`
         primary key (`id`, `code`)
-);
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 DROP TABLE IF EXISTS `ac_object_types`;
 create table `ac_object_types`
 (
@@ -10411,8 +10411,7 @@ create table `ac_object_types`
     `related_to` varchar(100)  not null,
     constraint `ac_object_types_pk`
         primary key (`id`, `name`, `related_to`)
-)
-comment 'list of types for mapping data';
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci comment 'list of types for mapping data';
 
 DROP TABLE IF EXISTS `ac_supplier_data`;
 create table `ac_supplier_data`
@@ -10427,7 +10426,7 @@ create table `ac_supplier_data`
     `date_modified`  timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     constraint `ac_supplier_data_pk`
         primary key (`id`, `supplier_code`, `object_type_id`, `object_id`, `uid`)
-);
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- DDL for table `blocks`
@@ -12647,7 +12646,7 @@ CREATE TABLE `ac_product_stock_locations` (
   UNIQUE KEY `ac_product_stock_locations_idx` (`product_id`,`product_option_value_id`,`location_id`),
   KEY `ac_product_stock_locations_idx2` (`product_option_value_id`)
 ) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-create UNIQUE index `ac_product_stock_locations_supplier_idx` on `ac_products` (`supplier_code`, `supplier_id`);
+CREATE UNIQUE INDEX `ac_product_stock_locations_supplier_idx` on `ac_product_stock_locations` (`supplier_code`, `supplier_id`);
 
 DROP TABLE IF EXISTS `ac_order_product_stock_locations`;
 CREATE TABLE `ac_order_product_stock_locations` (

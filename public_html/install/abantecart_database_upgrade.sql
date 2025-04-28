@@ -237,7 +237,8 @@ alter table `ac_global_attributes_groups_descriptions` engine=InnoDB collate=utf
     modify name varchar(64) not null comment 'translatable';
 
 alter table `ac_global_attributes_type_descriptions` engine=InnoDB collate=utf8mb4_unicode_ci,
-    modify type_name varchar(64) not null comment 'translatable';
+    modify type_name varchar(64) not null comment 'translatable',
+    comment '';
 
 alter table `ac_global_attributes_types` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify type_key varchar(64) not null,
@@ -394,6 +395,11 @@ alter table `ac_pages` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify controller varchar(100) not null,
     modify key_param varchar(40) default '' not null,
     modify key_value varchar(40) default '' not null;
+
+alter table ac_product_filter_descriptions engine =InnoDB collate = utf8mb4_unicode_ci;
+alter table ac_product_filter_ranges engine =InnoDB collate = utf8mb4_unicode_ci;
+alter table ac_product_filter_ranges_descriptions engine =InnoDB collate = utf8mb4_unicode_ci;
+alter table ac_product_filters engine =InnoDB collate = utf8mb4_unicode_ci;
 
 alter table `ac_pages_forms` engine=InnoDB collate=utf8mb4_unicode_ci;
 alter table `ac_pages_layouts` engine=InnoDB collate=utf8mb4_unicode_ci;
@@ -565,7 +571,7 @@ create table if not exists `ac_suppliers`
     `date_modified` timestamp default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     constraint `ac_suppliers_pk`
         primary key (`id`, `code`)
-);
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 create table if not exists `ac_object_types`
 (
@@ -574,8 +580,7 @@ create table if not exists `ac_object_types`
     `related_to` varchar(100)  not null,
     constraint `ac_object_types_pk`
         primary key (`id`, `name`, `related_to`)
-)
-comment 'list of types for mapping data';
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci comment 'list of types for mapping data';
 
 create table if not exists `ac_supplier_data`
 (
@@ -588,11 +593,11 @@ create table if not exists `ac_supplier_data`
     date_added     timestamp default current_timestamp() not null,
     date_modified  timestamp default current_timestamp() not null on update current_timestamp(),
     primary key (id, supplier_code, object_type_id, object_id, uid)
-);
+) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 #
-alter table `ac_products` add supplier_code varchar(100) null after call_to_order;
-alter table `ac_products` add supplier_id varchar(100) null after supplier_code;
 alter table `ac_products`
+    add supplier_code varchar(100) null after call_to_order,
+    add supplier_id varchar(100) null after supplier_code,
     add constraint `ac_products_supplier_idx`
         unique (supplier_code, supplier_id);
 #
@@ -603,17 +608,14 @@ CREATE UNIQUE INDEX `ac_product_stock_locations_supplier_idx`
 
 ##
 alter table `ac_product_option_values`
-    add supplier_code varchar(100) null;
-alter table `ac_product_option_values`
-    add supplier_id varchar(100) null;
-alter table `ac_product_option_values`
-    add date_added timestamp default current_timestamp() null;
-alter table `ac_product_option_values`
-    add date_modified timestamp default current_timestamp() not null on update current_timestamp();
-alter table `ac_product_option_values`
+    add supplier_code varchar(100) null,
+    add supplier_id varchar(100) null,
+    add date_added timestamp default current_timestamp() null,
+    add date_modified timestamp default current_timestamp() not null on update current_timestamp(),
     add constraint `ac_product_option_values_supplier_idx`
         unique (supplier_id, supplier_code);
 #
-alter table `ac_categories` add supplier_code varchar(100) null after status;
-alter table `ac_categories` add supplier_id varchar(100) null after supplier_code;
-alter table `ac_categories` add constraint `ac_categories_supplier_idx` unique (supplier_code, supplier_id);
+alter table `ac_categories`
+    add supplier_code varchar(100) null after status,
+    add supplier_id varchar(100) null after supplier_code,
+    add constraint `ac_categories_supplier_idx` unique (supplier_code, supplier_id);
