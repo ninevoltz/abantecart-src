@@ -161,7 +161,6 @@ alter table `ac_download_descriptions` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify name varchar(64) default '' not null comment 'translatable';
 
 alter table `ac_downloads`
-    modify activate_order_status_id varchar(255) default '' not null,
     modify filename varchar(128) default '' not null,
     modify mask varchar(128) default '' not null,
     modify activate varchar(64) not null,
