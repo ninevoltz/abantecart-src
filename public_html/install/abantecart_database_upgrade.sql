@@ -237,8 +237,8 @@ alter table `ac_global_attributes_groups_descriptions` engine=InnoDB collate=utf
     modify name varchar(64) not null comment 'translatable';
 
 alter table `ac_global_attributes_type_descriptions` engine=InnoDB collate=utf8mb4_unicode_ci,
-    modify type_name varchar(64) not null comment 'translatable',
-    comment '';
+    modify type_name varchar(64) not null comment 'translatable';
+alter table `ac_global_attributes_type_descriptions` comment '';
 
 alter table `ac_global_attributes_types` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify type_key varchar(64) not null,
@@ -396,10 +396,10 @@ alter table `ac_pages` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify key_param varchar(40) default '' not null,
     modify key_value varchar(40) default '' not null;
 
-alter table ac_product_filter_descriptions engine =InnoDB collate = utf8mb4_unicode_ci;
-alter table ac_product_filter_ranges engine =InnoDB collate = utf8mb4_unicode_ci;
-alter table ac_product_filter_ranges_descriptions engine =InnoDB collate = utf8mb4_unicode_ci;
-alter table ac_product_filters engine =InnoDB collate = utf8mb4_unicode_ci;
+alter table ac_product_filter_descriptions engine=InnoDB collate=utf8mb4_unicode_ci;
+alter table ac_product_filter_ranges engine=InnoDB collate=utf8mb4_unicode_ci;
+alter table ac_product_filter_ranges_descriptions engine=InnoDB collate=utf8mb4_unicode_ci;
+alter table ac_product_filters engine=InnoDB collate=utf8mb4_unicode_ci;
 
 alter table `ac_pages_forms` engine=InnoDB collate=utf8mb4_unicode_ci;
 alter table `ac_pages_layouts` engine=InnoDB collate=utf8mb4_unicode_ci;
@@ -619,3 +619,6 @@ alter table `ac_categories`
     add supplier_code varchar(100) null after status,
     add supplier_id varchar(100) null after supplier_code,
     add constraint `ac_categories_supplier_idx` unique (supplier_code, supplier_id);
+
+
+

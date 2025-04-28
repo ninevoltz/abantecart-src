@@ -10403,6 +10403,7 @@ create table `ac_suppliers`
     constraint `ac_suppliers_pk`
         primary key (`id`, `code`)
 ) ENGINE=InnoDb DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `ac_object_types`;
 create table `ac_object_types`
 (
