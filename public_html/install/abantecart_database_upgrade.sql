@@ -396,14 +396,14 @@ alter table `ac_pages` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify key_param varchar(40) default '' not null,
     modify key_value varchar(40) default '' not null;
 
-alter table ac_product_filter_descriptions engine=InnoDB collate=utf8mb4_unicode_ci,
+alter table `ac_product_filter_descriptions` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify value varchar(255) default '' not null comment 'translatable';
 
-alter table ac_product_filter_ranges engine=InnoDB collate=utf8mb4_unicode_ci;
-alter table ac_product_filter_ranges_descriptions engine=InnoDB collate=utf8mb4_unicode_ci,
+alter table `ac_product_filter_ranges` engine=InnoDB collate=utf8mb4_unicode_ci;
+alter table `ac_product_filter_ranges_descriptions` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify name varchar(255) default '' not null comment 'translatable';
 
-alter table ac_product_filters engine=InnoDB collate=utf8mb4_unicode_ci,
+alter table `ac_product_filters` engine=InnoDB collate=utf8mb4_unicode_ci,
     modify filter_type char default '' not null,
     modify categories_hash text not null;
 
