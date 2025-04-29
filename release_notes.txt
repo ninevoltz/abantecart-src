@@ -2,11 +2,12 @@ AbanteCart version 1.4.2
 
 New Features
 -------------
-- Address Management: Added "Add Address" button for registered customers without saved addresses.
-- Caps Lock Detection: Added CapsLock warning support for password fields in storefront and Novator templates.
-- Supplier Management: New core support for managing product suppliers.
+- Checkout Address Management: Added "Add Address" button for registered customers without saved addresses.
+- Caps Lock Detection and Password Visibility: Added Caps Lock warning support and a password visibility toggle for password fields in storefront and Novator templates.
+- Supplier Management: Introduced core support for managing product suppliers, enabling better inventory sourcing and dropshipping workflows.
 - Multi-Store Embed Improvements: Embed buttons for products, categories, brands, and collections now fully support multi-store setups.
 - Checkout Improvements: Enhanced checkout flow with better shipping method auto-selection.
+- Product Options HTML Attributes: New HTML attributes field to add custom data attributes for options in the storefront.
 
 Major Improvements
 --------------------
@@ -24,13 +25,15 @@ Major Improvements
 
 Bug Fixes
 ----------
+
 Admin Panel:
 - Fixed deprecated function calls.
 - Quick Save for Product Edit now correctly handles store selections.
-- Fixed image import for products without file extensions.
+- Improved Product Image Import: Enhanced handling of product images without file extensions or with URL parameters. Added connection timeout to better manage cases when remote image servers do not respond.
 - Single Chosen-Select CSS and JS fixes across admin.
 - Vertical align fixes for buttons and headings.
 - Fixed capitalization and sorting in menu items and grids.
+- Corrected layout and behavior of the history modal when opened from within grid modals.
 
 Storefront:
 - Corrected logo display in order confirmation emails.
@@ -38,6 +41,8 @@ Storefront:
 - Fixed wishlist layout to use standard responsive product card list.
 - Login and subscriber form page CSS fixes for mobile devices.
 - Cart page and checkout success page layout fixes.
+- Corrected media thumbnail display in data blocks.
+- Added additional hookvars to improve Google Analytics tracking integration in the storefront.
 
 Novator Template:
 - CSS fixes for login page, recently viewed products, mega menu, and category slides.
@@ -68,6 +73,7 @@ Upgrade Notes
 Special Thanks
 ---------------
 Thanks to the community members who reported issues and contributed to improvements.
+
 
 
 AbanteCart version 1.4.1
