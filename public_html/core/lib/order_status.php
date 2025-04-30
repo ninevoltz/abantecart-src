@@ -1,22 +1,22 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2020 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
@@ -60,13 +60,13 @@ class AOrderStatus
      * AOrderStatus constructor.
      *
      * @param Registry $registry
+     * @throws AException
      */
     public function __construct($registry = null)
     {
-        $this->registry = $registry ? $registry : Registry::getInstance();
+        $this->registry = $registry ? : Registry::getInstance();
         $this->statuses = $this->base_statuses;
 
-        //todo add cache
         $cache_key = 'localization.order_status.list';
         $order_statuses = $this->cache->pull($cache_key);
         if ($order_statuses === false) {
@@ -77,6 +77,8 @@ class AOrderStatus
                 }
             }
             $this->cache->push($cache_key, $this->statuses);
+        }else{
+            $this->statuses = $order_statuses;
         }
     }
 
