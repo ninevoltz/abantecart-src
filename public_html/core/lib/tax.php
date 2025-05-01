@@ -49,7 +49,7 @@ class ATax
         $this->registry = $registry;
 
         //if nothing is passed (default) use session array. Customer session, can function on storefront only
-        if ($c_data == null) {
+        if ($c_data === null) {
             $this->customer_data =& $this->session->data;
         } else {
             $this->customer_data =& $c_data;

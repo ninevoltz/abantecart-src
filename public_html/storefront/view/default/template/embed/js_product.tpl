@@ -47,7 +47,7 @@ if($product['quantity'] && !($product['track_stock'] && !$product['in_stock']) &
     html ='';
     if($('<?php echo $target; ?> .abantecart_quantity')){
         html = '<span class="abantecart_quantity_text"><?php js_echo($text_qty); ?></span>'
-            + '&nbsp;<input type="text" size="3" class="abantecart_quantity_field" '
+            + '&nbsp;<input type="number" size="3" class="abantecart_quantity_field" '
             + 'placeholder="<?php js_echo($text_qty); ?>" value="<?php echo $product['quantity']->value ?>" '
             + 'id="product_quantity" name="' +<?php js_echo($product['quantity']->name) ?> +'"></div>';
         $('#<?php echo $target; ?> .abantecart_quantity').html(html);

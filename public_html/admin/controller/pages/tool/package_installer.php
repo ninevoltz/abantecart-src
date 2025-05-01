@@ -1012,6 +1012,7 @@ class ControllerPagesToolPackageInstaller extends AController
             // clean and redirect after install
             $this->_removeTempFiles();
             $this->cache->remove('*');
+            $this->response->addHeader('Clear-Site-Data: "cache", "storage"');
             unset($this->session->data['package_info']);
             $this->session->data['success'] = $this->language->get('text_success');
             if ($extension_id) {

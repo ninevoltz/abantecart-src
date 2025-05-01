@@ -1,11 +1,11 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 /*
  *   $Id$
  *
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -53,10 +53,10 @@ class ControllerPagesCatalogProduct extends AController
             'table_id'     => 'product_grid',
             'url'          => $this->html->getSecureURL(
                 'listing_grid/product',
-                '&'.http_build_query(
+                '&' . http_build_query(
                     [
-                        'category' => (int) $this->request->get['category'],
-                        'manufacturer' => (int) $this->request->get['manufacturer']
+                        'category'     => (int)$this->request->get['category'],
+                        'manufacturer' => (int)$this->request->get['manufacturer']
                     ]
                 )
             ),
@@ -148,7 +148,7 @@ class ControllerPagesCatalogProduct extends AController
                             ],
 
                         ],
-                        (array) $this->data['grid_edit_expand']
+                        (array)$this->data['grid_edit_expand']
                     ),
                 ],
 
@@ -318,7 +318,7 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
         $title = '';
-        if($search_params['category']){
+        if ($search_params['category']) {
             $title = $this->data['categories'][$search_params['category']];
         }
 
@@ -343,14 +343,14 @@ class ControllerPagesCatalogProduct extends AController
                 'placeholder' => $this->language->get('text_select_brand'),
             ]
         );
-        if($search_params['manufacturer']){
-            $title .= ($title ? ', ' : '').$this->data['brands'][$search_params['manufacturer']];
+        if ($search_params['manufacturer']) {
+            $title .= ($title ? ', ' : '') . $this->data['brands'][$search_params['manufacturer']];
         }
 
         $this->document->addBreadcrumb(
             [
                 'href'      => $this->html->getSecureURL('catalog/product'),
-                'text'      => $this->language->get('heading_title','catalog/product').' '.($title ? '('.$title.')':'') ,
+                'text'      => $this->language->get('heading_title', 'catalog/product') . ' ' . ($title ? '(' . $title . ')' : ''),
                 'separator' => ' :: ',
                 'current'   => true,
             ]
@@ -383,6 +383,7 @@ class ControllerPagesCatalogProduct extends AController
         $this->view->assign('relate_selected_url', $grid_settings['editurl']);
         $this->view->assign('create_collection_url', $this->html->getSecureURL('catalog/collections/insert'));
         $this->view->assign('text_success_relation_set', $this->language->get('text_success_relation_set'));
+        $this->view->assign('text_warning_empty_set', $this->language->get('text_warning_empty_set'));
 
         $grid = $this->dispatch('common/listing_grid', [$grid_settings]);
         $this->view->assign('listing_grid', $grid->dispatchGetOutput());
@@ -410,7 +411,7 @@ class ControllerPagesCatalogProduct extends AController
             $this->model_catalog_product->updateProductLinks($product_id, $product_data);
             $this->extensions->hk_ProcessData($this, 'product_insert');
             $this->session->data['success'] = $this->language->get('text_success');
-            redirect($this->html->getSecureURL('catalog/product/update', '&product_id='.$product_id));
+            redirect($this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id));
         }
         $this->_getForm();
 
@@ -434,12 +435,12 @@ class ControllerPagesCatalogProduct extends AController
 
         if ($this->request->is_POST() && $this->_validateForm()) {
             $product_data = $this->_prepareData($this->request->post);
-            $product_id = $this->data['product_id'] = (int) $this->request->get['product_id'];
+            $product_id = $this->data['product_id'] = (int)$this->request->get['product_id'];
             $this->model_catalog_product->updateProduct($product_id, $product_data);
             $this->model_catalog_product->updateProductLinks($product_id, $product_data);
             $this->extensions->hk_ProcessData($this, 'product_update');
             $this->session->data['success'] = $this->language->get('text_success');
-            redirect($this->html->getSecureURL('catalog/product/update', '&product_id='.$product_id));
+            redirect($this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id));
         }
         $this->_getForm($args);
         //update controller data
@@ -462,12 +463,12 @@ class ControllerPagesCatalogProduct extends AController
                 );
 
                 if ($this->data['new_product']['layout_clone']) {
-                    $this->session->data['success'] .= ' '.$this->language->get('text_success_copy_layout');
+                    $this->session->data['success'] .= ' ' . $this->language->get('text_success_copy_layout');
                 }
                 redirect(
                     $this->html->getSecureURL(
                         'catalog/product/update',
-                        '&product_id='.$this->data['new_product']['id']
+                        '&product_id=' . $this->data['new_product']['id']
                     )
                 );
             } else {
@@ -482,30 +483,30 @@ class ControllerPagesCatalogProduct extends AController
 
     private function _getForm($args = [])
     {
-        $product_id = null;
+        $productId = null;
         $product_info = [];
         $viewport_mode = $args[0]['viewport_mode'] ?? '';
         $content_language_id = $this->language->getContentLanguageID();
         $history = [];
         if (isset($this->request->get['product_id'])) {
-            $product_id = $this->request->get['product_id'];
+            $productId = (int)$this->request->get['product_id'];
             $history = [
-                'table'        => 'product_descriptions',
-                'record_id'     => $product_id,
+                'table'     => 'product_descriptions',
+                'record_id' => $productId,
             ];
-            $product_info = $this->model_catalog_product->getProduct($product_id);
+            $product_info = $this->model_catalog_product->getProduct($productId);
             $product_info['featured'] = $product_info['featured'] ? 1 : 0;
-            $product_info['has_track_options'] = $this->model_catalog_product->hasTrackOptions($product_id);
-            $product_info['stock_locations'] = $this->model_catalog_product->getProductStockLocations($product_id);
+            $product_info['has_track_options'] = $this->model_catalog_product->hasTrackOptions($productId);
+            $product_info['stock_locations'] = $this->model_catalog_product->getProductStockLocations($productId);
             if ($product_info['has_track_options']) {
-                $product_info['quantity'] = $this->model_catalog_product->hasAnyStock($product_id);
+                $product_info['quantity'] = $this->model_catalog_product->hasAnyStock($productId);
             }
-            $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($product_id);
+            $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($productId);
             $title = $this->language->get('text_edit')
-                .'&nbsp;'
-                .$this->language->get('text_product')
-                .' - '
-                .$this->data['product_description'][$content_language_id]['name'];
+                . '&nbsp;'
+                . $this->language->get('text_product')
+                . ' - '
+                . $this->data['product_description'][$content_language_id]['name'];
         } else {
             $title = $this->language->get('text_insert');
         }
@@ -544,97 +545,84 @@ class ControllerPagesCatalogProduct extends AController
         $product_stores = array_column($this->model_setting_store->getStores(), 'store_id');
         $results = $this->model_catalog_category->getCategories(ROOT_CATEGORY_ID, $product_stores);
         foreach ($results as $r) {
-            $name = $r['name'].(count($product_stores) > 1 ? ' ('.$r['store_name'].')' : '');
+            $name = $r['name'] . (count($product_stores) > 1 ? ' (' . $r['store_name'] . ')' : '');
             $this->data['categories'][$r['category_id']] = $name;
         }
 
-        $this->loadModel('setting/store');
-        $this->data['stores'] = [0 => $this->language->get('text_default')];
-        $results = $this->model_setting_store->getStores();
-        foreach ($results as $r) {
-            $this->data['stores'][$r['store_id']] = $r['name'];
-        }
+        /** @var ModelSettingStore $mdl */
+        $mdl = $this->loadModel('setting/store');
+        $this->data['stores'] =
+            [0 => $this->language->get('text_default')]
+            + array_column($mdl->getStores(), 'name', 'store_id');
 
-        $this->loadModel('catalog/manufacturer');
-        $this->data['manufacturers'] = [0 => $this->language->get('text_none')];
-        $results = $this->model_catalog_manufacturer->getManufacturers();
-        foreach ($results as $r) {
-            $this->data['manufacturers'][$r['manufacturer_id']] = $r['name'];
-        }
+        /** @var ModelCatalogManufacturer $mdl */
+        $mdl = $this->loadModel('catalog/manufacturer');
+        $this->data['manufacturers'] = [0 => $this->language->get('text_none')]
+            + array_column($mdl->getManufacturers(), 'name', 'manufacturer_id');
 
-        $this->loadModel('localisation/stock_status');
-        $this->data['stock_statuses'] = ['0' => $this->language->get('text_none')];
-        $results = $this->model_localisation_stock_status->getStockStatuses();
-        foreach ($results as $r) {
-            $this->data['stock_statuses'][$r['stock_status_id']] = $r['name'];
-        }
+        /** @var ModelLocalisationStockStatus $mdl */
+        $mdl = $this->loadModel('localisation/stock_status');
+        $this->data['stock_statuses'] =
+            ['0' => $this->language->get('text_none')]
+            + array_column($mdl->getStockStatuses(), 'name', 'stock_status_id');
 
-        $this->loadModel('localisation/tax_class');
-        $this->data['tax_classes'] = [0 => $this->language->get('text_none')];
-        $results = $this->model_localisation_tax_class->getTaxClasses();
-        foreach ($results as $r) {
-            $this->data['tax_classes'][$r['tax_class_id']] = $r['title'];
-        }
+        /** @var ModelLocalisationTaxClass $mdl */
+        $mdl = $this->loadModel('localisation/tax_class');
+        $this->data['tax_classes'] = [0 => $this->language->get('text_none')]
+            + array_column($mdl->getTaxClasses(), 'title', 'tax_class_id');
 
-        $this->loadModel('localisation/weight_class');
-        $this->data['weight_classes'] = [];
-        $results = $this->model_localisation_weight_class->getWeightClasses();
-        foreach ($results as $r) {
-            $this->data['weight_classes'][$r['weight_class_id']] = $r['title'];
-        }
+        /** @var ModelLocalisationWeightClass $wMdl */
+        $wMdl = $this->loadModel('localisation/weight_class');
+        $this->data['weight_classes'] = array_column($wMdl->getWeightClasses(),'title','weight_class_id');
 
-        $this->loadModel('localisation/length_class');
-        $this->data['length_classes'] = [];
-        $results = $this->model_localisation_length_class->getLengthClasses();
-        foreach ($results as $r) {
-            $this->data['length_classes'][$r['length_class_id']] = $r['title'];
-        }
+        /** @var ModelLocalisationLengthClass $lenMdl */
+        $lenMdl = $this->loadModel('localisation/length_class');
+        $this->data['length_classes'] = array_column($lenMdl->getLengthClasses(),'title','length_class_id');
 
-        $fields = [
-            'product_category',
-            'featured',
-            'product_store',
-            'model',
-            'call_to_order',
-            'sku',
-            'location',
-            'keyword',
-            'image',
-            'manufacturer_id',
-            'shipping',
-            'ship_individually',
-            'shipping_price',
-            'free_shipping',
-            'quantity',
-            'minimum',
-            'maximum',
-            'subtract',
-            'sort_order',
-            'stock_status_id',
-            'stock_checkout',
-            'price',
-            'cost',
-            'status',
-            'tax_class_id',
-            'weight',
-            'weight_class_id',
-            'length',
-            'width',
-            'height',
-        ];
+        $fields = array_merge(
+            [
+                'product_category',
+                'featured',
+                'product_store',
+                'model',
+                'call_to_order',
+                'sku',
+                'location',
+                'keyword',
+                'image',
+                'manufacturer_id',
+                'shipping',
+                'ship_individually',
+                'shipping_price',
+                'free_shipping',
+                'quantity',
+                'minimum',
+                'maximum',
+                'subtract',
+                'sort_order',
+                'stock_status_id',
+                'stock_checkout',
+                'price',
+                'cost',
+                'status',
+                'tax_class_id',
+                'weight',
+                'weight_class_id',
+                'length',
+                'width',
+                'height',
+            ],
+            (array)$this->data['form_field_names']
+        );
 
         foreach ($fields as $f) {
-            if (isset ($this->request->post [$f])) {
-                $this->data[$f] = $this->request->post [$f];
-            } elseif (isset($product_info)) {
-                $this->data[$f] = $product_info[$f];
-            }
+            $this->data[$f] = $this->request->post[$f] ?? $product_info[$f];
         }
 
         if (isset($this->request->post['product_category'])) {
             $this->data['product_category'] = $this->request->post['product_category'];
         } elseif (isset($product_info)) {
-            $this->data['product_category'] = $this->model_catalog_product->getProductCategories($product_id);
+            $this->data['product_category'] = $this->model_catalog_product->getProductCategories($productId);
         } else {
             $this->data['product_category'] = [];
         }
@@ -642,7 +630,7 @@ class ControllerPagesCatalogProduct extends AController
         if (isset($this->request->post['product_store'])) {
             $this->data['product_store'] = $this->request->post['product_store'];
         } elseif (isset($product_info)) {
-            $this->data['product_store'] = $this->model_catalog_product->getProductStores($product_id);
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
         } else {
             $this->data['product_store'] = [(int)$this->session->data['current_store_id']];
         }
@@ -651,7 +639,7 @@ class ControllerPagesCatalogProduct extends AController
             $this->data['product_description'] = $this->request->post['product_description'];
         } elseif (isset($product_info)) {
             $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
-                $product_id,
+                $productId,
                 $content_language_id
             );
         } else {
@@ -670,79 +658,62 @@ class ControllerPagesCatalogProduct extends AController
             $this->data['product_tags'] = $this->request->post['product_tags'];
         } elseif (isset($product_info)) {
             $this->data['product_tags'] = $this->model_catalog_product->getProductTags(
-                $product_id,
+                $productId,
                 $content_language_id
             );
         } else {
             $this->data['product_tags'] = '';
         }
-        $this->loadModel('tool/image');
-        if (isset($product_info) && $product_info['image'] && file_exists(DIR_IMAGE.$product_info['image'])) {
-            $this->data['preview'] = $this->model_tool_image->resize($product_info['image'], 100, 100);
+
+        /** @var ModelToolImage $mdl */
+        $mdl = $this->loadModel('tool/image');
+        if (isset($product_info) && $product_info['image'] && file_exists(DIR_IMAGE . $product_info['image'])) {
+            $preview = $product_info['image'];
         } else {
-            $this->data['preview'] = $this->model_tool_image->resize('no_image.jpg', 100, 100);
+            $preview = 'no_image.jpg';
         }
+        $this->data['preview'] = $mdl->resize($preview, 100, 100);
 
         if (!isset($this->data['stock_status_id'])) {
             $this->data['stock_status_id'] = $this->config->get('config_stock_status_id');
         }
 
         $this->data['date_available'] = $this->request->post['date_available']
-                ?? $product_info['date_available']
-                ?? dateInt2ISO(time() - 86400);
+            ?? $product_info['date_available']
+            ?? dateInt2ISO(time() - 86400);
 
+        $weight_info = $wMdl->getWeightClassDescriptionByUnit( $this->config->get('config_weight_class') );
+        $this->data['weight_class_id'] = (int)$this->request->post['weight_class_id']
+            ?: (int)$product_info['weight_class_id']
+            ?: (int)$weight_info['weight_class_id']
+            ?: '';
 
-        $weight_info = $this->model_localisation_weight_class->getWeightClassDescriptionByUnit(
-            $this->config->get('config_weight_class')
+        $length_info = $lenMdl->getLengthClassDescriptionByUnit( $this->config->get('config_length_class') );
+        $this->data['length_class_id'] = (int)$this->request->post['length_class_id']
+            ?: (int)$product_info['length_class_id'] ?: (int)$length_info['length_class_id'] ?: '';
+
+        $onByDefaults = array_merge(
+            [ 'status', 'quantity', 'minimum', 'sort_order' ],
+            (array)$this->data['form_fields_on_by_default']
         );
-        if (isset($this->request->post['weight_class_id'])) {
-            $this->data['weight_class_id'] = (int)$this->request->post['weight_class_id'];
-        } elseif ($product_info) {
-            $this->data['weight_class_id'] = (int)$product_info['weight_class_id'];
-        } elseif (isset($weight_info)) {
-            $this->data['weight_class_id'] = (int)$weight_info['weight_class_id'];
-        } else {
-            $this->data['weight_class_id'] = '';
-        }
-
-        $length_info = $this->model_localisation_length_class->getLengthClassDescriptionByUnit(
-            $this->config->get('config_length_class')
-        );
-
-        if (isset($this->request->post['length_class_id'])) {
-            $this->data['length_class_id'] = (int)$this->request->post['length_class_id'];
-        } elseif ($product_info) {
-            $this->data['length_class_id'] = (int)$product_info['length_class_id'];
-        } elseif (isset($length_info)) {
-            $this->data['length_class_id'] = (int)$length_info['length_class_id'];
-        } else {
-            $this->data['length_class_id'] = '';
-        }
-
-        if ($this->data['status'] === '') {
-            $this->data['status'] = 1;
-        }
-        if ($this->data['quantity'] === '') {
-            $this->data['quantity'] = 1;
-        }
-        if ($this->data['minimum'] === '') {
-            $this->data['minimum'] = 1;
-        }
-        if ($this->data['sort_order'] === '') {
-            $this->data['sort_order'] = 1;
+        foreach( $onByDefaults as $onByDefault ) {
+            if ($this->data[$onByDefault] === '') {
+                $this->data[$onByDefault] = 1;
+            }
         }
 
         $this->data['active'] = 'details';
-        if (!isset($product_id)) {
+        if (!isset($productId)) {
             $this->data['action'] = $this->html->getSecureURL('catalog/product/insert');
-            $this->data['form_title'] = $this->language->get('text_insert').$this->language->get('text_product');
+            $this->data['form_title'] = $this->language->get('text_insert') . $this->language->get('text_product');
             $this->data['update'] = '';
             $form = new AForm('ST');
             $this->data['summary_form'] = '';
         } else {
-            $this->data['action'] = $this->html->getSecureURL('catalog/product/update', '&product_id='.$product_id);
-            $this->data['form_title'] = $this->language->get('text_edit').'&nbsp;'.$this->language->get('text_product');
-            $this->data['update'] = $this->html->getSecureURL('listing_grid/product/update_field', '&id='.$product_id);
+            $this->data['action'] = $this->html->getSecureURL('catalog/product/update', '&product_id=' . $productId);
+            $this->data['form_title'] = $this->language->get('text_edit')
+                . '&nbsp;' . $this->language->get('text_product');
+            $this->data['update'] = $this->html->getSecureURL('listing_grid/product/update_field', '&id=' . $productId);
             $form = new AForm('HS');
 
             $this->data['active'] = 'general';
@@ -884,9 +855,9 @@ class ControllerPagesCatalogProduct extends AController
                 'name'        => 'product_store[]',
                 // if new product - take selected store from storeSwitcher
                 //otherwise - take product data
-                'value'       => $product_id
+                'value'       => $productId
                     ? $this->data['product_store']
-                    : ($this->data['product_store'] ? : [$this->config->get('current_store_id')]),
+                    : ($this->data['product_store'] ?: [$this->config->get('current_store_id')]),
                 'options'     => $this->data['stores'],
                 'style'       => 'chosen',
                 'placeholder' => $this->language->get('entry_store'),
@@ -932,21 +903,21 @@ class ControllerPagesCatalogProduct extends AController
         );
         $this->data['form']['tax_selector'] = $form->getFieldHtml(
             [
-                'type'     => 'selectbox',
-                'name'     => 'tax_selector',
-                'value'    => $this->data['tax_class_id'] ?? $this->config->get('config_tax_class_id'),
-                'options'  => $this->data['tax_classes'],
-                'style' => 'no-save'
+                'type'    => 'selectbox',
+                'name'    => 'tax_selector',
+                'value'   => $this->data['tax_class_id'] ?? $this->config->get('config_tax_class_id'),
+                'options' => $this->data['tax_classes'],
+                'style'   => 'no-save'
             ]
         );
         $this->data['entry_tax_rule'] =
             $this->html->buildElement(
                 [
-                    'type' => "button",
-                    'href' => $this->html->getSecureURL('localisation/tax_class'),
-                    'text' => $this->language->get('entry_tax_rule'),
+                    'type'   => "button",
+                    'href'   => $this->html->getSecureURL('localisation/tax_class'),
+                    'text'   => $this->language->get('entry_tax_rule'),
                     'target' => '_blank',
-                    'style' => ' '
+                    'style'  => ' '
                 ]
             );
 
@@ -999,7 +970,7 @@ class ControllerPagesCatalogProduct extends AController
             [
                 'type'     => 'input',
                 'name'     => 'quantity',
-                'value'    => (int) $this->data['quantity'],
+                'value'    => (int)$this->data['quantity'],
                 'style'    => 'col-xs-1 small-field',
                 'help_url' => $this->gen_help_url('product_inventory'),
                 'attr'     => ($product_info['has_track_options'] || $product_info['stock_locations']
@@ -1019,7 +990,7 @@ class ControllerPagesCatalogProduct extends AController
             [
                 'type'  => 'input',
                 'name'  => 'minimum',
-                'value' => (int) $this->data['minimum'],
+                'value' => (int)$this->data['minimum'],
                 'style' => 'small-field',
             ]
         );
@@ -1028,16 +999,20 @@ class ControllerPagesCatalogProduct extends AController
             [
                 'type'  => 'input',
                 'name'  => 'maximum',
-                'value' => (int) $this->data['maximum'],
+                'value' => (int)$this->data['maximum'],
                 'style' => 'small-field',
             ]
         );
 
+        $this->data['stock_checkout'] = (string)$this->data['stock_checkout'];
+        $this->data['stock_checkout'] = $this->data['stock_checkout'] !== ''
+            ? (int)$this->data['stock_checkout']
+            : $this->data['stock_checkout'];
         $this->data['form']['fields']['data']['stock_checkout'] = $form->getFieldHtml(
             [
                 'type'    => 'selectbox',
                 'name'    => 'stock_checkout',
-                'value'   => $this->data['stock_checkout'] ? : '',
+                'value'   => $this->data['stock_checkout'],
                 'options' => [
                     '' => $this->language->get('text_default'),
                     0  => $this->language->get('text_no'),
@@ -1051,7 +1026,7 @@ class ControllerPagesCatalogProduct extends AController
             [
                 'type'     => 'selectbox',
                 'name'     => 'stock_status_id',
-                'value'    => (int) ($this->data['stock_status_id'] ? : $this->config->get('config_stock_status_id')),
+                'value'    => (int)($this->data['stock_status_id'] ?: $this->config->get('config_stock_status_id')),
                 'options'  => $this->data['stock_statuses'],
                 'help_url' => $this->gen_help_url('product_inventory'),
                 'style'    => 'small-field',
@@ -1086,7 +1061,7 @@ class ControllerPagesCatalogProduct extends AController
         );
         $this->data['generate_seo_url'] = $this->html->getSecureURL(
             'common/common/getseokeyword',
-            '&object_key_name=product_id&id='.$product_id
+            '&object_key_name=product_id&id=' . $productId
         );
 
         $this->data['form']['fields']['data']['keyword'] = $form->getFieldHtml(
@@ -1095,7 +1070,7 @@ class ControllerPagesCatalogProduct extends AController
                 'name'         => 'keyword',
                 'value'        => $this->data['keyword'],
                 'help_url'     => $this->gen_help_url('seo_keyword'),
-                'attr'         => ' gen-value="'.SEOEncode($this->data['product_description']['name']).'" ',
+                'attr'         => ' gen-value="' . SEOEncode($this->data['product_description']['name']) . '" ',
                 'multilingual' => true,
             ]
         );
@@ -1103,7 +1078,10 @@ class ControllerPagesCatalogProduct extends AController
             [
                 'type'       => 'date',
                 'name'       => 'date_available',
-                'value'      => dateISO2Display($this->data['date_available'], $this->language->get('date_format_short')),
+                'value'      => dateISO2Display(
+                    $this->data['date_available'],
+                    $this->language->get('date_format_short')
+                ),
                 'default'    => dateNowDisplay(),
                 'dateformat' => format4Datepicker($this->language->get('date_format_short')),
             ]
@@ -1181,7 +1159,7 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        if ($product_id && !$this->data['length_class_id']) {
+        if ($productId && !$this->data['length_class_id']) {
             $this->data['length_classes'][0] = $this->language->get('text_none');
         }
 
@@ -1195,20 +1173,20 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        if ($product_id && $this->data['shipping']
-            && (!(float) $this->data['weight']
-                || !$this->data['weight_class_id'])
-            && !(float) $this->data['shipping_price']
+        if ( $productId
+            && $this->data['shipping']
+            && (!(float)$this->data['weight'] || !$this->data['weight_class_id'])
+            && !(float)$this->data['shipping_price']
         ) {
             if (!$this->data['weight_class_id']) {
                 $this->data['error']['weight_class'] = $this->language->get('error_weight_class');
             }
-            if (!(float) $this->data['weight']) {
+            if (!(float)$this->data['weight']) {
                 $this->data['error']['weight'] = $this->language->get('error_weight_value');
             }
         }
 
-        if ($product_id
+        if ($productId
             && (!$this->data['weight_class_id']
                 || !$this->data['weight_classes'][$this->data['weight_class_id']])
         ) {
@@ -1236,18 +1214,21 @@ class ControllerPagesCatalogProduct extends AController
             ]
         );
 
-        $this->data['product_id'] = $product_id;
-        if ($product_id && $this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+        $this->data['product_id'] = $productId;
+        if ($productId && $this->config->get('config_embed_status')) {
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id='.$product_id
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->data['text_clone'] = $this->language->get('text_clone');
         $this->data['clone_url'] = $this->html->getSecureURL(
             'catalog/product/copy',
-            '&product_id='.$this->request->get['product_id']
+            '&product_id=' . $this->request->get['product_id']
         );
         $this->data['form_language_switch'] = $this->html->getContentLanguageSwitcher();
         $this->data['language_id'] = $content_language_id;
@@ -1275,7 +1256,6 @@ class ControllerPagesCatalogProduct extends AController
                 'common/resource_library',
                 '&action=list_library&object_name=&object_id&type=image&mode=single'
             );
-
             $tpl = 'pages/catalog/product_form.tpl';
         }
 
@@ -1303,7 +1283,7 @@ class ControllerPagesCatalogProduct extends AController
         }
 
         $error_text = $this->html->isSEOkeywordExists(
-            'product_id='.$productId,
+            'product_id=' . $productId,
             $post['keyword']
         );
 
@@ -1315,8 +1295,8 @@ class ControllerPagesCatalogProduct extends AController
             $v = abs(preformatFloat($post[$name], $this->language->get('decimal_point')));
             if ($v >= 1000) {
                 $this->error[$name] = $this->language->get('error_measure_value');
-            } elseif ( $post['shipping'] && !$v
-                && ((float) $post['length'] + (float) $post['width'] + (float) $post['height'])
+            } elseif ($post['shipping'] && !$v
+                && ((float)$post['length'] + (float)$post['width'] + (float)$post['height'])
             ) {
                 $this->error[$name] = $this->language->get('error_dimension_value');
             }
@@ -1361,6 +1341,7 @@ class ControllerPagesCatalogProduct extends AController
         }
         //set default store if not set
         $data['product_store'] = $data['product_store'] ?? [0];
+        $data['product_category'] = $data['product_category'] ?? [];
         return $data;
     }
 }

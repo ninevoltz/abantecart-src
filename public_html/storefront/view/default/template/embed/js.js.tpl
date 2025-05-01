@@ -299,8 +299,8 @@ var init = function () {
                     add_url = $(this).find('button').attr('data-href');
                 }
 
-                if ($('.abantecart_quantity input').val()) {
-                    add_url += '&quantity=' + $('.abantecart_quantity input').val();
+                if ($(this).parents('.abantecart_product').find('.abantecart_quantity input').val()) {
+                    add_url += '&quantity=' + $(this).parents('.abantecart_product').find('.abantecart_quantity input').val();
                 }
 
                 if ($(e.target).attr('data-toggle') === "abcmodal") {

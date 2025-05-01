@@ -29,13 +29,16 @@ $guest_data = $this->session->data['fc']['guest'];
     <div class="d-flex flex-wrap mb-3 align-items-stretch">
         <?php
         if($this->customer->isLogged()){
+            /** @see public_html/storefront/view/default/template/responses/checkout/address_cards_logged.tpl */
             include($this->templateResource('/template/responses/checkout/address_cards_logged.tpl'));
         }else{
+            /** @see public_html/storefront/view/default/template/responses/checkout/address_cards_guest.tpl */
             include($this->templateResource('/template/responses/checkout/address_cards_guest.tpl'));
         } ?>
         </div>
     <?php
-          include($this->templateResource('/template/responses/checkout/shipping_selector.tpl'));
+    /** @see public_html/storefront/view/default/template/responses/checkout/shipping_selector.tpl */
+    include($this->templateResource('/template/responses/checkout/shipping_selector.tpl'));
     ?>
     <div class="order_email input-group input-group-lg mb-3">
         <div class="input-group-text"><i class="fa fa-envelope"></i></div>

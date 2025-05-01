@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -337,7 +337,7 @@ abstract class AController
         $new_block['block_txt_id'] = $block_text_id;
         $new_block['template'] = $new_template;
         // This it to position element to the placeholder.
-        // If not set element will not be displayed in place holder.
+        // If not set element will not be displayed in placeholder.
         // To use manual inclusion to parent template ignore this parameter
         $new_block['position'] = $template_position;
         array_push($this->children, $new_block);
@@ -558,10 +558,13 @@ abstract class AController
             unset($this->session->data['guest']);
             $this->view->assign(
                 'act_on_behalf_warning',
-                sprintf(
-                    $this->language->get('text_act_on_behalf'),
-                    $this->customer->getEmail() ?: 'guest',
-                    $this->session->data['merchant_username']
+                $this->language->getAndReplace(
+                    'text_act_on_behalf',
+                    '',
+                    [
+                        $this->customer->getEmail() ?: 'guest',
+                        $this->session->data['merchant_username']
+                    ]
                 )
             );
         }
@@ -591,7 +594,7 @@ abstract class AController
         $page = $request['page'] ?? 1;
         $limit = (int)$request['limit'] ?: $this->config->get('config_catalog_limit');
         $sorting_href = $request['sort'];
-        if(!$this->data['sorts']){
+        if (!$this->data['sorts']) {
             $this->prepareProductListingParameters();
         }
         if (!$sorting_href || !isset($this->data['sorts'][$sorting_href])) {

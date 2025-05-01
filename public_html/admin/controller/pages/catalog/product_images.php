@@ -1,12 +1,11 @@
 <?php
-
 /*
  *   $Id$
  *
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -34,9 +33,9 @@ class ControllerPagesCatalogProductImages extends AController
         $this->loadLanguage('catalog/product');
         $this->loadModel('catalog/product');
         $this->loadModel('tool/image');
-
-        if (isset($this->request->get['product_id'])) {
-            $product_info = $this->model_catalog_product->getProduct($this->request->get['product_id']);
+        $productId = (int)$this->request->get['product_id'];
+        if ($productId) {
+            $product_info = $this->model_catalog_product->getProduct($productId);
             if (!$product_info) {
                 $this->session->data['warning'] = $this->language->get('error_product_not_found');
                 redirect($this->html->getSecureURL('catalog/product'));
@@ -44,7 +43,8 @@ class ControllerPagesCatalogProductImages extends AController
         }
 
         $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
-            $this->request->get['product_id']
+            $productId,
+            $this->language->getContentLanguageID()
         );
 
         $this->view->assign('error_warning', $this->error['warning']);
@@ -67,13 +67,13 @@ class ControllerPagesCatalogProductImages extends AController
         );
         $title = $this->language->get('text_edit') . '&nbsp;'
             . $this->language->get('text_product') . ' - '
-            . $this->data['product_description'][$this->language->getContentLanguageID()]['name'];
+            . $this->data['product_description']['name'];
         $this->document->setTitle($title);
         $this->document->addBreadcrumb(
             [
                 'href' => $this->html->getSecureURL(
                     'catalog/product/update',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 ),
                 'text' => $title,
             ]
@@ -82,7 +82,7 @@ class ControllerPagesCatalogProductImages extends AController
             [
                 'href'    => $this->html->getSecureURL(
                     'catalog/product_images',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 ),
                 'text'    => $this->language->get('tab_media'),
                 'current' => true,
@@ -106,7 +106,7 @@ class ControllerPagesCatalogProductImages extends AController
 
         $this->data['action'] = $this->html->getSecureURL(
             'catalog/product_images',
-            '&product_id=' . $this->request->get['product_id']
+            '&product_id=' . $productId
         );
         $this->data['form_title'] = $this->language->get('text_edit') . '&nbsp;' . $this->language->get('text_product');
         $this->data['update'] = '';
@@ -144,10 +144,14 @@ class ControllerPagesCatalogProductImages extends AController
             ]
         );
         if ($this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $this->request->get['product_id']
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
         $this->view->batchAssign($this->data);
         $this->view->assign('help_url', $this->gen_help_url('product_media'));
@@ -161,7 +165,7 @@ class ControllerPagesCatalogProductImages extends AController
             'responses/common/resource_library/get_resources_scripts',
             [
                 'object_name' => 'products',
-                'object_id'   => (int)$this->request->get['product_id'],
+                'object_id'   => $productId,
                 'types'       => ['image', 'audio', 'video', 'pdf', 'archive'],
             ]
         );
@@ -172,5 +176,4 @@ class ControllerPagesCatalogProductImages extends AController
         //update controller data
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
     }
-
 }

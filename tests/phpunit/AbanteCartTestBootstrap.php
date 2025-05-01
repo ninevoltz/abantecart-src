@@ -44,14 +44,6 @@ class AbanteCartTest extends PHPUnit\Framework\TestCase
         $_SERVER['HTTP_HOST'] = ABC_TEST_HTTP_HOST;
         $_SERVER['PHP_SELF'] = ABC_TEST_PHP_SELF;
 
-        // Required PHP Version
-        define('MIN_PHP_VERSION', '8.1.0');
-        if (version_compare(phpversion(), MIN_PHP_VERSION, '<') == true) {
-            throw new Exception(
-                MIN_PHP_VERSION
-                .'+ Required for AbanteCart to work properly! Please contact your system administrator or host service provider.'
-            );
-        }
 
         // Load Configuration
 

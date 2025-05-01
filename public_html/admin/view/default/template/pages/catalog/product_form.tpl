@@ -35,34 +35,28 @@
             foreach ($fields as $name => $field) { ?>
                 <?php
                 //Logic to calculate fields width
-                $widthcasses = "col-sm-7";
-                if (is_int(stripos($field->style, 'large-field'))) {
-                    $widthcasses = "col-sm-7";
+                $widthCssClasses = "col-sm-7";
+                if (str_contains((string)$field->style, 'medium-field')
+                    || str_contains((string)$field->style, 'date')
+                    || $name == 'price'
+                ) {
+                    $widthCssClasses = "col-sm-5";
                 } else {
-                    if (is_int(stripos($field->style, 'medium-field'))
-						|| is_int(stripos($field->style, 'date'))
-                        || $name == 'price'
-					) {
-                        $widthcasses = "col-sm-5";
-                    } else {
-                        if (is_int(stripos($field->style, 'small-field'))
-                            || is_int(stripos($field->style, 'btn_switch'))
-						) {
-                            $widthcasses = "col-sm-3";
-                        } else {
-                            if (is_int(stripos($field->style, 'tiny-field'))
-							) {
-                                $widthcasses = "col-sm-2";
-                            }
-                        }
+                    if (str_contains((string)$field->style, 'small-field')
+                        || str_contains((string)$field->style, 'btn_switch')
+                    ) {
+                        $widthCssClasses = "col-sm-3";
+                    } else if (str_contains((string)$field->style, 'tiny-field')) {
+                        $widthCssClasses = "col-sm-2";
                     }
                 }
-                $widthcasses .= " col-xs-12";
+
+                $widthCssClasses .= " col-xs-12";
                 ?>
 				<div class="form-group <?php if (!empty($error[$name])) { echo "has-error"; } ?>">
 					<label class="control-label col-sm-3 col-xs-12"
 						   for="<?php echo $field->element_id; ?>"><?php echo ${'entry_'.$name}; ?></label>
-					<div class="input-group <?php echo ($name == 'price' ? '' : ' afield '). $widthcasses; ?>
+					<div class="input-group <?php echo ($name == 'price' ? '' : ' afield '). $widthCssClasses; ?>
 					<?php
 					echo($name == 'description' ? 'ml_ckeditor' : '') ?>">
                         <?php if ($name == 'keyword') { ?>

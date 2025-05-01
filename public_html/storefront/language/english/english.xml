@@ -365,4 +365,8 @@
 		<key>text_previous</key>
 		<value><![CDATA[Previous]]></value>
 	</definition>
+	<definition>
+		<key>warning_capslock</key>
+		<value><![CDATA[CapsLock is On!]]></value>
+	</definition>
 </definitions>

@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -30,11 +30,12 @@ class ControllerPagesCatalogProductPromotions extends AController
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
 
+        $productId = (int)$this->request->get['product_id'];
         $this->loadLanguage('catalog/product');
         $this->loadModel('catalog/product');
 
-        if (isset($this->request->get['product_id']) && $this->request->is_GET()) {
-            $product_info = $this->model_catalog_product->getProduct($this->request->get['product_id']);
+        if ($productId && $this->request->is_GET()) {
+            $product_info = $this->model_catalog_product->getProduct($productId);
             if (!$product_info) {
                 $this->session->data['warning'] = $this->language->get('error_product_not_found');
                 redirect($this->html->getSecureURL('catalog/product'));
@@ -60,7 +61,7 @@ class ControllerPagesCatalogProductPromotions extends AController
                     );
                 } else { //insert
                     $this->data['product_discount_id'] = $this->model_catalog_product->addProductDiscount(
-                        $this->request->get['product_id'],
+                        $productId,
                         $post
                     );
                 }
@@ -72,7 +73,7 @@ class ControllerPagesCatalogProductPromotions extends AController
                     );
                 } else { //insert
                     $this->data['product_special_id'] = $this->model_catalog_product->addProductSpecial(
-                        $this->request->get['product_id'],
+                        $productId,
                         $post
                     );
                 }
@@ -82,13 +83,14 @@ class ControllerPagesCatalogProductPromotions extends AController
             redirect(
                 $this->html->getSecureURL(
                     'catalog/product_promotions',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 )
             );
         }
 
         $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
-            $this->request->get['product_id']
+            $productId,
+            $this->language->getContentLanguageID()
         );
 
         $this->view->assign('error_warning', $this->error['warning'] = implode('<br>', $this->error));
@@ -113,12 +115,12 @@ class ControllerPagesCatalogProductPromotions extends AController
         );
         $title = $this->language->get('text_edit') . '&nbsp;'
             . $this->language->get('text_product') . ' - '
-            . $this->data['product_description'][$this->language->getContentLanguageID()]['name'];
+            . $this->data['product_description']['name'];
         $this->document->addBreadcrumb(
             [
                 'href'      => $this->html->getSecureURL(
                     'catalog/product/update',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 ),
                 'text'      => $title,
                 'separator' => ' :: ',
@@ -129,7 +131,7 @@ class ControllerPagesCatalogProductPromotions extends AController
             [
                 'href'      => $this->html->getSecureURL(
                     'catalog/product_promotions',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 ),
                 'text'      => $this->language->get('tab_promotions'),
                 'separator' => ' :: ',
@@ -145,27 +147,27 @@ class ControllerPagesCatalogProductPromotions extends AController
             . '&nbsp;'
             . $this->language->get('text_product');
         $this->data['product_discounts'] = $this->model_catalog_product->getProductDiscounts(
-            $this->request->get['product_id']
+            $productId
         );
         $this->data['delete_discount'] = $this->html->getSecureURL(
             'catalog/product_promotions/delete',
-            '&product_id=' . $this->request->get['product_id'] . '&product_discount_id=%ID%'
+            '&product_id=' . $productId . '&product_discount_id=%ID%'
         );
         $this->data['update_discount'] = $this->html->getSecureURL(
             'catalog/product_discount_form/update',
-            '&product_id=' . $this->request->get['product_id'] . '&product_discount_id=%ID%'
+            '&product_id=' . $productId . '&product_discount_id=%ID%'
         );
 
         $this->data['product_specials'] = $this->model_catalog_product->getProductSpecials(
-            $this->request->get['product_id']
+            $productId
         );
         $this->data['delete_special'] = $this->html->getSecureURL(
             'catalog/product_promotions/delete',
-            '&product_id=' . $this->request->get['product_id'] . '&product_special_id=%ID%'
+            '&product_id=' . $productId . '&product_special_id=%ID%'
         );
         $this->data['update_special'] = $this->html->getSecureURL(
             'catalog/product_special_form/update',
-            '&product_id=' . $this->request->get['product_id'] . '&product_special_id=%ID%'
+            '&product_id=' . $productId . '&product_special_id=%ID%'
         );
 
         foreach (['product_discounts', 'product_specials'] as $section) {
@@ -196,7 +198,7 @@ class ControllerPagesCatalogProductPromotions extends AController
                 'text' => $this->language->get('button_add_discount'),
                 'href' => $this->html->getSecureURL(
                     'catalog/product_discount_form/insert',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 )
             ]
         );
@@ -206,7 +208,7 @@ class ControllerPagesCatalogProductPromotions extends AController
                 'text' => $this->language->get('button_add_special'),
                 'href' => $this->html->getSecureURL(
                     'catalog/product_special_form/insert',
-                    '&product_id=' . $this->request->get['product_id']
+                    '&product_id=' . $productId
                 ),
             ]
         );
@@ -221,10 +223,14 @@ class ControllerPagesCatalogProductPromotions extends AController
 
         $this->view->assign('help_url', $this->gen_help_url('product_promotions'));
         if ($this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $this->request->get['product_id']
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
         $this->view->batchAssign($this->data);
         $this->processTemplate('pages/catalog/product_promotions.tpl');
@@ -249,7 +255,7 @@ class ControllerPagesCatalogProductPromotions extends AController
         redirect(
             $this->html->getSecureURL(
                 'catalog/product_promotions',
-                '&product_id=' . $this->request->get['product_id']
+                '&product_id=' . (int)$this->request->get['product_id']
             )
         );
 
@@ -279,5 +285,4 @@ class ControllerPagesCatalogProductPromotions extends AController
 
         return (!$this->error);
     }
-
 }

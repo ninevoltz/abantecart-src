@@ -64,27 +64,24 @@
                 <h4 class="mb-3 text-nowrap w-100"><?php echo $text_returning_customer; ?></h4>
                 <h6 class="mb-3 w-100"><?php echo $text_i_am_returning_customer; ?></h6>
                 <?php
+                $formCss = "mt-auto mb-0 w-100";
                 $form2['form_open']->style .= $formCss;
                 echo str_replace('novalidate','',$form2['form_open']); ?>
                     <fieldset class="w-100">
-                        <div class="form-floating mb-3">
+                        <div class="mb-3">
                             <?php
                             $form2['loginname']->no_wrapper = true;
+                            $form2['loginname']->placeholder = $noemaillogin ? $entry_loginname : $entry_email_address;
                             $form2['loginname']->attr .= ' autocomplete="username email" required  aria-required="true"';
                             echo $form2['loginname'];
                             ?>
-                            <label for="<?php echo $form2['loginname']->element_id; ?>">
-                            <?php
-                                echo $noemaillogin ? $entry_loginname : $entry_email_address;
-                            ?>
-                            </label>
                         </div>
-                        <div class="form-floating mb-3">
+                        <div class="mb-3">
                             <?php
                             $form2['password']->no_wrapper = true;
                             $form2['password']->attr .= ' autocomplete="current-password" aria-required="true" required';
+                            $form2['password']->placeholder = $entry_password;
                             echo $form2['password']?>
-                            <label for="<?php echo $form2['password']->element_id; ?>"><?php echo $entry_password; ?></label>
                         </div>
                     </fieldset>
                     <div class="d-flex w-100 align-items-center">

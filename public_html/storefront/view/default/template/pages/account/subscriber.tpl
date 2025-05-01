@@ -52,14 +52,14 @@
         <?php echo $this->getHookVar('subscriber_hookvar'); ?>
     </div>
 
-    <div class="ps-4 p-3 col-12 d-flex flex-wrap">
-        <a href="<?php echo $create_account->href; ?>" class="btn btn-secondary" title="<?php echo $create_account->text ?>">
+    <div class="ps-4 p-3 col-12 d-flex flex-wrap justify-content-center justify-content-sm-between">
+        <a href="<?php echo $create_account->href; ?>" class="btn btn-secondary me-1 mb-2 mb-sm-0" title="<?php echo $create_account->text ?>">
             <i class="<?php echo $create_account->icon; ?>"></i>
             <?php echo $create_account->text ?>
         </a>
         <button id="submit_button" type="submit"
                 role="button"
-                class="btn btn-primary ms-auto lock-on-click"
+                class="btn btn-primary lock-on-click mb-2 mb-sm-0"
                 title="<?php echo_html2view($continue->name); ?>">
             <i class="fa <?php echo $continue->icon ?>"></i>
             <?php echo $continue->name ?>

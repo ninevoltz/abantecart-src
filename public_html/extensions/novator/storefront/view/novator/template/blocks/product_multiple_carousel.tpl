@@ -45,7 +45,7 @@ if($products){ ?>
                                 $item = [];
 
                                 $item['image'] = '<img alt="'.html2view($product['name']).'" class="img-fluid h-auto" src="'.$product['thumb']['thumb_url'].'" style="'.$productImgCss.'">';
-                                $item['image1'] = '<img class="img-fluid h-auto img-overlay" src="'.$product['thumb']['thumb_url'].'" style="'.$productImgCss.'">';
+                                $item['image1'] = '<img class="mx-auto img-fluid h-auto img-overlay" src="'.$product['thumb']['thumb_url'].'" style="'.$productImgCss.'">';
                                 $item['title'] = $product['name'];
                                 $item['description'] = $product['model'];
                                 $item['rating'] = renderRatingStarsNv($product['rating'], $product['stars']);
@@ -63,11 +63,11 @@ if($products){ ?>
                                 }
                                 $inCart = in_array((int)$product['product_id'], $cartProductIds);
                                 ?>
-                                <div class="px-0 mx-0 carousel-item position-relative <?php echo !$i ? 'active' : '';?> ">
+                                <div class="px-0 mx-0 carousel-item justify-content-center position-relative <?php echo !$i ? 'active' : '';?> ">
                                     <div class="product-card card p-0 border-0  col-12 col-sm-6 col-md-4 col-lg-3"
                                          data-raw-price="<?php echo round($product['raw_price'],2)?>"
                                          data-product-id="<?php echo round($product['product_id'],2)?>">
-                                        <div class="prod-img position-relative overflow-hidden">
+                                        <div class="prod-img position-relative overflow-hidden text-center">
                                             <a href="<?php echo $item['info_url'] ?>">
                                                 <?php echo $item['image'] ?>
                                                 <?php echo $item['image1'] ?>

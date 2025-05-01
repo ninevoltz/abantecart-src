@@ -9,19 +9,41 @@
     echo $this->getHookVar('common_content_buttons');
     if($embed_url) { ?>
         <div class="btn-group">
+        <?php
+            if(count((array)$embed_stores) < 2 ){ ?>
             <a class="btn btn-white tooltips" href="<?php echo $embed_url; ?>"
                data-target="#embed_modal" data-toggle="modal"
                data-original-title="<?php echo_html2view($text_share_embed_code); ?>">
                 <i class="fa fa-share-alt fa-lg"></i>
             </a>
+    <?php }else{ ?>
+            <div class="dropdown">
+                <a id="embedBtn" class="btn btn-white tooltips "
+                   data-toggle="dropdown"
+                   data-original-title="<?php echo_html2view($text_share_embed_code); ?>">
+                    <i class="fa fa-share-alt fa-lg"></i>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="embedBtn">
+                    <?php foreach((array)$embed_stores as $storeId => $storeName){?>
+                        <li>
+                            <a href="<?php echo $embed_url."&store_id=".$storeId; ?>"
+                               data-target="#embed_modal" data-toggle="modal">
+                                <?php echo ucfirst($storeName); ?>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </div>
+        <?php } ?>
         </div>
     <?php }
-    if(!empty($form_store_switch)) { ?>
+    if($form_store_switch) { ?>
     <div class="btn-group">
         <?php echo $form_store_switch; ?>
     </div>
     <?php }
-    if (!empty($form_language_switch)) { ?>
+    if ($form_language_switch) { ?>
     <div class="btn-group">
         <?php echo $form_language_switch; ?>
     </div>
@@ -36,7 +58,7 @@
         </a>
     </div>
     <?php }
-    if (!empty ($help_url)) { ?>
+    if ($help_url) { ?>
     <div class="btn-group">
         <a class="btn btn-white tooltips" href="<?php echo $help_url; ?>" target="_ext_help" data-toggle="tooltip"
            data-original-title="<?php echo_html2view($text_external_help); ?>">

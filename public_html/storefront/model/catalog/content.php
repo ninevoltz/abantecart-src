@@ -195,11 +195,11 @@ class ModelCatalogContent extends Model
         }
 
         $parts = explode('-', $data['sort']);
-        $order = $parts[1] ?: 'ASC';
+        $order = strtoupper($parts[1]) ?: 'ASC';
         if (isset($data['order']) && ($data['order'] == 'DESC')) {
             $sql .= " DESC";
         } else {
-            $sql .= " ".$order;
+            $sql .= " ".($order == 'ASC' ? "ASC" : "DESC");
         }
 
         if (isset($data['start']) || isset($data['limit'])) {

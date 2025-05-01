@@ -1,12 +1,10 @@
 <?php include($tpl_common_dir . 'action_confirm.tpl'); ?>
-
 <div id="content" class="panel panel-default">
-
 	<div class="panel-heading col-xs-12">
 		<div class="primary_content_actions pull-left">
-
 			<div class="btn-group">
-				<button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown" title="<?php echo $text_edit_template_settings; ?>">
+				<button class="btn btn-default dropdown-toggle tooltips" type="button" data-toggle="dropdown"
+                        title="<?php echo_html2view($text_edit_template_settings); ?>">
 					<i class="fa fa-image"></i>
 					<?php echo $current_template; ?>
 					<span class="caret"></span>
@@ -23,23 +21,21 @@
 						?>
 						<li>
 						<a href="<?php echo $tmpl['href'] ?>">
-						<?php echo $default_icon . $tmpl['name']; ?>
+						    <?php echo $default_icon . $tmpl['name']; ?>
 						</a>
 						</li>
 					<?php } ?>
 				</ul>
 				<?php } ?>
 			</div>
-
 			<div class="btn-group mr10 toolbar">
-			    <a class="btn btn-white tooltips" <?php echo $clone_button->attr; ?> href="<?php echo $clone_button->href; ?>" title="<?php echo $clone_button->text; ?>" target="<?php echo $clone_button->target;?>" >
+			    <a class="btn btn-white tooltips" <?php echo $clone_button->attr; ?> href="<?php echo $clone_button->href; ?>"
+                    title="<?php echo_html2view($clone_button->text); ?>" target="<?php echo $clone_button->target;?>" >
 			    	<i class="fa fa-clone fa-lg"></i>
 			    </a>
 				<?php echo $this->getHookVar('template_edit_toolbar_buttons'); ?>
 			</div>
-
 			<?php echo $this->getHookVar('template_edit_panel_buttons'); ?>
-			
 		</div>
 		
 		<?php include($tpl_common_dir . 'content_buttons.tpl'); ?>			
@@ -49,26 +45,13 @@
 	<div class="panel-body panel-body-nopadding tab-content col-xs-12 <?php echo $status_off; ?>">
 		<div class="col-md-8 mb10">
 		<label class="h4 heading"><?php echo $form_title; ?></label>
-
-			<?php foreach ($form['fields'] as $name => $field) { ?>
-			<?php
-				//Logic to calculate fields width
-				$widthcasses = "col-sm-7";
-				if ( is_int(stripos($field->style, 'large-field')) ) {
-					$widthcasses = "col-sm-7";
-				} else if ( is_int(stripos($field->style, 'medium-field')) || is_int(stripos($field->style, 'date')) ) {
-					$widthcasses = "col-sm-5";
-				} else if ( is_int(stripos($field->style, 'small-field')) || is_int(stripos($field->style, 'btn_switch')) ) {
-					$widthcasses = "col-sm-4";
-				} else if ( is_int(stripos($field->style, 'tiny-field')) ) {
-					$widthcasses = "col-sm-2";
-				}
-				$widthcasses .= " col-xs-12";
-			?>
-			
+        <?php foreach ($form['fields'] as $name => $field) {
+            //Logic to calculate fields width
+            $widthCssClasses = adminFormFieldBS3CssClasses($field->style);
+        ?>
 		<div id="<?php echo $field->element_id.'_fld'; ?>" class="form-group <?php if (!empty($error[$name])) { echo "has-error"; } ?>">
 			<label class="control-label col-sm-5" for="<?php echo $field->element_id; ?>"><?php echo ${'entry_' . $name}; ?></label>
-			<div class="input-group afield <?php echo $widthcasses; ?> <?php echo ($name == 'description' ? 'ml_ckeditor' : '')?>">
+			<div class="input-group afield <?php echo $widthCssClasses; ?> <?php echo ($name == 'description' ? 'ml_ckeditor' : '')?>">
 				<?php
 				switch ($name) {
 					case 'logo':
@@ -92,23 +75,20 @@
 				} ?>
 			</div>
 		    <?php if (!empty($error[$name])) { ?>
-		    <span class="help-block field_err"><?php echo $error[$name]; ?></span>
+		        <span class="help-block field_err"><?php echo $error[$name]; ?></span>
 		    <?php } ?>
 		</div>
-			<?php }  ?><!-- <div class="fieldset"> -->
+        <?php }  ?>
 
 		<div id="image">
-	    <?php if ( !empty($update) ) { echo $resources_html; } ?>
+	        <?php if ( !empty($update) ) { echo $resources_html; } ?>
 		</div>
-
-		</div>
+        </div>
 		<div class="col-md-4 mt10">
 			<div class="mt10 text-center template_thumbnail <?php if($current_template == $default_template) echo 'default';?>"> 
 		    	<img src="<?php echo $preview_img; ?>" height="200" />
 			</div>
 		</div>
-
-
 	</div>
 
 	<div class="panel-footer col-xs-12">

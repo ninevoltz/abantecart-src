@@ -1,11 +1,12 @@
 <?php
+/** @noinspection PhpComposerExtensionStubsInspection */
 /*
  *   $Id$
  *
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -17,6 +18,7 @@
  *    versions in the future. If you wish to customize AbanteCart for your
  *    needs please refer to http://www.AbanteCart.com for more information.
  */
+
 final class APDOMySQL
 {
     /**
@@ -36,32 +38,58 @@ final class APDOMySQL
      */
     public $error;
 
-    public function __construct($hostname, $username, $password, $database, $new_link = false, $port = "3306")
+    public function __construct($hostname, $username, $password, $database, $port = 3306)
     {
+        $port = (int)$port ?: 3306;
         try {
-            $this->connection = new PDO("mysql:host=".$hostname.";port=".$port.";dbname=".$database,
-                $username, $password, [PDO::ATTR_PERSISTENT => true]);
+            $this->connection = new PDO(
+                "mysql:host=" . $hostname . ";port=" . $port . ";dbname=" . $database,
+                $username,
+                $password,
+                [PDO::ATTR_PERSISTENT => true]
+            );
             $this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-        } catch (Exception $e) {
-            $err = new AError('Cannot establish database connection to '.$database.' using '.$username.'@'.$hostname);
+        } catch (Exception|Error $e) {
+            $err = new AError(
+                'Cannot establish database connection to '
+                . $database . ' using ' . $username . '@' . $hostname.PHP_EOL
+                . 'Error: ' . $e->getMessage()
+            );
             $err->toLog();
             throw new AException(AC_ERR_MYSQL, 'Cannot establish database connection. Check your database connection settings.');
         }
         $this->registry = Registry::getInstance();
 
-        $this->connection->exec("SET NAMES 'utf8'");
-        $this->connection->exec("SET CHARACTER SET utf8");
-        $this->connection->exec("SET CHARACTER_SET_CONNECTION=utf8");
+        //check minimal requirements
+        $serverVersion = array_map(
+            'strtolower',
+            explode("-", $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION))
+        );
+
+        if (!$serverVersion[1]) {
+            $serverVersion[1] = 'mysql';
+        }
+
+        if (version_compare(MIN_DB_VERSIONS[$serverVersion[1]], $serverVersion[0], '>')) {
+            throw new Exception(
+                MIN_DB_VERSIONS[$serverVersion[1]] . '+ of ' . $serverVersion[1] . '-server required for '
+                . 'AbanteCart to work properly! Please contact your system administrator or host service provider.'
+            );
+        }
+
+        $this->connection->exec("SET NAMES 'utf8mb4'");
+        $this->connection->exec("SET CHARACTER SET utf8mb4");
+        $this->connection->exec("SET CHARACTER_SET_CONNECTION=utf8mb4");
         $this->connection->exec("SET SQL_MODE = ''");
         $this->connection->exec("SET session wait_timeout=60;");
         $this->connection->exec("SET SESSION SQL_BIG_SELECTS=1;");
         try {
             $timezone = date_default_timezone_get();
-            if($timezone) {
+            if ($timezone) {
                 $this->connection->query("SET time_zone='" . $timezone . "';");
             }
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
+        } catch (Exception|Error $e) {
+            error_log(__METHOD__ . ": " . $e->getMessage());
         }
     }
 
@@ -105,14 +133,14 @@ final class APDOMySQL
                 }
             }
         } catch (PDOException $e) {
-            $this->error = 'SQL Error: '.$e->getMessage().'<br />Error No: '.$e->getCode().'<br />SQL:'.$sql;
+            $this->error = 'SQL Error: ' . $e->getMessage() . '<br />Error No: ' . $e->getCode() . '<br />SQL:' . $sql;
             if ($noexcept) {
                 return false;
             } else {
                 $dbg = debug_backtrace();
                 $this->error .= "PHP call stack:\n";
-                foreach($dbg as $k=>$d){
-                    $this->error .= "#".$k." ".$d['file'].':'.$d['line']."\n";
+                foreach ($dbg as $k => $d) {
+                    $this->error .= "#" . $k . " " . $d['file'] . ':' . $d['line'] . "\n";
                 }
                 throw new AException(AC_ERR_MYSQL, $this->error);
             }
@@ -128,25 +156,22 @@ final class APDOMySQL
             }
         }
 
-        if ($result) {
-            return $result;
-        } else {
+        if (!$result) {
             $result = new stdClass();
             $result->row = [];
             $result->rows = [];
             $result->num_rows = 0;
-            return $result;
         }
+        return $result;
     }
 
     public function escape($value, $with_special_chars = false)
     {
-
         if (is_array($value)) {
             $dump = var_export($value, true);
             $backtrace = debug_backtrace();
-            $dump .= ' (file: '.$backtrace[1]['file'].' line '.$backtrace[1]['line'].')';
-            $message = 'aMySQLi class error: Try to escape non-string value: '.$dump;
+            $dump .= ' (file: ' . $backtrace[1]['file'] . ' line ' . $backtrace[1]['line'] . ')';
+            $message = 'aPDOMySQL class error: Try to escape non-string value: ' . $dump;
             $error = new AError($message);
             $error->toLog()->toDebug();
             return false;
@@ -174,6 +199,7 @@ final class APDOMySQL
     {
         return $this->connection->lastInsertId();
     }
+
     /**
      * @return string
      */
@@ -188,7 +214,7 @@ final class APDOMySQL
     public function getTotalNumRows()
     {
         $statement = $this->connection->prepare('select found_rows() as total;');
-        if(!$statement){
+        if (!$statement) {
             return false;
         }
         $statement->execute();

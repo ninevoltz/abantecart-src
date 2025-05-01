@@ -291,8 +291,7 @@
 			$field.bind({
 				"change.aform":function () {
 					$field.removeClass(o.activeClass);
-					var optionSelected = $("option:selected", this);
-					onChangedAction($field, $(optionSelected).val(), $field.attr('data-orgvalue'));
+					onChangedAction($field, $field.val(), $field.attr('data-orgvalue'));
 				},
 				"focus.aform":function () {
 					$field.addClass(o.focusClass);
@@ -415,21 +414,23 @@
 					}
 				});
 
-				//check if select box and value is returned. 
-				if ( $field.is("select") ) {
-					//for select data-orgvalue is present in each option regardless of multiselect or single
+				//check if select box and value is returned.
+				if ( typeof value === 'object' && $field.is("select") ) {
 					$changed = 0;
-					$field.find('option').each(function () {
-
-
-						if ( $(this).attr('data-orgvalue') === "true" && $(this).attr('selected') !== 'selected' ) {
-							$changed++;
-						} else if ($(this).attr('data-orgvalue') === "false" && $(this).attr('selected') ) {
-							$changed++;
-						} else if ( !$(this).attr('data-orgvalue') ) {
+					const selectOption = $field.find('option');
+					if(value !== undefined) {
+						let priorVals = [];
+						selectOption.each(function () {
+							if ($(this).attr('data-orgvalue') === "true") {
+								priorVals.push($(this).attr('value'));
+							}
+						});
+						if(!arrEvery(value,priorVals)){
 							$changed++;
 						}
-					});
+					}else if(orgvalue.length > 0) {
+						$changed++;
+					}
 				}
 
 				if ( (typeof value === 'string' && value !== orgvalue)
@@ -644,14 +645,14 @@
 			var $data = $wrapper.find('input, select, textarea').serialize();
 
 			//if empty and we have select, need to pass blank value
-			if (!$data) {
-				$wrapper.find('select').each(function () {
-					$data += $(this).attr('name')+'=\'\'&';
+			if ($data.length < 1) {
+				$wrapper.find('select[name]').each(function () {
+					$data += '&' + $(this).attr('name') + '=';
 				});
 			}
 
-			$wrapper.find('input.aswitcher').each(function () {
-				$data += '&' + $(this).attr('name')+'='+$(this).val();
+			$wrapper.find('input.aswitcher[name]').each(function () {
+				$data += '&' + $(this).attr('name') + '=' + $(this).val();
 				if (!need_reload) {
 					if ($(this).attr("reload_on_save")) {
 						need_reload = true;
@@ -660,7 +661,9 @@
 			});
 
 			$wrapper.find('input:checkbox').each(function () {
-				if (!$(this).prop("checked")) $data += '&' + $(this).attr('name') + '=0';
+				if (!$(this).prop("checked")){
+					$data += '&' + $(this).attr('name') + '=0';
+				}
 				if (!need_reload) {
 					if ($(this).attr("reload_on_save")) {
 						need_reload = true;
@@ -917,4 +920,16 @@ var resetAForm = function (selector) {
 		$field.removeClass('changed');
 		$field.parent().find('.quicksave').remove();
 	});
+}
+
+// is two arrays have equal values
+function arrEvery(a1,a2)
+{
+	if((a1.length===0 && a2.length!==0)
+		|| (a1.length!==0 && a2.length===0)
+		|| (a1.length !== a2.length)
+	){
+		return false;
+	}
+	return a1.every((v,i)=> v === a2[i]);
 }

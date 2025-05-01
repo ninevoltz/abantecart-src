@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -20,10 +20,8 @@
 
 class ControllerPagesFinish extends AController
 {
-
     public function main()
     {
-
         if (!defined('DB_HOSTNAME')) {
             header('Location: index.php?rt=license');
             exit;
@@ -32,15 +30,14 @@ class ControllerPagesFinish extends AController
         $this->session->data['finish'] = 'true';
         unset($this->session->data ['ant_messages']); // prevent reinstall bugs with ant
 
-        $this->view->assign('admin_path', 'index.php?s='.ADMIN_PATH);
+        $this->view->assign('admin_path', 'index.php?s=' . ADMIN_PATH);
 
-        $message = "Keep your ecommmerce secure! <br /> Delete directory ".DIR_ABANTECART."install from your AbanteCart installation!";
+        $message = "Keep your ecommmerce secure! <br /> Delete directory " . DIR_ABANTECART . "install from your AbanteCart installation!";
         $this->view->assign('message', $message);
 
         $this->addChild('common/header', 'header', 'common/header.tpl');
         $this->addChild('common/footer', 'footer', 'common/footer.tpl');
-
+        $this->response->addHeader('Clear-Site-Data: "cache", "storage"');
         $this->processTemplate('pages/finish.tpl');
     }
-
 }

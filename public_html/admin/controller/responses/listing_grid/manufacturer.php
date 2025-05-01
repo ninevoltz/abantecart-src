@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -51,11 +51,11 @@ class ControllerResponsesListingGridManufacturer extends AController
         $resource = new AResource('image');
         $thumbnails = $ids
             ? $resource->getMainThumbList(
-                    'manufacturers',
-                    $ids,
-                    $this->config->get('config_image_grid_width'),
-                    $this->config->get('config_image_grid_height')
-                )
+                'manufacturers',
+                $ids,
+                $this->config->get('config_image_grid_width'),
+                $this->config->get('config_image_grid_height')
+            )
             : [];
         $i = 0;
         foreach ($results as $result) {
@@ -66,7 +66,7 @@ class ControllerResponsesListingGridManufacturer extends AController
                 $thumbnail['thumb_html'],
                 $this->html->buildInput(
                     [
-                        'name'  => 'name['.$result['manufacturer_id'].']',
+                        'name'  => 'name[' . $result['manufacturer_id'] . ']',
                         'value' => $result['name'],
                     ]
                 ),
@@ -76,7 +76,7 @@ class ControllerResponsesListingGridManufacturer extends AController
                             'name'   => 'view products',
                             'text'   => $productsCnt,
                             'style'  => 'btn btn-default btn-xs',
-                            'href'   => $this->html->getSecureURL('catalog/product', '&manufacturer='.$result['manufacturer_id']),
+                            'href'   => $this->html->getSecureURL('catalog/product', '&manufacturer=' . $result['manufacturer_id']),
                             'title'  => $this->language->get('text_view'),
                             'target' => '_blank',
                         ]
@@ -84,7 +84,7 @@ class ControllerResponsesListingGridManufacturer extends AController
                     : 0),
                 $this->html->buildInput(
                     [
-                        'name'  => 'sort_order['.$result['manufacturer_id'].']',
+                        'name'  => 'sort_order[' . $result['manufacturer_id'] . ']',
                         'value' => $result['sort_order'],
                     ]
                 ),
@@ -175,7 +175,7 @@ class ControllerResponsesListingGridManufacturer extends AController
                         foreach ($allowedFields as $field) {
                             $upd[$field] = $this->request->post[$field][$id];
                         }
-                        $this->model_catalog_manufacturer->editManufacturer($id,$upd);
+                        $this->model_catalog_manufacturer->editManufacturer($id, $upd);
                     }
                     break;
                 default:
@@ -261,7 +261,7 @@ class ControllerResponsesListingGridManufacturer extends AController
             $filter = [
                 'limit'         => 20,
                 'language_id'   => $this->language->getContentLanguageID(),
-                'subsql_filter' => "m.name LIKE '%".$this->db->escape($this->request->post['term'], true)."%'",
+                'subsql_filter' => "m.name LIKE '%" . $this->db->escape($this->request->post['term'], true) . "%'",
             ];
             $results = $this->model_catalog_manufacturer->getManufacturers($filter);
 
@@ -286,6 +286,10 @@ class ControllerResponsesListingGridManufacturer extends AController
                     'name'       => $item['name'],
                     'meta'       => '',
                     'sort_order' => (int)$item['sort_order'],
+                    'url'        => $this->html->getSecureURL(
+                        'catalog/manufacturer/update',
+                        '&manufacturer_id=' . $item['manufacturer_id']
+                    )
                 ];
             }
         }

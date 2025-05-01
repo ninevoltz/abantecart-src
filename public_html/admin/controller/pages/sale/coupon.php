@@ -1,23 +1,22 @@
 <?php
-
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2021 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -334,50 +333,38 @@ class ControllerPagesSaleCoupon extends AController
         );
 
         $history = [];
-        if (isset($this->request->get['coupon_id']) && $this->request->is_GET()) {
-            $coupID = $this->request->get['coupon_id'];
-            $couponInfo = $this->model_sale_coupon->getCouponByID($coupID);
+        $couponId = (int)$this->request->get['coupon_id'];
+        if ($couponId && $this->request->is_GET()) {
+            $couponInfo = $this->model_sale_coupon->getCouponByID($couponId);
             $history = [
                 'table'        => 'coupon_descriptions',
-                'record_id'     => $coupID,
+                'record_id'     => $couponId,
             ];
         }
 
         $this->data['languages'] = $this->language->getAvailableLanguages();
 
         foreach ($this->fields as $f) {
-            if (isset ($this->request->post [$f])) {
-                $this->data [$f] = $this->request->post [$f];
-            } elseif (isset($couponInfo) && isset($couponInfo[$f])) {
-                $this->data[$f] = $couponInfo[$f];
-            } else {
-                $this->data[$f] = '';
-            }
+            $this->data[$f] = $this->request->post[$f] ?? $couponInfo[$f] ?? '';
         }
 
         if (!is_array($this->data['coupon_description'])) {
-            if (isset($this->request->get['coupon_id'])) {
-                $this->data['coupon_description'] = $this->model_sale_coupon->getCouponDescriptions(
-                    $this->request->get['coupon_id']
-                );
+            if ($couponId) {
+                $this->data['coupon_description'] = $this->model_sale_coupon->getCouponDescriptions($couponId);
             } else {
                 $this->data['coupon_description'] = [];
             }
         }
         if (!is_array($this->data['coupon_products'])) {
             if (isset($couponInfo)) {
-                $this->data['coupon_products'] = $this->model_sale_coupon->getCouponProducts(
-                    $this->request->get['coupon_id']
-                );
+                $this->data['coupon_products'] = $this->model_sale_coupon->getCouponProducts( $couponId );
             } else {
                 $this->data['coupon_products'] = [];
             }
         }
         if (!is_array($this->data['coupon_categories'])) {
             if (isset($couponInfo)) {
-                $this->data['coupon_categories'] = $this->model_sale_coupon->getCouponCategories(
-                    $this->request->get['coupon_id']
-                );
+                $this->data['coupon_categories'] = $this->model_sale_coupon->getCouponCategories( $couponId );
             } else {
                 $this->data['coupon_categories'] = [];
             }
@@ -432,7 +419,7 @@ class ControllerPagesSaleCoupon extends AController
             $this->data['status'] = 1;
         }
 
-        if (!has_value($this->request->get['coupon_id'])) {
+        if (!$couponId) {
             $this->data['action'] = $this->html->getSecureURL('sale/coupon/insert');
             $this->data['heading_title'] = $this->language->get('text_insert') . ' ' . $this->language->get('text_coupon');
             $this->data['update'] = '';
@@ -440,7 +427,7 @@ class ControllerPagesSaleCoupon extends AController
         } else {
             $this->data['action'] = $this->html->getSecureURL(
                 'sale/coupon/update',
-                '&coupon_id=' . $this->request->get['coupon_id']
+                '&coupon_id=' . $couponId
             );
             $this->data['heading_title'] = $this->language->get('text_edit')
                 . ' ' .
@@ -449,7 +436,7 @@ class ControllerPagesSaleCoupon extends AController
                 $this->data['coupon_description'][$cont_lang_id]['name'];
             $this->data['update'] = $this->html->getSecureURL(
                 'listing_grid/coupon/update_field',
-                '&id=' . $this->request->get['coupon_id']
+                '&id=' . $couponId
             );
             $form = new AForm('HS');
         }
@@ -628,12 +615,12 @@ class ControllerPagesSaleCoupon extends AController
         $store_info = $this->model_setting_store->getStore($this->config->get('current_store_id'));
         $store_name = 'For store ' . $store_info['store_name'] . ': ';
 
-        if ($this->request->get['coupon_id']) {
+        if ($couponId) {
             $this->loadModel('sale/order');
 
             $total = $this->model_sale_order->getTotalOrders(
                 [
-                    'filter_coupon_id' => $this->request->get['coupon_id'],
+                    'filter_coupon_id' => $couponId,
                 ]
             );
             $this->data['form']['fields']['total_coupon_usage'] = $form->getFieldHtml(
@@ -701,9 +688,11 @@ class ControllerPagesSaleCoupon extends AController
                 : [];
 
             foreach ($results as $r) {
-                $thumbnail = $thumbnails[$r['product_id']];
-                $this->data['products'][$r['product_id']]['name'] = $r['name'] . " (" . $r['model'] . ")";
-                $this->data['products'][$r['product_id']]['image'] = $thumbnail['thumb_html'];
+                $this->data['products'][$r['product_id']] = [
+                    'name' => $r['name'].($r['model'] ? " (".$r['model'].")" : ''),
+                    'image' => $thumbnails[$r['product_id']]['thumb_html'],
+                    'url' => $this->html->getSecureURL('catalog/product/update', '&product_id='. $r['product_id'])
+                ];
             }
         }
 

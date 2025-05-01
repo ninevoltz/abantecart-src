@@ -797,4 +797,8 @@
 		<key>text_select_brand</key>
 		<value><![CDATA[-Select Brand-]]></value>
 	</definition>
+	<definition>
+		<key>text_advanced_settings</key>
+		<value><![CDATA[Advanced]]></value>
+	</definition>
 </definitions>

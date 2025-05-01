@@ -1,9 +1,10 @@
 <?php //NOTE: For multivalue, need to pass attribute multiple="multiple" ?>
-<select id="<?php echo $id ?>" name="<?php echo $name ?>" data-placeholder="<?php echo $placeholder; ?>"
+<select id="<?php echo $id ?>" name="<?php echo $name ?>" data-placeholder="<?php echo_html2view($placeholder); ?>"
 		class="chosen-select form-control aselect <?php echo ($style ?: ''); ?>"
+        data-orgvalue="<?php echo_html2view(implode(',',$value)); ?>"
 		<?php
         echo $attr;
-        echo str_contains($attr,'multiple') ? 'style="display: none;"' : '' ?>>
+        echo str_contains((string)$attr,'multiple') ? 'style="display: none;"' : '' ?>>
 <?php
 if(is_array($options)){
 	foreach ( $options as $v => $text ) {
@@ -35,16 +36,21 @@ if(is_array($options)){
 	</div>
 <?php }
 //for chosen we populate HTML into options
-if(str_contains($style,'chosen')) { ?>
+if(str_contains((string)$style,'chosen')) { ?>
 <script type="text/javascript">
     $(document).ready(function () {
         <?php
         if(is_array($options)){
             foreach ( $options as $v => $text ) {
                 if (is_array($text)) {
-                $check_id = preg_replace('/[^a-zA-Z0-9_]/', '', $id . $v);
+                    $check_id = preg_replace('/[^a-zA-Z0-9_]/', '', $id . $v);
+                    $img = $text['image'];
+                    if($text['url']){
+                        $img = '<a title="'.html2view($text['name']).'" onclick="Javascript: window.open(\''. $text['url'].'\');">'. $text['image'].'</a>';
+                    }
                 ?>
-                $('#<?php echo $check_id ?>').html('<?php echo $text['image']; ?>');
+
+                $('#<?php echo $check_id ?>').html( <?php js_echo($img); ?>);
                 $('#<?php echo $check_id ?>').append('<span class="hide_text"> <?php js_echo($text['name']); ?></span>');
         <?php
                 }
@@ -78,7 +84,11 @@ if ( $ajax_url ) { ?>
                 $.each(data, function (i, val) {
                     var html = '', css = '';
                     if (val.hasOwnProperty('image')) {
-                        html += val.image;
+                        let img = val.image;
+                        if (val.hasOwnProperty('url')) {
+                            img = '<a title="' + val.name + '" onclick="Javascript: window.open(\'' + val.url + '\');">' + img +'</a>';
+                        }
+                        html += img;
                         css = 'hide_text';
                     }
                     html += '<span class="' + css + '"> ' + val.name;

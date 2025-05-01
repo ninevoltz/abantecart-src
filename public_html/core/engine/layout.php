@@ -1,10 +1,11 @@
-<?php /*
+<?php
+/*
  *   $Id$
  *
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -35,7 +36,6 @@ class ALayout
 {
     /** @var Registry */
     protected $registry;
-    private $page = [], $layout = [];
     public $blocks = [];
     /** @var string */
     private $tmpl_id;
@@ -145,11 +145,10 @@ class ALayout
         NOTE: Do select only if value present.
         4. If locate page id use the layout.
         */
-
-        $this->page = $unique_page ? : $pages[0];
-        $this->page_id = $this->page['page_id'];
+        $page = $unique_page ? : $pages[0];
+        $this->page_id = $page['page_id'];
         //if no page found set default page id 1
-        if (empty($this->page_id)) {
+        if (!$this->page_id) {
             $this->page_id = 1;
         }
 
@@ -163,13 +162,13 @@ class ALayout
                 throw new AException(
                     AC_ERR_LOAD_LAYOUT,
                     'No layout found for page_id/controller '.$this->page_id
-                    .'::'.$this->page['controller'].'! '.genExecTrace('full')
+                    .'::'. $page['controller'].'! '.genExecTrace('full')
                 );
             }
         }
 
-        $this->layout = $layouts[0];
-        $this->layout_id = $this->layout['layout_id'];
+        $layout = $layouts[0];
+        $this->layout_id = $layout['layout_id'];
 
         // Get all blocks for the page;
         $blocks = $this->getlayoutBlocks($this->layout_id);
@@ -224,7 +223,7 @@ class ALayout
                                         ( key_param = '".$this->db->escape((string)$key_param)."'
                                             AND key_value = '".$this->db->escape((string)$key_value)."' ) ) ";
                 } else { //write to log this stuff. it's abnormal situation
-                    $message = "Error: Error in data of page with controller: '".$controller
+                    $message = "Warning: Mistake in data of page with controller: '".$controller
                         ."'. Please check for key_value present where key_param was set.\n";
                     $message .= "Requested URL: ".$this->request->server['REQUEST_SCHEME'].'://'
                         .$this->request->server['HTTP_HOST'].$this->request->server['REQUEST_URI']."\n";
@@ -282,14 +281,14 @@ class ALayout
                 break;
             default:
                 $get = $this->request->get;
-                $cntrl = $method !='main' ? $controller.'/'.$method : $controller;
-                $cache_key = 'layout.pages-by-controller.'.$cntrl.'.'.$this->tmpl_id. md5(implode(',',$get));
+                $pageController = $method !='main' ? $controller.'/'.$method : $controller;
+                $cache_key = 'layout.pages-by-controller.'.$pageController.'.'.$this->tmpl_id. md5(implode(',',$get));
                 $cache_key = preg_replace('/[^a-zA-Z\d.]/', '', $cache_key);
                 $pages = $this->cache->pull($cache_key);
                 if ($pages === false) {
                     $sql = "SELECT * 
                             FROM " . $this->db->table('pages') . " 
-                            WHERE controller='" . $cntrl . "' 
+                            WHERE controller='" . $pageController . "' 
                             ORDER BY key_value DESC";
                     $pages = $this->db->query($sql)->rows;
                 }
@@ -434,7 +433,7 @@ class ALayout
         // Look into all blocks and locate all children
         foreach ($this->blocks as $block) {
             if ((string) $block['parent_instance_id'] == (string) $instance_id) {
-                array_push($children, $block);
+                $children[] = $block;
             }
         }
         return $children;
@@ -489,7 +488,7 @@ class ALayout
         $new_block['controller'] = $newChild;
         $new_block['block_txt_id'] = $blockTxtId;
         $new_block['template'] = $template;
-        array_push($this->blocks, $new_block);
+        $this->blocks[] = $new_block;
     }
 
     /**

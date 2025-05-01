@@ -1,52 +1,61 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2020 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE')) {
     header('Location: static_pages/');
 }
 
 class ModelTotalShipping extends Model
 {
-    public function getTotal(&$total_data, &$total, &$taxes, &$cust_data)
+    public function getTotal(&$totalList, &$cost, &$taxes, &$customerData)
     {
-        $ship_data = $cust_data['shipping_method'];
-        if ($this->cart->hasShipping() && isset($ship_data) && $this->config->get('shipping_status')) {
-            $total_data[] = array(
+        $shippingData = $customerData['shipping_method'];
+        if (!isset($shippingData['cost'])) {
+            return;
+        }
+        if ($this->cart->hasShipping() && isset($shippingData) && $this->config->get('shipping_status')) {
+            $totalList[] = [
                 'id'         => 'shipping',
-                'title'      => $ship_data['title'].':',
-                'text'       => $this->currency->format($ship_data['cost']),
-                'value'      => $ship_data['cost'],
+                'title'      => $shippingData['title'] . ':',
+                'text'       => $this->currency->format($shippingData['cost']),
+                'value'      => $shippingData['cost'],
                 'sort_order' => $this->config->get('shipping_sort_order'),
                 'total_type' => $this->config->get('shipping_total_type'),
-            );
+            ];
 
-            if ($ship_data['tax_class_id']) {
-                if (!isset($taxes[$ship_data['tax_class_id']])) {
-                    $taxes[$ship_data['tax_class_id']]['total'] = $ship_data['cost'];
-                    $taxes[$ship_data['tax_class_id']]['tax'] = $this->tax->calcTotalTaxAmount($ship_data['cost'], $ship_data['tax_class_id']);
+            if ($shippingData['tax_class_id']) {
+                if (!isset($taxes[$shippingData['tax_class_id']])) {
+                    $taxes[$shippingData['tax_class_id']]['total'] = $shippingData['cost'];
+                    $taxes[$shippingData['tax_class_id']]['tax'] = $this->tax->calcTotalTaxAmount(
+                        $shippingData['cost'],
+                        $shippingData['tax_class_id']
+                    );
                 } else {
-                    $taxes[$ship_data['tax_class_id']]['total'] += $ship_data['cost'];
-                    $taxes[$ship_data['tax_class_id']]['tax'] += $this->tax->calcTotalTaxAmount($ship_data['cost'], $ship_data['tax_class_id']);
+                    $taxes[$shippingData['tax_class_id']]['total'] += $shippingData['cost'];
+                    $taxes[$shippingData['tax_class_id']]['tax'] += $this->tax->calcTotalTaxAmount(
+                        $shippingData['cost'],
+                        $shippingData['tax_class_id']
+                    );
                 }
             }
 
-            $total += (float)$ship_data['cost'];
+            $cost += (float)$shippingData['cost'];
         }
     }
 }

@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -157,6 +157,11 @@ class ModelToolImportProcess extends Model
         }
     }
 
+    public function initLogger(string $logFileName)
+    {
+        $this->imp_log = new ALog($logFileName);
+    }
+
     /**
      * @param int $task_id
      * @param array $data
@@ -170,7 +175,7 @@ class ModelToolImportProcess extends Model
         $language_id = $settings['language_id'] ?: $this->language->getContentLanguageID();
         $store_id = $settings['store_id'] ?: $this->config->get('current_store_id');
         $this->load->model('catalog/product');
-        $this->imp_log = new ALog(DIR_LOGS . "products_import_" . $task_id . ".txt");
+        $this->initLogger(DIR_LOGS . "products_import_" . $task_id . ".txt");
         return $this->addUpdateProduct($data, $settings, $language_id, $store_id);
     }
 
@@ -187,7 +192,7 @@ class ModelToolImportProcess extends Model
         $language_id = $settings['language_id'] ?: $this->language->getContentLanguageID();
         $store_id = $settings['store_id'] ?: $this->session->data['current_store_id'];
         $this->load->model('catalog/category');
-        $this->imp_log = new ALog(DIR_LOGS . "categories_import_" . $task_id . ".txt");
+        $this->initLogger(DIR_LOGS . "categories_import_" . $task_id . ".txt");
         return $this->addUpdateCategory($data, $settings, $language_id, $store_id);
     }
 
@@ -204,7 +209,7 @@ class ModelToolImportProcess extends Model
         $language_id = $settings['language_id'] ?: $this->language->getContentLanguageID();
         $store_id = $settings['store_id'] ?: $this->session->data['current_store_id'];
         $this->load->model('catalog/manufacturer');
-        $this->imp_log = new ALog(DIR_LOGS . "manufacturers_import_" . $task_id . ".txt");
+        $this->initLogger(DIR_LOGS . "manufacturers_import_" . $task_id . ".txt");
         return $this->addUpdateManufacture($data, $settings, $language_id, $store_id);
     }
 
@@ -244,7 +249,7 @@ class ModelToolImportProcess extends Model
         if (!$product_desc['name'] && !$product['sku'] && !$product['model']) {
             return $this->toLog('Error: Record is not complete or missing required data. Skipping!');
         }
-        $this->toLog("Processing record for product ".$product_desc['name'].".");
+        $this->toLog("Processing record for product " . $product_desc['name'] . ".");
 
         //detect if we update or create new product based on update settings
         $new_product = true;
@@ -277,7 +282,7 @@ class ModelToolImportProcess extends Model
 
         if ($action == 'delete' && $product_id) {
             $this->model_catalog_product->deleteProduct($product_id);
-            $this->toLog("Deleted product '".$product_desc['name']."' with ID ".$product_id);
+            $this->toLog("Deleted product '" . $product_desc['name'] . "' with ID " . $product_id);
             return true;
         }
 
@@ -316,16 +321,16 @@ class ModelToolImportProcess extends Model
             }
             try {
                 $product_id = $this->model_catalog_product->addProduct($product_data);
-                $this->toLog("Created product '".$product_desc['name']."' with ID ".$product_id);
+                $this->toLog("Created product '" . $product_desc['name'] . "' with ID " . $product_id);
                 $status = true;
             } catch (Exception $e) {
-                $this->toLog("Error: Failed to create product ".$product_desc['name'].". ".$e->getTraceAsString());
+                $this->toLog("Error: Failed to create product " . $product_desc['name'] . ". " . $e->getTraceAsString());
             }
         } else {
             //flat array for description (specific for update)
             $product_data['product_description'] = $product_desc;
             $this->model_catalog_product->updateProduct($product_id, $product_data);
-            $this->toLog("Updated product ".$product_desc['name']." with ID ".$product_id);
+            $this->toLog("Updated product " . $product_desc['name'] . " with ID " . $product_id);
             $status = true;
         }
 
@@ -339,7 +344,7 @@ class ModelToolImportProcess extends Model
 
         if (isset($data['images'])) {
             //process images
-            $this->_migrateImages($data['images'], 'products', $product_id, $product_desc['name'], $language_id);
+            $this->migrateImages($data['images'], 'products', $product_id, $product_desc['name'], $language_id);
         }
 
         if (isset($data['product_options'])) {
@@ -460,7 +465,7 @@ class ModelToolImportProcess extends Model
         }
 
         //process images
-        $this->_migrateImages($data['images'], 'categories', $category_id, $category_desc['name'], $language_id);
+        $this->migrateImages($data['images'], 'categories', $category_id, $category_desc['name'], $language_id);
 
         return $status;
     }
@@ -518,7 +523,7 @@ class ModelToolImportProcess extends Model
         if ($manufacturer_id) {
             $status = true;
             //process images
-            $this->_migrateImages(
+            $this->migrateImages(
                 $data['images'],
                 'manufacturers',
                 $manufacturer_id,
@@ -589,22 +594,21 @@ class ModelToolImportProcess extends Model
             $cc = function ($value) {
                 return is_array($value) ? count($value) : 1;
             };
-            $counts = array_map(
-                $cc,
-                (array)$option_vals
-            );
+            $counts = array_map($cc, (array)$option_vals);
 
-            if (max($counts) == 1) {
-                //single option value case
-                $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $option_vals);
-            } else {
-                for ($j = 0; $j < max($counts); $j++) {
-                    //build flat associative array options value
-                    $opt_val_data = [];
-                    foreach (array_keys($option_vals) as $key) {
-                        $opt_val_data[$key] = $option_vals[$key][$j];
+            if ($counts) {
+                if (max($counts) == 1) {
+                    //single option value case
+                    $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $option_vals);
+                } else {
+                    for ($j = 0; $j < max($counts); $j++) {
+                        //build flat associative array options value
+                        $opt_val_data = [];
+                        foreach (array_keys($option_vals) as $key) {
+                            $opt_val_data[$key] = $option_vals[$key][$j];
+                        }
+                        $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $opt_val_data);
                     }
-                    $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $opt_val_data);
                 }
             }
         }
@@ -629,16 +633,18 @@ class ModelToolImportProcess extends Model
 
         $opt_val_data = [];
         $opt_keys = [
-            'name'        => '',
-            'sku'         => '',
-            'quantity'    => 0,
-            'sort_order'  => 0,
-            'subtract'    => 0,
-            'prefix'      => '$',
-            'weight'      => 0,
-            'weight_type' => 'lbs',
-            'default'     => 0,
-            'price'       => 0,
+            'name'          => '',
+            'sku'           => '',
+            'quantity'      => 0,
+            'sort_order'    => 0,
+            'subtract'      => 0,
+            'prefix'        => '$',
+            'weight'        => 0,
+            'weight_type'   => 'lbs',
+            'default'       => 0,
+            'price'         => 0,
+            'supplier_code' => '',
+            'supplier_id'   => '',
         ];
         foreach ($opt_keys as $k => $v) {
             $opt_val_data[$k] = $v;
@@ -665,7 +671,7 @@ class ModelToolImportProcess extends Model
 
         if ($pd_opt_val_id && !empty($data['image'])) {
             //process images
-            $this->_migrateImages(
+            $this->migrateImages(
                 $data, 'product_option_value', $pd_opt_val_id, $data['name'], $this->language->getContentLanguageID()
             );
         }
@@ -684,7 +690,7 @@ class ModelToolImportProcess extends Model
      * @return bool
      * @throws AException
      */
-    protected function _migrateImages($data = [], $object_txt_id = '', $object_id = 0, $title = '', $language_id = 0)
+    public function migrateImages($data = [], $object_txt_id = '', $object_id = 0, $title = '', $language_id = 0)
     {
         $objects = [
             'products'             => 'Product',
@@ -706,39 +712,46 @@ class ModelToolImportProcess extends Model
 
         //IMAGE PROCESSING
         $data['image'] = (array)$data['image'];
-        foreach ($data['image'] as $source) {
-            if (empty($source)) {
+        foreach ($data['image'] as $srcUrl) {
+            if (!$srcUrl) {
                 continue;
             } else {
-                if (is_array($source)) {
+                if (is_array($srcUrl)) {
                     //we have an array from list of values. Run again
-                    $this->_migrateImages(['image' => $source], $object_txt_id, $object_id, $title, $language_id);
+                    $this->migrateImages(['image' => $srcUrl], $object_txt_id, $object_id, $title, $language_id);
                     continue;
                 }
             }
             //check if image is absolute path or remote URL
-            $host = parse_url($source, PHP_URL_HOST);
-            $image_basename = basename($source);
-            $target = DIR_RESOURCE . $rm->getTypeDir() . $image_basename;
+            $host = parse_url($srcUrl, PHP_URL_HOST);
+            $imageBasename = basename(parse_url($srcUrl, PHP_URL_PATH));
+            $dstFileName = DIR_RESOURCE . $rm->getTypeDir() . $imageBasename;
             if (!is_dir(DIR_RESOURCE . $rm->getTypeDir())) {
                 @mkdir(DIR_RESOURCE . $rm->getTypeDir(), 0777);
             }
 
             if ($host === null) {
                 //this is a path to file
-                if (!copy($source, $target)) {
-                    $this->toLog("Error: Unable to copy file " . $source . " to " . $target);
+                if (!copy($srcUrl, $dstFileName)) {
+                    $this->toLog("Error: Unable to copy file " . $srcUrl . " to " . $dstFileName);
                     continue;
                 }
             } else {
                 //this is URL to image. Download first
                 $fl = new AFile();
-                if (($file = $fl->downloadFile($source)) === false) {
-                    $this->toLog("Error: Unable to download file from " . $source);
+                if (($file = $fl->downloadFile($srcUrl)) === false) {
+                    $this->toLog("Error: Unable to download file from " . $srcUrl);
                     continue;
                 }
-                if (!$fl->writeDownloadToFile($file, $target)) {
-                    $this->toLog("Error: Unable to save downloaded file to " . $target);
+                //check if destination filename does not have an extension
+                if (!pathinfo($dstFileName, PATHINFO_EXTENSION)) {
+                    $fExt = getFileExtensionByMimeType($file->content_type);
+                    $dstFileName .= '.' . $fExt;
+                    $imageBasename .= '.' . $fExt;
+                }
+
+                if (!$fl->writeDownloadToFile($file, $dstFileName)) {
+                    $this->toLog("Error: Unable to save downloaded file to " . $dstFileName);
                     continue;
                 }
             }
@@ -749,7 +762,7 @@ class ModelToolImportProcess extends Model
                 'name'          => [],
                 'title'         => [],
                 'description'   => '',
-                'resource_path' => $image_basename,
+                'resource_path' => $imageBasename,
                 'resource_code' => '',
             ];
             foreach ($language_list as $lang) {
@@ -758,11 +771,13 @@ class ModelToolImportProcess extends Model
             }
             $resource_id = $rm->addResource($resource);
             if ($resource_id) {
-                $this->toLog("Map image resource : " . $image_basename . " " . $resource_id);
+                $this->toLog("Map image resource : " . $imageBasename . " " . $resource_id);
                 $rm->mapResource($object_txt_id, $object_id, $resource_id);
             } else {
                 $this->toLog("Error: Image resource can not be created. " . $this->db->error);
             }
+            //set micro-delay in 50ms
+            usleep(50000);
         }
 
         return true;
@@ -1128,7 +1143,8 @@ class ModelToolImportProcess extends Model
      *
      * @return void
      */
-    protected function updateConcatinatedColumns (&$vals, &$map) {
+    protected function updateConcatinatedColumns(&$vals, &$map)
+    {
         $concatMap = [];
         foreach ($map['concat'] as $index => $col) {
             $concatMap[$col['new_name']][$col['position']]['index'] = $index;
@@ -1200,7 +1216,8 @@ class ModelToolImportProcess extends Model
         if (!$message) {
             return null;
         }
-        $this->imp_log->write($message);
+        $log = $this->imp_log ?? Registry::getInstance()->get('log');
+        $log?->write($message);
         return true;
     }
 

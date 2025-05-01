@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -55,7 +55,7 @@ class ControllerResponsesCheckoutPay extends AController
 
         //set tax zone for tax class based on session data
         $tax_zone_id = $tax_country_id = null;
-        $guestSessionData = $this->session->data['fc']['guest'] ? : $this->session->data['guest'];
+        $guestSessionData = $this->session->data['fc']['guest'] ?: $this->session->data['guest'];
         if ($this->allow_guest && $guestSessionData) {
             //when payment address was set as address for taxes
             if ($this->config->get('config_tax_customer')) {
@@ -113,7 +113,7 @@ class ControllerResponsesCheckoutPay extends AController
                 $this->data['text_accept_agree'] = $this->language->get('text_accept_agree');
                 $this->data['text_accept_agree_href'] = $this->html->getURL(
                     'r/content/content/loadInfo',
-                    '&content_id='.$this->config->get('config_checkout_id'),
+                    '&content_id=' . $this->config->get('config_checkout_id'),
                     true
                 );
                 $this->data['text_accept_agree_href_link'] = $content_info['title'];
@@ -134,7 +134,7 @@ class ControllerResponsesCheckoutPay extends AController
                 //show message about already created order
                 $this->data['info'] = sprintf(
                     $this->language->get('fast_checkout_text_info_duplicate_order'),
-                    $this->html->getSecureURL('r/checkout/pay/success', '&order_id='.$order_id)
+                    $this->html->getSecureURL('r/checkout/pay/success', '&order_id=' . $order_id)
                 );
                 //release this order from session
                 unset(
@@ -156,7 +156,7 @@ class ControllerResponsesCheckoutPay extends AController
         if (!$this->customer->isLogged() && $this->allow_guest) {
             $this->data['allow_account_creation'] = $this->config->get('fast_checkout_create_account');
             //set default value if allow to create account for guests
-            if($this->data['allow_account_creation']
+            if ($this->data['allow_account_creation']
                 && !isset($this->fc_session['additional']['create_account'])
             ) {
                 $this->fc_session['additional']['create_account'] = true;
@@ -172,7 +172,7 @@ class ControllerResponsesCheckoutPay extends AController
             $this->data['all_addresses'] = $this->model_account_address->getAddresses();
             if (!count($this->data['all_addresses'])) {
                 //Something wrong. Account is missing address, direct to regular customer address page.
-                $this->error['message'] = $this->language->get('fast_checkout_error_no_address');
+                $this->emptyAddressErrorMessage();
             }
             //was address changed?
             $address_id = $this->customer->getAddressId();
@@ -180,14 +180,14 @@ class ControllerResponsesCheckoutPay extends AController
                 $address_id = $this->request->get['payment_address_id'];
             } else {
                 if ($this->fc_session['payment_address_id']) {
-                    if(
+                    if (
                         in_array(
                             $this->fc_session['payment_address_id'],
-                            array_column($this->data['all_addresses'],'address_id')
+                            array_column($this->data['all_addresses'], 'address_id')
                         )
                     ) {
                         $address_id = $this->fc_session['payment_address_id'];
-                    }else{
+                    } else {
                         $this->fc_session['payment_address_id'] = $address_id;
                     }
                 }
@@ -209,7 +209,7 @@ class ControllerResponsesCheckoutPay extends AController
                 $address_id = $this->fc_session['payment_address_id'] = $adr['address_id'];
             }
             $this->data['payment_address'] = $this->model_account_address->getAddress($address_id);
-            if(!$this->request->get['shipping_address_id']) {
+            if (!$this->request->get['shipping_address_id']) {
                 //validate payment address. See hook calls inside. Some extensions can affect on it
                 $this->error = $this->model_account_address->validateAddressData($this->data['payment_address']);
                 if ($this->error) {
@@ -218,7 +218,7 @@ class ControllerResponsesCheckoutPay extends AController
             }
         } elseif ($this->allow_guest) {
             //set default value if allow to create account for guests
-            if(
+            if (
                 !isset($this->fc_session['additional']['same_as_shipping'])
                 || $this->data['payment_equal_shipping_address']
             ) {
@@ -264,7 +264,10 @@ class ControllerResponsesCheckoutPay extends AController
                 }
                 if (!count($this->data['all_addresses'])) {
                     //Something wrong. Account is missing address, direct to regular customer address page.
-                    $this->error['message'] = $this->language->get('fast_checkout_error_no_address');
+                    if (!$this->error['message']) {
+                        $this->emptyAddressErrorMessage();
+                    }
+
                     $this->data['error'] = $this->error['message'];
                     $this->view->batchAssign($this->data);
                     $this->response->setOutput($this->view->fetch('responses/checkout/main.tpl'));
@@ -298,19 +301,19 @@ class ControllerResponsesCheckoutPay extends AController
                         $tax_zone_id = $adr['zone_id'];
                         $tax_country_id = $adr['country_id'];
                     }
-                }elseif($this->config->get('fast_checkout_payment_address_equal_shipping')){
+                } elseif ($this->config->get('fast_checkout_payment_address_equal_shipping')) {
                     $this->fc_session['payment_address_id'] = $address_id;
                 }
 
                 $addressData = $this->model_account_address->getAddress($address_id);
-                if($addressData === false){
+                if ($addressData === false) {
                     $address_id = $this->customer->getAddressId();
                     $addressData = $this->model_account_address->getAddress($address_id);
                 }
                 //validate payment address. See hook calls inside. Some extensions can affect on it
                 $this->error = $this->model_account_address->validateAddressData($addressData);
-                if($this->error) {
-                    $this->data['error'] = $this->language->get('fast_checkout_text_shipping_address').": ". implode("\n", $this->error);
+                if ($this->error) {
+                    $this->data['error'] = $this->language->get('fast_checkout_text_shipping_address') . ": " . implode("\n", $this->error);
                 }
             } else {
                 if ($this->allow_guest && !$this->fc_session['guest']['shipping']) {
@@ -321,17 +324,17 @@ class ControllerResponsesCheckoutPay extends AController
                 } else {
                     if ($this->allow_guest && $this->fc_session['guest']) {
                         $tax_country_id = !$this->config->get('config_tax_customer')
-                                            && isset($this->fc_session['guest']['shipping']['country_id'])
-                                       ? $this->fc_session['guest']['shipping']['country_id']
-                                       : $this->fc_session['guest']['country_id'];
+                        && isset($this->fc_session['guest']['shipping']['country_id'])
+                            ? $this->fc_session['guest']['shipping']['country_id']
+                            : $this->fc_session['guest']['country_id'];
                         $tax_zone_id = !$this->config->get('config_tax_customer')
-                                            && isset($this->fc_session['guest']['shipping']['zone_id'])
-                                        ? $this->fc_session['guest']['shipping']['zone_id']
-                                        : $this->fc_session['guest']['zone_id'];
+                        && isset($this->fc_session['guest']['shipping']['zone_id'])
+                            ? $this->fc_session['guest']['shipping']['zone_id']
+                            : $this->fc_session['guest']['zone_id'];
                         //if shipping address takes as tax  address
-                        if(!$this->config->get('config_tax_customer')){
-                           $this->fc_session['country_id'] = $tax_country_id;
-                           $this->fc_session['zone_id'] = $tax_zone_id;
+                        if (!$this->config->get('config_tax_customer')) {
+                            $this->fc_session['country_id'] = $tax_country_id;
+                            $this->fc_session['zone_id'] = $tax_zone_id;
                         }
                     } else {
                         //no guess allowed, need to login
@@ -355,7 +358,7 @@ class ControllerResponsesCheckoutPay extends AController
         }
 
         //set shipping method
-        $this->_select_shipping($this->request->get['shipping_method']??$this->fc_session['shipping_method']['id']);
+        $this->_select_shipping($this->request->get['shipping_method'] ?? $this->fc_session['shipping_method']['id']);
 
         //handle balance. Re-apply balance on every request as total can change
         if ($this->fc_session['used_balance'] && !$request['balance']) {
@@ -374,8 +377,8 @@ class ControllerResponsesCheckoutPay extends AController
         if ($this->cart->hasShipping()
             && (!$this->fc_session['shipping_method'] || !count($this->fc_session['shipping_methods']))
         ) {
-                //no shipping selected yet, not ready for payment
-                $this->data['show_payment'] = false;
+            //no shipping selected yet, not ready for payment
+            $this->data['show_payment'] = false;
         }
 
         $form = new AForm();
@@ -392,13 +395,13 @@ class ControllerResponsesCheckoutPay extends AController
             //get customer name for payment from selected payment address
             foreach ($this->data['all_addresses'] as $adr) {
                 if ($adr['address_id'] == $this->fc_session['payment_address_id']) {
-                    $this->data['customer_name'] = $adr['firstname'].' '.$adr['lastname'];
+                    $this->data['customer_name'] = $adr['firstname'] . ' ' . $adr['lastname'];
                     break;
                 }
             }
             //no name found use names from account
             if (!$this->data['customer_name']) {
-                $this->data['customer_name'] = $this->customer->getFirstName().' '.$this->customer->getLastName();
+                $this->data['customer_name'] = $this->customer->getFirstName() . ' ' . $this->customer->getLastName();
             }
             $this->data['logout_url'] = $this->html->getSecureURL('r/checkout/pay/logout', $getParams);
 
@@ -406,7 +409,7 @@ class ControllerResponsesCheckoutPay extends AController
             $this->data['customer_email'] = $this->customer->getEmail();
             $phone = $this->data['customer_telephone'] = $this->customer->getTelephone() ?: $this->fc_session['telephone'];
             if ($phone && $this->config->get('fast_checkout_require_phone_number')) {
-                $pattern = $this->config->get('config_phone_validation_pattern') ? : DEFAULT_PHONE_REGEX_PATTERN;
+                $pattern = $this->config->get('config_phone_validation_pattern') ?: DEFAULT_PHONE_REGEX_PATTERN;
                 if (mb_strlen($phone) < 3 || mb_strlen($phone) > 32 || !preg_match($pattern, $phone)) {
                     //hide payment form when phone number required and incorrect
                     $this->data['show_payment'] = false;
@@ -474,12 +477,12 @@ class ControllerResponsesCheckoutPay extends AController
     protected function updateOrCreateOrder($in_data, $request)
     {
         //do not allow to run if already ran and failed
-        if($this->error['updateOrCreateOrder']){
+        if ($this->error['updateOrCreateOrder']) {
             return;
         }
 
         //do nothing if customer is nobody
-        if(!$this->customer->isLogged() && !$this->fc_session['guest']){
+        if (!$this->customer->isLogged() && !$this->fc_session['guest']) {
             return;
         }
 
@@ -511,7 +514,7 @@ class ControllerResponsesCheckoutPay extends AController
                 );
                 if (!$this->customer->isLogged()) {
                     $this->fc_session['guest']['telephone'] = $request['telephone'];
-                }elseif(!$this->customer->getTelephone()){
+                } elseif (!$this->customer->getTelephone()) {
                     $this->loadModel('account/customer');
                     $this->model_account_customer->editCustomer(
                         [
@@ -542,7 +545,7 @@ class ControllerResponsesCheckoutPay extends AController
             $this->_to_log(
                 sprintf(
                     $this->language->get('fast_checkout_error_unexpected_log'),
-                    var_export($in_data, true)."\nOrderID: ".var_export($order_id, true)."\nOrderData: ".var_export($order->getOrderData(), true)
+                    var_export($in_data, true) . "\nOrderID: " . var_export($order_id, true) . "\nOrderData: " . var_export($order->getOrderData(), true)
                 )
             );
             $this->error['message'] = $this->language->get('fast_checkout_error_unexpected');
@@ -581,8 +584,8 @@ class ControllerResponsesCheckoutPay extends AController
                 ]
             );
 
-            $this->data['customer_email'] = $request['email'] ? : $this->fc_session['guest']['email'];
-            $this->data['customer_telephone'] = $request['telephone'] ? : $this->fc_session['guest']['telephone'];
+            $this->data['customer_email'] = $request['email'] ?: $this->fc_session['guest']['email'];
+            $this->data['customer_telephone'] = $request['telephone'] ?: $this->fc_session['guest']['telephone'];
             $this->data['reset_url'] = $this->html->getSecureURL('account/login');
         }
     }
@@ -592,9 +595,9 @@ class ControllerResponsesCheckoutPay extends AController
         $this->data['payment_methods'] = $this->_get_payment_methods();
         $this->data['payment_method'] = $request['payment_method'] ?: $this->data['payment_method'];
 
-        if(count($this->data['payment_methods']) == 1
+        if (count($this->data['payment_methods']) == 1
             && current($this->data['payment_methods'])['id'] == 'no_payment_required'
-        ){
+        ) {
             $this->data['payment_method'] = 'no_payment_required';
         }
 
@@ -612,7 +615,7 @@ class ControllerResponsesCheckoutPay extends AController
                 //check autoselect payment
                 foreach ($this->data['payment_methods'] as $id => $payment) {
                     $psettings = $this->model_checkout_extension->getSettings($id);
-                    if ($psettings[$id.'_autoselect']) {
+                    if ($psettings[$id . '_autoselect']) {
                         $this->data['payment_method'] = $id;
                     }
                 }
@@ -631,7 +634,7 @@ class ControllerResponsesCheckoutPay extends AController
             ];
 
             if ($this->data['payment_method'] != 'no_payment_required') {
-                $rt = 'responses/extension/'.$this->data['payment_method'];
+                $rt = 'responses/extension/' . $this->data['payment_method'];
             } else {
                 $rt = 'responses/checkout/no_payment';
             }
@@ -698,9 +701,9 @@ class ControllerResponsesCheckoutPay extends AController
                 );
             }
             $this->data['balance_remains'] = $this->data['balance_value'];
-            if ((float) $this->data['used_balance'] > 0) {
+            if ((float)$this->data['used_balance'] > 0) {
                 $this->data['balance_remains'] = $this->currency->format(
-                    $balance_def_currency - (float) $this->data['used_balance']
+                    $balance_def_currency - (float)$this->data['used_balance']
                 );
             }
         } else {
@@ -738,7 +741,7 @@ class ControllerResponsesCheckoutPay extends AController
     {
         $resource = new AResource('image');
         $products = [];
-        foreach ($this->cart->getProducts()  as $cartProduct) {
+        foreach ($this->cart->getProducts() as $cartProduct) {
             $option_data = [];
             foreach ($cartProduct['option'] as $option) {
                 $value = $option['value'];
@@ -754,7 +757,7 @@ class ControllerResponsesCheckoutPay extends AController
 
                     $value = str_replace('\r\n', "\n", $value);
                     if (mb_strlen($value) > 64) {
-                        $value = mb_substr($value, 0, 64).'...';
+                        $value = mb_substr($value, 0, 64) . '...';
                     }
                 }
 
@@ -787,7 +790,7 @@ class ControllerResponsesCheckoutPay extends AController
                         $this->config->get('config_tax')
                     )
                 ),
-                'href'      => $this->html->getSEOURL('product/product', '&product_id='.$cartProduct['product_id'], true),
+                'href'      => $this->html->getSEOURL('product/product', '&product_id=' . $cartProduct['product_id'], true),
             ];
         }
 
@@ -796,18 +799,18 @@ class ControllerResponsesCheckoutPay extends AController
         if ($virtual_products) {
             foreach ($virtual_products as $virtual) {
                 $products[] = [
-                    'name'     => ($virtual['name'] ? : 'Virtual Product'),
-                    'model'    => $virtual['model'],
-                    'price'    => $this->currency->format(
-                                        $virtual['amount'],
-                                        $this->currency->getCode()
-                                  ),
-                    'quantity' => ($virtual['quantity'] ? : 1),
-                    'option'   => [],
-                    'weight'   => (float)$virtual['weight'],
+                    'name'      => ($virtual['name'] ?: 'Virtual Product'),
+                    'model'     => $virtual['model'],
+                    'price'     => $this->currency->format(
+                        $virtual['amount'],
+                        $this->currency->getCode()
+                    ),
+                    'quantity'  => ($virtual['quantity'] ?: 1),
+                    'option'    => [],
+                    'weight'    => (float)$virtual['weight'],
                     'thumbnail' => $virtual['thumbnail'],
                 ];
-                $this->data['items_total'] += ($virtual['quantity'] ? : 1)
+                $this->data['items_total'] += ($virtual['quantity'] ?: 1)
                     * $this->currency->format(
                         $virtual['amount'],
                         $this->currency->getCode(),
@@ -895,7 +898,7 @@ class ControllerResponsesCheckoutPay extends AController
                 $this->config->get('config_order_status_id')
             );
             $this->load->library('json');
-            $data['url'] = $this->html->getSecureURL('checkout/finalize', '&order_id='.$order_id);
+            $data['url'] = $this->html->getSecureURL('checkout/finalize', '&order_id=' . $order_id);
             $this->response->setOutput(AJson::encode($data));
             return;
         }
@@ -953,7 +956,7 @@ class ControllerResponsesCheckoutPay extends AController
                 [
                     'type' => 'button',
                     'text' => $this->language->get('button_history'),
-                    'href' => $this->html->getSecureURL('account/order_details', '&order_id='.$order_id),
+                    'href' => $this->html->getSecureURL('account/order_details', '&order_id=' . $order_id),
                     'icon' => 'fa fa-briefcase fa-fw',
                 ]
             );
@@ -974,12 +977,12 @@ class ControllerResponsesCheckoutPay extends AController
             $mdl = $this->loadModel('checkout/fast_checkout', 'storefront');
             //for guest build tokenized access to download and order details.
             $secToken = $mdl->getGuestToken($order_id);
-            $order_token = generateOrderToken($order_id,$order_data['email'], $secToken);
+            $order_token = generateOrderToken($order_id, $order_data['email'], $secToken);
             $this->data['button_order_details'] = $this->html->buildElement(
                 [
                     'type' => 'button',
                     'text' => $this->language->get('button_history'),
-                    'href' => $this->html->getSecureURL('account/order_details', '&ot='.$order_token),
+                    'href' => $this->html->getSecureURL('account/order_details', '&ot=' . $order_token),
                     'icon' => 'fa fa-briefcase fa-fw',
                 ]
             );
@@ -997,7 +1000,7 @@ class ControllerResponsesCheckoutPay extends AController
                     if (!$download['download_url']) {
                         $download['download_url'] = $this->html->getSecureURL(
                             'account/order_details',
-                            ($order_token ? '&ot='.$order_token : '')
+                            ($order_token ? '&ot=' . $order_token : '')
                         );
                     }
                     if ($download['count'] == 1) {
@@ -1017,7 +1020,7 @@ class ControllerResponsesCheckoutPay extends AController
         //build custom order message based on the status
         if ($this->order_status->getStatusByTextId('completed') == $order_details['order_status_id']) {
             $this->data['order_finished_message'] = $this->language->get('fast_checkout_order_success_message');
-        } elseif($this->session->data['processing_order_errors']) {
+        } elseif ($this->session->data['processing_order_errors']) {
             $this->data['order_finished_message'] = $this->session->data['processing_order_errors'];
         } else {
             $this->data['order_finished_message'] = $this->language->get('fast_checkout_order_processing_message');
@@ -1026,7 +1029,7 @@ class ControllerResponsesCheckoutPay extends AController
         $order_data['order_products'] = $mdlOrder->getOrderProducts($order_id);
         $order_data['totals'] = $mdlOrder->getOrderTotals($order_id);
 
-        $this->data['gaOrderData'] = AOrder::getGoogleAnalyticsOrderData( $order_data );
+        $this->data['gaOrderData'] = AOrder::getGoogleAnalyticsOrderData($order_data);
         $this->data['gaOrderData']['transaction_id'] = $order_id;
         $this->_clear_data();
         $this->data['step'] = 'process';
@@ -1045,21 +1048,21 @@ class ControllerResponsesCheckoutPay extends AController
         $customer_data = [
             'status'        => 1,
             'loginname'     => $this->config->get('prevent_email_as_login')
-                            ? randomWord(7)
-                            : $order_data['email'],
+                ? randomWord(7)
+                : $order_data['email'],
             'password'      => randomWord(7),
             'firstname'     => $order_data['firstname'],
             'lastname'      => $order_data['lastname'],
             'email'         => $order_data['email'],
             'telephone'     => $order_data['telephone'],
             'fax'           => $order_data['fax'],
-            'company'       => ($order_data['shipping_company'] ? : $order_data['payment_company']),
-            'address_1'     => ($order_data['shipping_address_1'] ? : $order_data['payment_address_1']),
-            'address_2'     => ($order_data['shipping_address_2'] ? : $order_data['payment_address_2']),
-            'city'          => ($order_data['shipping_city'] ? : $order_data['payment_city']),
-            'postcode'      => ($order_data['shipping_postcode'] ? : $order_data['payment_postcode']),
-            'country_id'    => ($order_data['shipping_country_id'] ? : $order_data['payment_country_id']),
-            'zone_id'       => ($order_data['shipping_zone_id'] ? : $order_data['payment_zone_id']),
+            'company'       => ($order_data['shipping_company'] ?: $order_data['payment_company']),
+            'address_1'     => ($order_data['shipping_address_1'] ?: $order_data['payment_address_1']),
+            'address_2'     => ($order_data['shipping_address_2'] ?: $order_data['payment_address_2']),
+            'city'          => ($order_data['shipping_city'] ?: $order_data['payment_city']),
+            'postcode'      => ($order_data['shipping_postcode'] ?: $order_data['payment_postcode']),
+            'country_id'    => ($order_data['shipping_country_id'] ?: $order_data['payment_country_id']),
+            'zone_id'       => ($order_data['shipping_zone_id'] ?: $order_data['payment_zone_id']),
             'language_code' => $this->language->getLanguageCode(),
         ];
 
@@ -1069,20 +1072,20 @@ class ControllerResponsesCheckoutPay extends AController
         $this->loadModel('account/customer');
         $customer_info = $this->model_account_customer->getCustomerByEmail($order_data['email']);
         if (!$customer_info) {
-            if(!$this->config->get('prevent_email_as_login')){
+            if (!$this->config->get('prevent_email_as_login')) {
                 $sql = "SELECT count(*) as count
-                        FROM ".$this->db->table('customers')."
-                        WHERE loginname='".$this->db->escape($customer_data['loginname'])."'";
+                        FROM " . $this->db->table('customers') . "
+                        WHERE loginname='" . $this->db->escape($customer_data['loginname']) . "'";
                 $result = $this->db->query($sql);
-                if($result->row['count']>0){
-                    $customer_data['loginname'] .= '_'.time();
+                if ($result->row['count'] > 0) {
+                    $customer_data['loginname'] .= '_' . time();
                 }
             }
             $this->data['account_data'] = $customer_data;
             // add ability to overwrite data via hooks
             $this->extensions->hk_ProcessData($this, __FUNCTION__);
 
-            $customer_id = (int) $mdl->addCustomer($this->data['account_data']);
+            $customer_id = (int)$mdl->addCustomer($this->data['account_data']);
             if ($customer_id) {
                 $new_customer = true;
                 $this->data['text_account_created'] = $this->language->get('fast_checkout_text_account_created');
@@ -1109,7 +1112,7 @@ class ControllerResponsesCheckoutPay extends AController
             }
         } else {
             if ($customer_info['customer_id']) {
-                $customer_id = (int) $customer_info['customer_id'];
+                $customer_id = (int)$customer_info['customer_id'];
             }
         }
         //update order_details
@@ -1137,7 +1140,7 @@ class ControllerResponsesCheckoutPay extends AController
     protected function _get_download($orderId, $orderToken = '')
     {
         $downloadUrl = '';
-        $customerId = (int) $this->customer->getId();
+        $customerId = (int)$this->customer->getId();
         $orderDownloads = $this->download->getCustomerOrderDownloads($orderId, $customerId);
         if (!$orderDownloads) {
             return [];
@@ -1152,10 +1155,10 @@ class ControllerResponsesCheckoutPay extends AController
                 $rl = new AResource('download');
                 $resource = $rl->getResource($downloadInfo['filename']);
                 if ($resource && $resource['resource_path']) {
-                    $size = filesize(DIR_RESOURCE.$rl->getTypeDir().$resource['resource_path']);
+                    $size = filesize(DIR_RESOURCE . $rl->getTypeDir() . $resource['resource_path']);
                 }
-            }else{
-                $size = filesize(DIR_RESOURCE.$downloadInfo['filename']);
+            } else {
+                $size = filesize(DIR_RESOURCE . $downloadInfo['filename']);
             }
 
             $i = 0;
@@ -1167,11 +1170,11 @@ class ControllerResponsesCheckoutPay extends AController
             if (!$text_status) {
                 $downloadInfo['href'] = $this->html->getSecureURL(
                     'account/order_details/startdownload',
-                    '&order_download_id='.$downloadInfo['order_download_id']
-                    .($orderToken ? '&ot='.$orderToken : '')
+                    '&order_download_id=' . $downloadInfo['order_download_id']
+                    . ($orderToken ? '&ot=' . $orderToken : '')
                 );
                 $downloadInfo['text_status'] = '';
-                $downloadInfo['size'] = round((float)substr($size, 0, strpos($size, '.') + 4), 2).$suffix[$i];
+                $downloadInfo['size'] = round((float)substr($size, 0, strpos($size, '.') + 4), 2) . $suffix[$i];
             } else {
                 $downloadInfo['text_status'] = $text_status;
                 $downloadInfo['size'] = '';
@@ -1187,12 +1190,13 @@ class ControllerResponsesCheckoutPay extends AController
 
         if ($downloadsCount == 1) {
             $orderDownloads = array_values($orderDownloads);
+            unset($downloadInfo);
             $downloadInfo = $orderDownloads[0];
             //if download available
             if (!$downloadInfo['text_status']) {
                 $downloadUrl = $downloadInfo['href'];
             } else {
-                $downloadUrl = $this->html->getSecureURL('account/order_details', '&ot='.$orderToken);
+                $downloadUrl = $this->html->getSecureURL('account/order_details', '&ot=' . $orderToken);
             }
         } else {
             if ($downloadsCount > 1) {
@@ -1201,7 +1205,7 @@ class ControllerResponsesCheckoutPay extends AController
                     if (!$d['text_status']) {
                         if (!$customerId) {
                             //guest download
-                            $downloadUrl = $this->html->getSecureURL('account/order_details', '&ot='.$orderToken);
+                            $downloadUrl = $this->html->getSecureURL('account/order_details', '&ot=' . $orderToken);
                         } else {
                             $downloadUrl = $this->html->getSecureURL('account/download');
                         }
@@ -1212,7 +1216,7 @@ class ControllerResponsesCheckoutPay extends AController
         }
 
         return [
-            'count' => $downloadsCount,
+            'count'        => $downloadsCount,
             'download_url' => $downloadUrl
         ];
     }
@@ -1256,8 +1260,8 @@ class ControllerResponsesCheckoutPay extends AController
             $this->action = 'login';
             $this->loadLanguage('account/login');
             $this->error['message'] = $this->error['login_message']
-                .' '
-                .$this->language->get('error_login');
+                . ' '
+                . $this->language->get('error_login');
 
             if ($this->request->get['type']) {
                 $data = $this->request->get['type'] == 'shipping'
@@ -1317,7 +1321,7 @@ class ControllerResponsesCheckoutPay extends AController
             $data = $this->fc_session['guest'];
             $this->data['customer_email'] = $this->fc_session['guest']['email'];
         } else {
-            if( $this->cart->hasShipping()) {
+            if ($this->cart->hasShipping()) {
                 $this->request->get['type'] = 'shipping';
             }
             $data = $this->fc_session['guest']['shipping'];
@@ -1348,7 +1352,7 @@ class ControllerResponsesCheckoutPay extends AController
 
         //all good save guest address
         $sessionGuest =& $this->session->data['fc']['guest'];
-        $sessionGuest = $sessionGuest ? : [];
+        $sessionGuest = $sessionGuest ?: [];
         //is this first or payment address?
         if ($this->request->get['type'] == 'payment'
             || !$this->fc_session['guest']
@@ -1454,7 +1458,7 @@ class ControllerResponsesCheckoutPay extends AController
      */
     protected function _addressForm($type, $data)
     {
-        $params = '&type='.$type;
+        $params = '&type=' . $type;
         $this->loadLanguage('account/address');
         $form = new AForm();
         $form->setForm(
@@ -1476,7 +1480,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'firstname',
                 'value'    => $data['firstname'],
-                'attr'     =>' minlength="1" maxlength="32" ',
+                'attr'     => ' minlength="1" maxlength="32" ',
                 'required' => true,
             ]
         );
@@ -1485,7 +1489,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'lastname',
                 'value'    => $data['lastname'],
-                'attr'     =>' minlength="1" maxlength="32" ',
+                'attr'     => ' minlength="1" maxlength="32" ',
                 'required' => true,
             ]
         );
@@ -1494,7 +1498,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'address_1',
                 'value'    => $data['address_1'],
-                'attr'     =>' minlength="3" maxlength="128" ',
+                'attr'     => ' minlength="3" maxlength="128" ',
                 'required' => true,
             ]
         );
@@ -1503,7 +1507,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'address_2',
                 'value'    => $data['address_2'],
-                'attr'     =>' maxlength="128" ',
+                'attr'     => ' maxlength="128" ',
                 'required' => false,
             ]
         );
@@ -1512,7 +1516,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'city',
                 'value'    => $data['city'],
-                'attr'     =>' minlength="3" maxlength="128" ',
+                'attr'     => ' minlength="3" maxlength="128" ',
                 'required' => true,
             ]
         );
@@ -1528,7 +1532,7 @@ class ControllerResponsesCheckoutPay extends AController
                 'type'     => 'input',
                 'name'     => 'postcode',
                 'value'    => $data['postcode'],
-                'attr'     =>' minlength="3" maxlength="10" ',
+                'attr'     => ' minlength="3" maxlength="10" ',
                 'required' => true
             ]
         );
@@ -1536,7 +1540,7 @@ class ControllerResponsesCheckoutPay extends AController
         $this->loadModel('localisation/country');
         $countries = $this->model_localisation_country->getCountries();
         $options = ['false' => $this->language->get('text_select')]
-                    + array_column( (array)$countries, 'name', 'country_id' );
+            + array_column((array)$countries, 'name', 'country_id');
 
         $this->data['form']['country_id'] = $form->getFieldHtml(
             [
@@ -1559,8 +1563,8 @@ class ControllerResponsesCheckoutPay extends AController
         $this->loadModel('localisation/country');
         $this->data['countries'] = $this->model_localisation_country->getCountries();
 
-        $this->data['customer_email'] = $data['email'] ? : $this->fc_session['guest']['email'];
-        $this->data['customer_telephone'] = $data['telephone'] ? : $this->fc_session['guest']['telephone'];
+        $this->data['customer_email'] = $data['email'] ?: $this->fc_session['guest']['email'];
+        $this->data['customer_telephone'] = $data['telephone'] ?: $this->fc_session['guest']['telephone'];
 
         //login form portion
         $this->addLoginForm($data, $params);
@@ -1608,11 +1612,11 @@ class ControllerResponsesCheckoutPay extends AController
                 ) {
                     //show link for resend activation code to email
                     $enc = new AEncryption($this->config->get('encryption_key'));
-                    $rid = $enc->encrypt($customer_info['customer_id'].'::'.$customer_info['data']['email_activation']);
+                    $rid = $enc->encrypt($customer_info['customer_id'] . '::' . $customer_info['data']['email_activation']);
                     $this->error['login_message'] = sprintf(
                         $this->language->get('text_resend_activation_email'),
                         "\n"
-                        .$this->html->getSecureURL('account/create/resend', '&rid='.$rid)
+                        . $this->html->getSecureURL('account/create/resend', '&rid=' . $rid)
                     );
                 }
             }
@@ -1650,12 +1654,12 @@ class ControllerResponsesCheckoutPay extends AController
         //#Check config of selected shipping method and see if we have accepted payments restriction
         $shipping_ext = explode('.', $this->fc_session['shipping_method']['id']);
         $ship_ext_config = $this->model_checkout_extension->getSettings($shipping_ext[0]);
-        $accept_payment_ids = $ship_ext_config[$shipping_ext[0]."_accept_payments"];
+        $accept_payment_ids = $ship_ext_config[$shipping_ext[0] . "_accept_payments"];
         if ($this->fc_session['used_balance_full']) {
             $accept_payment_ids = [];
         }
 
-        if (round($this->cart->getFinalTotal(),4) == 0) {
+        if (round($this->cart->getFinalTotal(), 4) == 0) {
             $paymentHTML = $this->html->buildButton(
                 [
                     'text'  => $this->language->get('order_confirm'),
@@ -1667,17 +1671,14 @@ class ControllerResponsesCheckoutPay extends AController
             );
             $this->view->assign('payment_form', $paymentHTML);
             $no_payment = true;
-        }
-        elseif (is_array($accept_payment_ids) && count($accept_payment_ids)) {
+        } elseif (is_array($accept_payment_ids) && count($accept_payment_ids)) {
             //#filter only allowed payment methods based on shipping
             foreach ($results as $result) {
                 if (in_array($result['extension_id'], $accept_payment_ids)) {
                     $ac_payments[] = $result;
                 }
             }
-        }
-        elseif ($this->fc_session['used_balance_full']) {
-            $ac_payments = [];
+        } elseif ($this->fc_session['used_balance_full']) {
             $paymentHTML = $this->html->buildButton(
                 [
                     'text'  => $this->language->get('order_confirm'),
@@ -1688,24 +1689,24 @@ class ControllerResponsesCheckoutPay extends AController
                 ]
             );
             $this->view->assign('payment_form', $paymentHTML);
-        }else {
+        } else {
             $ac_payments = $results;
         }
 
         $this->data['payment_address'] = $payment_address = $this->customer->isLogged()
             ? $this->model_account_address->getAddress(
-                    $this->fc_session['payment_address_id']
-                )
+                $this->fc_session['payment_address_id']
+            )
             : $this->fc_session['guest'];
 
-        $psettings = [];
+        $pmntSettings = [];
         foreach ($ac_payments as $result) {
             //#filter only allowed payment methods based on total min/max
             $pkey = $result['key'];
-            $psettings[$pkey] = $this->model_checkout_extension->getSettings($pkey);
-            $min = $psettings[$pkey][$pkey."_payment_minimum_total"] ?? null;
-            $max = $psettings[$pkey][$pkey."_payment_maximum_total"] ?? null;
-            $autoselect = $psettings[$pkey][$pkey."_autoselect"] ?? null;
+            $pmntSettings[$pkey] = $this->model_checkout_extension->getSettings($pkey);
+            $min = $pmntSettings[$pkey][$pkey . "_payment_minimum_total"] ?? null;
+            $max = $pmntSettings[$pkey][$pkey . "_payment_maximum_total"] ?? null;
+            $autoselect = $pmntSettings[$pkey][$pkey . "_autoselect"] ?? null;
 
             if ((has_value($min) && $total['total'] < $min)
                 || (has_value($max) && $total['total'] > $max)
@@ -1713,30 +1714,30 @@ class ControllerResponsesCheckoutPay extends AController
                 continue;
             }
             /** @var ModelExtensionDefaultCOD $mdl */
-            $mdl = $this->loadModel('extension/'.$pkey);
+            $mdl = $this->loadModel('extension/' . $pkey);
             $method = $mdl->getMethod($payment_address);
             if ($method) {
                 $method_data[$pkey] = $method;
                 //# Add storefront icon if available
-                $icon = $psettings[$pkey][$pkey."_payment_storefront_icon"];
+                $icon = $pmntSettings[$pkey][$pkey . "_payment_storefront_icon"];
                 if (has_value($icon)) {
                     $icon_data = $this->model_checkout_extension->getSettingImage($icon);
                     $icon_data['image'] = is_numeric($icon)
-                        ? $icon_data['type_dir'].'/'.$icon_data['resource_path']
+                        ? $icon_data['type_dir'] . '/' . $icon_data['resource_path']
                         : $icon;
                     $method_data[$pkey]['icon'] = $icon_data;
                 }
                 //check if this is a redirect type of the payment
-                if ($psettings[$pkey][$pkey."_redirect_payment"]) {
+                if ($pmntSettings[$pkey][$pkey . "_redirect_payment"]) {
                     $method_data[$pkey]['is_redirect_payment'] = true;
                 }
                 //if payment with autoselect presents in the list - set first as preselected
-                if(!$this->data['payment_method'] && $autoselect){
+                if (!$this->data['payment_method'] && $autoselect) {
                     $this->data['payment_method'] = $method['id'];
                 }
             }
         }
-        if($no_payment){
+        if ($no_payment) {
             $method_data = [
                 'no_payment_required' => [
                     'id'         => 'no_payment_required',
@@ -1746,7 +1747,7 @@ class ControllerResponsesCheckoutPay extends AController
             ];
         }
         // if no "autoselect" methods - set first as preselected
-        if(!$this->data['payment_method']){
+        if (!$this->data['payment_method']) {
             reset($method_data);
             $this->data['payment_method'] = current($method_data)['id'];
         }
@@ -1785,7 +1786,7 @@ class ControllerResponsesCheckoutPay extends AController
             foreach ($results as $result) {
                 $shpTxtId = $result['key'];
                 /** @var ModelExtensionDefaultFlatRateShipping $mdl */
-                $mdl = $this->loadModel('extension/'.$shpTxtId);
+                $mdl = $this->loadModel('extension/' . $shpTxtId);
                 $quote = $mdl->getQuote($shipping_address);
 
                 if ($quote) {
@@ -1796,7 +1797,7 @@ class ControllerResponsesCheckoutPay extends AController
                         'error'      => $quote['error'],
                     ];
                     $shpSettings = $this->model_checkout_extension->getSettings($shpTxtId);
-                    $icon = $shpSettings[$shpTxtId."_shipping_storefront_icon"];
+                    $icon = $shpSettings[$shpTxtId . "_shipping_storefront_icon"];
                     if (has_value($icon)) {
                         $icon_data = $this->model_checkout_extension->getSettingImage($icon);
                         $icon_data['image'] = $icon;
@@ -1830,19 +1831,19 @@ class ControllerResponsesCheckoutPay extends AController
                 foreach ($shipMethods as $method) {
                     if ($method['error'] ?? '') {
                         $errText = "Error with shipping quote: ";
-                        if($orderId){
-                            $errText .= "OrderID: ".$this->request->get['order_id'].' ';
+                        if ($orderId) {
+                            $errText .= "OrderID: " . $this->request->get['order_id'] . ' ';
                         }
-                        if($this->customer->isLogged()){
-                            $errText .= "CustomerID: ".$this->customer->getId().' ';
+                        if ($this->customer->isLogged()) {
+                            $errText .= "CustomerID: " . $this->customer->getId() . ' ';
                         }
-                        $this->_to_log($errText.$method['error']);
+                        $this->_to_log($errText . $method['error']);
                     }
                 }
             } elseif (count($shipMethods) === 0 && $this->cart->hasShipping()) {
                 $this->_to_log(
                     "No shipping option offered to the customer at checkout. "
-                    ."Probably, need to check shipping setting!"
+                    . "Probably, need to check shipping setting!"
                 );
             }
         }
@@ -1857,31 +1858,23 @@ class ControllerResponsesCheckoutPay extends AController
             $only_method = $this->fc_session['shipping_methods'];
             $autoSelects = [];
             foreach ($only_method as $shpKey => $value) {
-                $as = $this->config->get($shpKey.'_autoselect');
-                if($as) {
+                $as = $this->config->get($shpKey . '_autoselect');
+                if ($as) {
                     $autoSelects[$shpKey] = $as;
                 }
             }
-            if(count($autoSelects)){
+            if (count($autoSelects)) {
                 $currentKey = key($autoSelects);
                 $this->fc_session['shipping_method'] = current($only_method[$currentKey]['quote']);
-                if($this->fc_session['shipping_method']) {
+                if ($this->fc_session['shipping_method']) {
                     $this->fc_session['shipping_method']['auto_selected'] = true;
                 }
-            }else{
-                foreach ($only_method as $value) {
-                    if (is_array($value['quote']) && sizeof($value['quote']) == 1) {
-                        $this->fc_session['shipping_method'] = current($value['quote']);
-                        if($this->fc_session['shipping_method']) {
-                            $this->fc_session['shipping_method']['auto_selected'] = true;
-                        }
-                    }
-                }
             }
-            if(!$this->fc_session['shipping_method']){
+
+            if (!$this->fc_session['shipping_method'] && count($only_method) == 1) {
                 $currentKey = key($only_method);
                 $this->fc_session['shipping_method'] = current((array)$only_method[$currentKey]['quote']);
-                if($this->fc_session['shipping_method']) {
+                if ($this->fc_session['shipping_method']) {
                     $this->fc_session['shipping_method']['auto_selected'] = true;
                 }
             }
@@ -1954,8 +1947,7 @@ class ControllerResponsesCheckoutPay extends AController
             }
         }
 
-        if ($this->config->get('fast_checkout_require_phone_number') && !$request['telephone'])
-        {
+        if ($this->config->get('fast_checkout_require_phone_number') && !$request['telephone']) {
             $this->error['message'] = $this->language->get('fast_checkout_error_phone');
             return false;
         }
@@ -2069,7 +2061,7 @@ class ControllerResponsesCheckoutPay extends AController
         }
 
         //validate post data
-        $this->extensions->hk_ValidateData($this, [ 'coupon_code' => $coupon_code ]);
+        $this->extensions->hk_ValidateData($this, ['coupon_code' => $coupon_code]);
 
         return (!$this->error);
     }
@@ -2085,7 +2077,7 @@ class ControllerResponsesCheckoutPay extends AController
         if (!$message) {
             return false;
         }
-        $message = 'FastCheckout Error: '.$message;
+        $message = 'FastCheckout Error: ' . $message;
         $error = new AError($message);
         $error->toLog()->toDebug();
         unset($error);
@@ -2122,6 +2114,20 @@ class ControllerResponsesCheckoutPay extends AController
             return;
         }
         $this->session->data['fc']['additional'][$fieldName] = ($isOn === 'true');
+    }
+
+    protected function emptyAddressErrorMessage()
+    {
+        $this->error['message'] = $this->language->get('fast_checkout_error_no_address');
+        $this->error['message'] .= $this->html->buildElement(
+            [
+                'type'  => 'button',
+                'name'  => 'add_address',
+                'text'  => 'Click to Add Address',
+                'href'  => $this->html->getSecureURL('account/address/insert'),
+                'style' => 'btn-default',
+            ]
+        );
     }
 
 }

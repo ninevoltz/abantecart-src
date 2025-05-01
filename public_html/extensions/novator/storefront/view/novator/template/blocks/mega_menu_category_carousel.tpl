@@ -2,7 +2,7 @@
 
 <div class="container text-center my-3">
     <div class="row mx-auto my-auto  product-multi-carousel">
-        <div id="<?php echo $carouselId;?>" class="carousel carousel-dark carousel-fade" >
+        <div id="<?php echo $carouselId;?>" class="MegaMenuCategoryCarousel carousel carousel-dark carousel-fade" >
             <div class="carousel-inner m-0 d-flex flex-nowrap justify-content-between row" role="listbox">
 <?php
 foreach ($listItems as $si => $subitem) {

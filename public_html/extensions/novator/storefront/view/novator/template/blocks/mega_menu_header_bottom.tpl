@@ -96,6 +96,7 @@ $categories = prepareNVCatItems($categories);
                                         include($this->templateResource('/template/blocks/mega_menu_category_column_list.tpl'));
                                     } else {
                                         /** @see mega_menu_category_carousel.tpl */
+                                        $carouselId = 'MegaMenuCategoryCarousel'.$item['item_id'];
                                         include($this->templateResource('/template/blocks/mega_menu_category_carousel.tpl'));
                                     } ?>
                                 </div>

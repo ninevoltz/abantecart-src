@@ -1,23 +1,22 @@
 <?php
-
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2021 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -30,10 +29,10 @@ class ControllerResponsesCommonDoEmbed extends AController
 
     public function product()
     {
-        if (!has_value($this->request->get['product_id'])) {
-            return null;
+        $this->data['product_id'] = (int)$this->request->get['product_id'];
+        if (!$this->data['product_id']) {
+            return;
         }
-        $this->data['product_id'] = $this->request->get['product_id'];
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $this->common('products');
@@ -50,7 +49,10 @@ class ControllerResponsesCommonDoEmbed extends AController
     public function categories()
     {
         //this var can be an array
-        $this->data['category_id'] = $this->request->get['category_id'];
+        $this->data['category_id'] = (array)$this->request->get['category_id'];
+        if (!$this->data['category_id']) {
+            return;
+        }
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $this->common('categories');
@@ -61,7 +63,10 @@ class ControllerResponsesCommonDoEmbed extends AController
 
     public function manufacturers()
     {
-        $this->data['manufacturer_id'] = $this->request->get['manufacturer_id'];
+        $this->data['manufacturer_id'] = (array)$this->request->get['manufacturer_id'];
+        if (!$this->data['manufacturer_id']) {
+            return;
+        }
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $this->common('manufacturers');
@@ -72,7 +77,10 @@ class ControllerResponsesCommonDoEmbed extends AController
 
     public function collections()
     {
-        $this->data['collection_id'] = $this->request->get['collection_id'];
+        $this->data['collection_id'] = (int)$this->request->get['collection_id'];
+        if (!$this->data['collection_id']) {
+            return;
+        }
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
         $this->common('collections');
@@ -84,7 +92,16 @@ class ControllerResponsesCommonDoEmbed extends AController
     protected function common($type)
     {
         $this->loadModel('catalog/product');
-        $this->loadModel('setting/store');
+        /** @var ModelSettingStore $stStoreMdl */
+        $stStoreMdl = $this->loadModel('setting/store');
+
+        $storeId = $this->request->get['store_id'] ?? $this->session->data['current_store_id'];
+        $this->data['store_id'] = $storeId;
+
+        $currentStoreSettings = $stStoreMdl->getStore($storeId);
+        $remoteStoreUrl = $currentStoreSettings['config_ssl_url'] ?: $currentStoreSettings['config_url'];
+
+
         $form = new AForm('ST');
         $form->setForm(
             [
@@ -158,7 +175,8 @@ class ControllerResponsesCommonDoEmbed extends AController
                 ]
             );
         } elseif ($type == 'categories') {
-            $this->loadModel('catalog/category');
+            /** @var ModelCatalogCategory $catMdl */
+            $catMdl = $this->loadModel('catalog/category');
             $this->data['fields']['products_count'] = $form->getFieldHtml(
                 [
                     'type'  => 'checkbox',
@@ -167,38 +185,31 @@ class ControllerResponsesCommonDoEmbed extends AController
                     'style' => 'btn_switch btn-group-xs',
                 ]
             );
-            $category_id = (array) $this->data['category_id'];
+            $categoryIdList = filterIntegerIdList($this->data['category_id']);
             $subcategories = [];
             //if embed for only one category
-            if (sizeof($category_id) == 1) {
-                $cat_id = (int)current($category_id);
-                $category_info = $this->model_catalog_category->getCategory($cat_id);
-                $subcategories = $this->model_catalog_category->getCategories($cat_id);
-                if ($category_info['parent_id'] == 0) {
-                    $options = $this->model_catalog_category->getCategories(ROOT_CATEGORY_ID);
+            if (sizeof($categoryIdList) == 1) {
+                $catId = (int)current($categoryIdList);
+                $categoryInfo = $catMdl->getCategory($catId);
+                $subcategories = $catMdl->getCategories($catId);
+                if ($categoryInfo['parent_id'] == 0) {
+                    $options = $catMdl->getCategories(ROOT_CATEGORY_ID);
                 } else {
-                    $cat_desc = $this->model_catalog_category->getCategoryDescriptions($cat_id);
+                    $cat_desc = $catMdl->getCategoryDescriptions($catId);
                     $options = [
                         0 =>
                             [
-                                'category_id' => $cat_id,
+                                'category_id' => $catId,
                                 'name'        => $cat_desc[$this->language->getContentLanguageID()]['name'],
                             ],
                     ];
                 }
             } else {
-                if (!sizeof($category_id)) {
-                    $options = $this->model_catalog_category->getCategoriesData(['parent_id' => 0]);
-                    $category_id = [];
-                    foreach ($options as $c) {
-                        $category_id[] = $c['category_id'];
-                    }
+                if (!sizeof($categoryIdList)) {
+                    $options = $catMdl->getCategoriesData(['parent_id' => 0]);
+                    $categoryIdList = array_column($options, 'category_id');
                 } else {
-                    foreach ($category_id as &$c) {
-                        $c = (int) $c;
-                    }
-                    unset($c);
-                    $subsql = ' c.category_id IN ('.implode(',', $category_id).') ';
+                    $subsql = ' c.category_id IN (' . implode(',', $categoryIdList) . ') ';
                     $options = $this->model_catalog_category->getCategoriesData(['subsql_filter' => $subsql]);
                 }
             }
@@ -206,16 +217,12 @@ class ControllerResponsesCommonDoEmbed extends AController
             if ($subcategories) {
                 $options = array_merge($options, $subcategories);
             }
-            $opt = [];
-            foreach ($options as $cat) {
-                $opt[$cat['category_id']] = $cat['name'];
-            }
-
+            $opt = array_column($options, 'name', 'category_id');
             $this->data['fields'][] = $form->getFieldHtml(
                 [
                     'type'      => 'checkboxgroup',
                     'name'      => 'category_id[]',
-                    'value'     => $category_id,
+                    'value'     => $categoryIdList,
                     'options'   => $opt,
                     'scrollbox' => true,
                     'style'     => 'medium-field',
@@ -223,7 +230,7 @@ class ControllerResponsesCommonDoEmbed extends AController
             );
         } elseif ($type == 'manufacturers') {
             $this->loadModel('catalog/manufacturer');
-            $manufacturer_id = (array) $this->data['manufacturer_id'];
+            $manufacturerIdList = filterIntegerIdList((array)$this->data['manufacturer_id']);
             $this->data['fields'][] = $form->getFieldHtml(
                 [
                     'type'  => 'checkbox',
@@ -233,28 +240,21 @@ class ControllerResponsesCommonDoEmbed extends AController
                 ]
             );
 
-            if (!sizeof($manufacturer_id)) {
+            if (!sizeof($manufacturerIdList)) {
                 return null;
             } else {
-                foreach ($manufacturer_id as &$c) {
-                    $c = (int) $c;
-                }
-                unset($c);
-                $subsql = ' m.manufacturer_id IN ('.implode(',', $manufacturer_id).') ';
+                $subsql = ' m.manufacturer_id IN (' . implode(',', $manufacturerIdList) . ') ';
                 $options = $this->model_catalog_manufacturer->getManufacturers(['subsql_filter' => $subsql]);
             }
-            reset($manufacturer_id);
 
-            $opt = [];
-            foreach ($options as $m) {
-                $opt[$m['manufacturer_id']] = $m['name'];
-            }
-            if (sizeof($manufacturer_id) > 1) {
+            $opt = array_column((array)$options, 'name', 'manufacturer_id');
+
+            if (sizeof($manufacturerIdList) > 1) {
                 $this->data['fields'][] = $form->getFieldHtml(
                     [
                         'type'      => 'checkboxgroup',
                         'name'      => 'manufacturer_id[]',
-                        'value'     => $manufacturer_id,
+                        'value'     => $manufacturerIdList,
                         'options'   => $opt,
                         'scrollbox' => true,
                         'style'     => 'medium-field',
@@ -265,14 +265,14 @@ class ControllerResponsesCommonDoEmbed extends AController
                     [
                         'type'  => 'hidden',
                         'name'  => 'manufacturer_id[]',
-                        'value' => current($manufacturer_id),
+                        'value' => current($manufacturerIdList),
                     ]
                 );
             }
         } elseif ($type == 'collections') {
             $this->loadLanguage('catalog/collections');
             $this->loadModel('catalog/collection');
-            $collection_id = (array) $this->data['collection_id'];
+            $collectionIdList = filterIntegerIdList((array)$this->data['collection_id']);
             $this->data['fields']['price'] = $form->getFieldHtml(
                 [
                     'type'  => 'checkbox',
@@ -291,24 +291,24 @@ class ControllerResponsesCommonDoEmbed extends AController
                 ]
             );
             //if embed for only one category
-            if (count($collection_id) == 1) {
-                $collection_id = current($collection_id);
+            if (count($collectionIdList) == 1) {
+                $collectionIdList = current($collectionIdList);
             }
 
             $options = $this->model_catalog_collection->getCollections(
                 [
                     'status_id' => 1,
-                    'store_id'  => (int) $this->session->data['current_store_id']
+                    'store_id'  => $this->request->get['store_id'] ?? (int)$this->session->data['current_store_id']
                 ]
             );
 
-            $opt = $options['items'] ? array_column($options['items'],'name','id') : [];
+            $opt = $options['items'] ? array_column($options['items'], 'name', 'id') : [];
 
             $this->data['fields'][] = $form->getFieldHtml(
                 [
                     'type'    => 'selectbox',
                     'name'    => 'collection_id',
-                    'value'   => $collection_id,
+                    'value'   => $collectionIdList,
                     'options' => $opt,
                     'style'   => 'medium-field',
                 ]
@@ -333,10 +333,7 @@ class ControllerResponsesCommonDoEmbed extends AController
 
         $this->load->model('localisation/currency');
         $results = $this->model_localisation_currency->getCurrencies();
-        $currencies = [];
-        foreach ($results as $v) {
-            $currencies[$v['code']] = $v['title'];
-        }
+        $currencies = array_column($results, 'title', 'code');
         $this->data['fields'][] = $form->getFieldHtml(
             [
                 'type'    => 'selectbox',
@@ -362,44 +359,39 @@ class ControllerResponsesCommonDoEmbed extends AController
             ]
         );
 
-        $this->data['store_id'] = $store_id = $this->session->data['current_store_id'];
 
-        $current_store_settings = $this->model_setting_store->getStore($store_id);
-        $remote_store_url = $current_store_settings['config_ssl_url'] ? : $current_store_settings['config_url'];
-
-        $this->data['sf_js_embed_url'] = $remote_store_url.INDEX_FILE.'?rt=r/embed/js';
-        $this->data['direct_embed_url'] = $remote_store_url.INDEX_FILE.'?rt=r/embed/get';
-            $this->data['sf_base_url'] = $remote_store_url;
+        $this->data['sf_js_embed_url'] = $remoteStoreUrl . INDEX_FILE . '?rt=r/embed/js';
+        $this->data['direct_embed_url'] = $remoteStoreUrl . INDEX_FILE . '?rt=r/embed/get';
+        $this->data['sf_base_url'] = $remoteStoreUrl;
         $this->data['help_url'] = $this->gen_help_url('embed');
-
-        $template_name = $this->config->get('config_storefront_template');
+        $template_name = $currentStoreSettings['config_storefront_template'];
         //look into extensions
-        foreach(['stylesheet','css'] as $cssDir){
-            $cssRelPath = 'extensions/'.$template_name.'/storefront/view/'.$template_name.'/'.$cssDir.'/embed.css';
-            $css_file = DIR_ROOT.'/'.$cssRelPath;
+        foreach (['stylesheet', 'css'] as $cssDir) {
+            $cssRelPath = 'extensions' . DS . $template_name . DS . 'storefront' . DS . 'view' . DS . $template_name . DS . $cssDir . DS . 'embed.css';
+            $css_file = DIR_ROOT . DS . $cssRelPath;
             if (is_file($css_file)) {
-                $this->data['sf_css_embed_url'] = $remote_store_url.$cssRelPath;
+                $this->data['sf_css_embed_url'] = $remoteStoreUrl . $cssRelPath;
                 break;
             }
         }
         //look into core
-        if(!$this->data['sf_css_embed_url']) {
+        if (!$this->data['sf_css_embed_url']) {
             foreach (['stylesheet', 'css'] as $cssDir) {
-                $cssRelPath = 'storefront/view/' . $template_name . '/' . $cssDir . '/embed.css';
-                $css_file = DIR_ROOT . '/' . $cssRelPath;
+                $cssRelPath = 'storefront' . DS . 'view' . DS . $template_name . DS . $cssDir . DS . 'embed.css';
+                $css_file = DIR_ROOT . DS . $cssRelPath;
                 if (is_file($css_file)) {
-                    $this->data['sf_css_embed_url'] = $remote_store_url . $cssRelPath;
+                    $this->data['sf_css_embed_url'] = $remoteStoreUrl . $cssRelPath;
                     break;
                 }
             }
         }
         //look into default
-        if(!$this->data['sf_css_embed_url']) {
+        if (!$this->data['sf_css_embed_url']) {
             foreach (['stylesheet', 'css'] as $cssDir) {
-                $cssRelPath = 'storefront/view/default/' . $cssDir . '/embed.css';
-                $css_file = DIR_ROOT . '/' . $cssRelPath;
+                $cssRelPath = 'storefront' . DS . 'view' . DS . 'default' . DS . $cssDir . DS . 'embed.css';
+                $css_file = DIR_ROOT . DS . $cssRelPath;
                 if (is_file($css_file)) {
-                    $this->data['sf_css_embed_url'] = $remote_store_url . $cssRelPath;
+                    $this->data['sf_css_embed_url'] = $remoteStoreUrl . $cssRelPath;
                     break;
                 }
             }
@@ -409,7 +401,8 @@ class ControllerResponsesCommonDoEmbed extends AController
         $this->view->batchAssign($this->data);
     }
 
-    protected function _prepare_url($url)
+    /** @noinspection HttpUrlsUsage */
+    protected function _prepare_url(string $url)
     {
         return str_replace(['http://', 'https://'], '//', $url);
     }

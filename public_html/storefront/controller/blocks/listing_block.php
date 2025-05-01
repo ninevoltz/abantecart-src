@@ -345,10 +345,11 @@ class ControllerBlocksListingBlock extends AController
 
             // for resource library
             if ($route == 'media') {
-                if (!$content['resource_type']) {
+                $rType = $content['resource_type'];
+                if (!$rType) {
                     return false;
                 }
-                $rl = new AResource($content['resource_type']);
+                $rl = new AResource($rType);
                 $image_sizes = [
                     'main' => [
                         'width'  => $this->config->get('config_image_popup_width'),
@@ -360,14 +361,14 @@ class ControllerBlocksListingBlock extends AController
                     $object_name = 'products';
                     $object_id = $this->request->get['product_id'];
                     $image_sizes['thumb'] = [
-                        'width'  => $this->config->get('config_image_product_width'),
-                        'height' => $this->config->get('config_image_product_height'),
+                        'width'  => $this->config->get('config_image_additional_width'),
+                        'height' => $this->config->get('config_image_additional_height'),
                     ];
                 } elseif (isset($this->request->get['category_id']) || isset($this->request->get['path'])) {
                     $object_name = 'categories';
                     $image_sizes['thumb'] = [
                         'width'  => $this->config->get('config_image_category_width'),
-                        'height' => $this->config->get('config_image_category _height'),
+                        'height' => $this->config->get('config_image_category_height'),
                     ];
                     if (isset($this->request->get['category_id'])) {
                         $object_id = $this->request->get['product_id'];
@@ -385,8 +386,8 @@ class ControllerBlocksListingBlock extends AController
                     ];
                 } else {
                     $image_sizes['thumb'] = [
-                        'width'  => $this->config->get('config_image_product_width'),
-                        'height' => $this->config->get('config_image_product_height'),
+                        'width'  => $this->config->get('config_image_additional_width'),
+                        'height' => $this->config->get('config_image_additional_height'),
                     ];
                 }
 

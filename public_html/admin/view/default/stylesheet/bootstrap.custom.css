@@ -1217,3 +1217,7 @@ dl {
 .open > .dropdown-menu {
    max-height: 600px;
 }
+
+#hist_modal{
+   z-index: 1060;
+}

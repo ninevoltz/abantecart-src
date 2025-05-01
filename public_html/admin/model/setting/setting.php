@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -32,38 +32,26 @@ class ModelSettingSetting extends Model
      */
     public function getGroups()
     {
-        $data = [];
-        $query = $this->db->query(
-            "SELECT DISTINCT `group` 
-            FROM " . $this->db->table("settings")
-        );
-        foreach ($query->rows as $result) {
-            $data[] = $result['group'];
-        }
-        return $data;
+        $result = $this->db->query( "SELECT DISTINCT `group` FROM " . $this->db->table("settings") );
+        return array_column($result->rows, 'group');
     }
 
     /**
      * @param string $setting_key
-     * @param int $store_id
+     * @param int|null $store_id
      *
      * @return array
      * @throws AException
      */
-    public function getSettingGroup($setting_key, $store_id = 0)
+    public function getSettingGroup(string $setting_key, ?int $store_id = 0)
     {
-        $data = [];
-        $query = $this->db->query(
+        $result = $this->db->query(
             "SELECT DISTINCT `group` 
             FROM " . $this->db->table("settings") . " 
             WHERE `key` = '" . $this->db->escape($setting_key) . "'
                 AND `store_id` = '" . $store_id . "'"
         );
-
-        foreach ($query->rows as $result) {
-            $data[] = $result['group'];
-        }
-        return $data;
+        return array_column($result->rows, 'group');
     }
 
     /**
@@ -117,13 +105,9 @@ class ModelSettingSetting extends Model
         }
 
         if (isset($data['start']) || isset($data['limit'])) {
-            if ($data['start'] < 0) {
-                $data['start'] = 0;
-            }
-            if ($data['limit'] < 1) {
-                $data['limit'] = 20;
-            }
-            $sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+            $data['start'] = max(0, (int)$data['start']);
+            $data['limit'] = (int)$data['limit'] ?: 20;
+            $sql .= " LIMIT " . $data['start'] . "," . $data['limit'];
         }
 
         $query = $this->db->query($sql);
@@ -143,20 +127,18 @@ class ModelSettingSetting extends Model
 
     /**
      * @param string $group
-     * @param int $store_id
+     * @param int|null $store_id
      *
      * @return array
      * @throws AException
      */
-    public function getSetting($group, $store_id = 0)
+    public function getSetting(string $group, ?int $store_id = 0)
     {
         $data = [];
-
         $query = $this->db->query(
-            "SELECT *
+            "SELECT * 
             FROM " . $this->db->table("settings") . " 
-            WHERE `group` = '" . $this->db->escape($group) . "'
-                AND store_id = '" . (int)$store_id . "'"
+            WHERE `group` = '" . $this->db->escape($group) . "' AND store_id = '" . (int)$store_id . "'"
         );
         foreach ($query->rows as $result) {
             $value = $result['value'];
@@ -166,6 +148,23 @@ class ModelSettingSetting extends Model
             $data[$result['key']] = $value;
         }
         return $data;
+    }
+
+    /**
+     * @param string $key
+     * @param int|null $store_id
+     * @return string|array
+     * @throws AException
+     */
+    public function getSettingByKey(string $key, ?int $store_id = 0)
+    {
+        $result = $this->db->query(
+            "SELECT value
+            FROM " . $this->db->table("settings") . " 
+            WHERE `key` = '" . $this->db->escape($key) . "'
+                AND store_id = " . $store_id
+        );
+        return is_serialized($result->row['value']) ? unserialize($result->row['value']) : $result->row['value'];
     }
 
     /**

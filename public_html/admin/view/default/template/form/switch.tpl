@@ -1,4 +1,4 @@
-<?php $readonly = str_contains($attr, 'readonly') ? 'readonly=readonly' : ''?>
+<?php $readonly = str_contains((string)$attr, 'readonly') ? 'readonly=readonly' : ''?>
 <div id="<?php echo $id ?>_layer" class="btn-group btn-toggle <?php echo $style; ?>" <?php echo $attr ?>>
 <?php if ($checked) { ?>
 <button type="button" class="btn btn-primary btn-on" <?php echo $readonly; ?>><?php echo $text_on?></button>

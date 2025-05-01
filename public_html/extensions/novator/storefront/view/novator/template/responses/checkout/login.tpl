@@ -14,18 +14,17 @@ if($login_form['form_open']){
     </div>
     <p class="text-center"> <?php echo $fast_checkout_text_please_login; ?>:</p>
     <fieldset>
-        <div class="form-floating mb-3 col-10 col-offset-2 col-sm-6 col-sm-offset-3 mx-auto">
-                <input type="text" name="loginname" id="LoginFrm_loginname" value="<?php echo $login_form['loginname']->value;?>"
-                       class="form-control w-100 " autocomplete="username email" required aria-required="true">
-                <label for="<?php echo $login_form['loginname']->element_id; ?>">
-                    <?php echo_html2view($fast_checkout_text_login_or_email); ?>
-                </label>
+        <div class="mb-3 col-10 col-offset-2 col-sm-6 col-sm-offset-3 mx-auto">
+            <?php
+            $login_form['loginname']->placeholder = $fast_checkout_text_login_or_email;
+            $login_form['loginname']->attr .= ' autocomplete="username email" required aria-required="true"';
+            echo $login_form['loginname']; ?>
         </div>
-        <div class="form-floating mb-3 col-10 col-sm-6 mx-auto">
-            <input type="password" name="password" id="LoginFrm_password" value="" class="form-control w-100 " autocomplete="current-password" aria-required="true" required>
-            <label for="<?php echo $login_form['password']->element_id; ?>">
-                <?php echo_html2view($fast_checkout_text_password); ?>
-                </label>
+        <div class=" mb-3 col-10 col-sm-6 mx-auto">
+            <?php
+            $login_form['password']->placeholder = $fast_checkout_text_password;
+            $login_form['password']->attr .= ' autocomplete="current-password" aria-required="true" required';
+            echo $login_form['password']; ?>
         </div>
     </fieldset>
     <br>

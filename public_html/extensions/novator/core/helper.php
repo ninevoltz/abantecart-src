@@ -72,12 +72,14 @@ function renderFeaturedProductsCards( $item )
     $k=0;
     while( $k<2 ){
         $product = $item['featured_products'][$k];
+        $name = mb_substr($product['name'], 0,150).(mb_strlen($product['name']) > 150 ? '...' : '');
+        $blurb = mb_strlen($name) > 149 ? '' : ($product['blurb'] ? mb_substr($product['blurb'], 0, 150).'...' : '');
         $cards .= '<div class="col-6 ">
                         <a href="'.$html->getSEOURL('product/product','&product_id='.$product['product_id']).'">
                             <div class="card-body d-flex rounded" style="background-image: url('.$product['thumbnail']['thumb_url'].');">
                                 <div class="d-flex flex-wrap w-100 rounded align-items-end justify-content-center bg-secondary bg-opacity-50 text-white p-3">
-                                    <div class="w-100 mb-1 fs-5">'.$product['name'].'</div>
-                                    <div class="w-100 mb-0 fs-6">'.($product['blurb'] ? mb_substr($product['blurb'], 0, 150).'...' : '').'</div>
+                                    <div class="w-100 mb-1 fs-5 d-inline-block" >'.$name.'</div>
+                                    <div class="w-100 mb-0 fs-6">'.$blurb.'</div>
                                 </div>
                             </div>                            
                         </a>

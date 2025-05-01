@@ -50,7 +50,7 @@
                             $review = $item['rating'];
                         }
             ?>
-                        <div class="card mx-md-3 my-3 col-4 shadow">
+                        <div class="product-card card mx-md-3 my-3 col-4 shadow">
                             <a class="link-light card-link text-decoration-none"
                                     href="<?php echo $item['info_url'] ?>"
                                     title="<?php echo $item['title'] ?>">
@@ -72,15 +72,19 @@
                                 <?php echo $this->getHookvar('product_listing_badge_'.$product['product_id']);?>
                                 <a href="<?php echo $item['info_url'] ?>"><?php echo $item['image'] ?></a>
                                 <div class="d-flex justify-content-center p-1 mt-2 align-items-center">
+                                    <?php if(!$product['hide_quickview']){ ?>
                                     <a class="shadow btn btn-light" href="<?php echo $item['info_url'] ?>">
                                         <i class="fa fa-eye"></i>
                                         <?php echo $button_view ?>
                                     </a>
-                                    <?php if ($review_status) { ?>
+                                    <?php
+                                    }
+                                    if ($review_status) { ?>
                                         <a class="shadow btn btn-light ms-2" href="<?php echo $item['info_url'] ?>#review">
                                             <?php echo $review ?>
                                         </a>
                                     <?php }
+                                    echo $this->getHookvar('product_button_'.$product['product_id']);
                                     echo $product['buttons']; ?>
                                 </div>
                             </div>

@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -29,18 +29,21 @@ abstract class Extension
     /** @var boolean Allow this extension to overload "hook" calls? */
     public $overloadHooks = false;
 
-    /** @var bool extension class have abstract hooks via __call
+    /**
+     * @var bool extension class have abstract hooks via __call
      * magic method which cover all hook calls
      */
     public $hookAll = false;
 
     /**
-     * @var ExtensionsApi The current {@link ExtensionsApi} that has loaded this extension.
+     * @var ExtensionsApi
+     * The current {@link ExtensionsApi} that has loaded this extension.
      */
     public $ExtensionsApi = null;
 
     /**
-     * @var $baseObject AController The current object being plugged into.
+     * @var $baseObject AController|Model|Object
+     * The current object being plugged into.
      */
     protected $baseObject = null;
 
@@ -76,9 +79,14 @@ abstract class Extension
         $this->ExtensionsApi = $ExtensionsApi;
     }
 
-    public function __call($method, $args)
+    /**
+     * @param string $method
+     * @param array $args
+     * @return mixed|null
+     */
+    public function __call(string $method, array $args)
     {
-        if ((strpos($method, 'hk') === 0) && ($this->ExtensionsApi !== null)) {
+        if (str_starts_with($method, 'hk') && $this->ExtensionsApi !== null) {
             array_unshift($args, $this);
             return call_user_func_array([$this->ExtensionsApi, $method], $args);
         }
@@ -297,14 +305,22 @@ class ExtensionsApi
                                 WHERE  `key` = '".$this->db->escape($result['key'])."'";
                         $this->db->query($sql);
                     }
-
                 }
             }
 
             //check if we have extensions that has record in db, but missing files
             // if so, disable them
             $this->missing_extensions = array_diff($this->db_extensions, $this->extensions_dir);
-            if (!empty($this->missing_extensions)) {
+            //remove extension from missing if it is not installed
+            foreach ($this->missing_extensions as $k=>$extension) {
+                if(is_null($this->registry->get('config')->get($extension.'_status'))){
+                    $sql = "DELETE FROM ".$this->db->table("extensions")." 
+                            WHERE  `key` = '".$this->db->escape($extension)."'";
+                    $this->db->query($sql);
+                    unset($this->missing_extensions[$k]);
+                }
+            }
+            if ($this->missing_extensions) {
                 foreach ($this->missing_extensions as $ext) {
                     $warning = new AWarning($ext.' directory is missing');
                     $warning->toLog();
@@ -313,7 +329,7 @@ class ExtensionsApi
 
             //check if we have extensions in dir that has no record in db
             $diff = array_diff($this->extensions_dir, $this->db_extensions);
-            if (!empty($diff)) {
+            if ($diff) {
                 $sessionData = $this->registry->get('session')->data;
                 foreach ($diff as $ext) {
                     $data['key'] = $ext;

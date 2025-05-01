@@ -364,4 +364,8 @@
 		<key>text_previous</key>
 		<value><![CDATA[Anterior]]></value>
 	</definition>
+	<definition>
+		<key>warning_capslock</key>
+		<value><![CDATA[¡Bloq Mayús está activado!]]></value>
+	</definition>
 </definitions>

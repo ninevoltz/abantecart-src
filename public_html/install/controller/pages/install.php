@@ -68,6 +68,7 @@ class ControllerPagesInstall extends AController
         $fields = [
             'db_driver',
             'db_host',
+            'db_port',
             'db_user',
             'db_password',
             'db_name',
@@ -80,10 +81,11 @@ class ControllerPagesInstall extends AController
             'admin_path',
         ];
         $required = ['db_host', 'db_user', 'db_name', 'username', 'password', 'password_confirm', 'email', 'admin_path'];
-        $defaults = ['', 'localhost', '', '', '', 'abc_', 'novator', 'admin', '', '', '', ''];
-        $place_holder = [
+        $defaults = ['', 'localhost', 3306, '', '', '', 'abc_', 'novator', 'admin', '', '', '', ''];
+        $placeholder = [
             'Select Database Driver',
             'Enter Database Hostname',
+            'Enter Port Number',
             'Enter Database Username',
             'Enter Password, if any',
             'Enter Database Name',
@@ -124,7 +126,7 @@ class ControllerPagesInstall extends AController
                         'type'        => (in_array($field, ['password', 'password_confirm']) ? 'password' : 'input'),
                         'name'        => $field,
                         'value'       => $this->data[$field],
-                        'placeholder' => $place_holder[$k],
+                        'placeholder' => $placeholder[$k],
                         'required'    => in_array($field, $required),
                     ]
                 );
@@ -219,60 +221,8 @@ class ControllerPagesInstall extends AController
             if ($this->session->data['install_step_data']['load_demo_data'] == 'on') {
                 $this->_load_demo_data();
             }
-
-            $db = Registry::getInstance()->get('db');
-            //install default template anyway
-            $layout = new ALayoutManager('default');
-            $file = DIR_ABANTECART . DS . 'storefront' . DS . 'view' . DS . 'default' . DS . 'layout.xml';
-            $layout->loadXml(
-                [
-                    'file' => $file
-                ]
-            );
-            unset($layout);
-
-            $ext = trim($this->session->data['install_step_data']['template']);
-            if($ext && $ext != 'default'){
-                $template = new ExtensionUtils($ext);
-                $em = new AExtensionManager();
-                $em->install( $ext, $template->getConfig() );
-                if($em->errors){
-                    throw new Exception(implode("\n", $em->errors));
-                }
-                $em->editSetting($ext,['novator_status' => 1]);
-                $db->query(
-                    "UPDATE ".$db->table("settings")." 
-                    SET `value` = '".$db->escape($ext)."' 
-                    WHERE `key` = 'config_storefront_template'"
-                );
-            }
-
-            //preinstall extensions for example PageBuilder
-            $preinstall = $this->session->data['install_step_data']['install_extensions'] ?: ['page_builder'];
-            foreach($preinstall as $pre) {
-                $installSql = DIR_ABANTECART . DS . 'extensions' . DS . $pre . DS . 'install.sql';
-                if (is_file($installSql) && is_readable($installSql)) {
-                    if ($sql = file($installSql)) {
-                        $query = '';
-                        foreach ($sql as $line) {
-                            $tsl = trim($line);
-                            if (!str_starts_with($tsl,"--") && !str_starts_with($tsl,'#')) {
-                                $query .= $line;
-                                if (preg_match('/;\s*$/', $line)) {
-                                    $query = str_replace("`ac_", "`" . DB_PREFIX, $query);
-                                    $db->query($query); //no silence mode! if error - will throw to exception
-                                    $query = '';
-                                }
-                            }
-                        }
-                    }
-                }
-                $installPhp = DIR_ABANTECART . DS . 'extensions' . DS . $pre . DS . 'install.php';
-                if (is_file($installPhp) && is_readable($installPhp)) {
-                    require_once $installPhp;
-                }
-            }
-
+            $this->loadModel('install');
+            $this->model_install->preInstallExtensions($this->session->data);
             //Clean session for configurations. We do not need them anymore
             unset($this->session->data['install_step_data']);
 
@@ -315,7 +265,7 @@ class ControllerPagesInstall extends AController
     {
         $registry = Registry::getInstance();
         //This is run after config is saved, and we have database connection now
-        $db = new ADB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
+        $db = new ADB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, (defined('DB_PORT') ? DB_PORT : NULL));
         $registry->set('db', $db);
         define('DIR_LANGUAGE', DIR_ABANTECART.'admin/language/');
 

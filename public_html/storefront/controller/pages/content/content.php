@@ -122,7 +122,7 @@ class ControllerPagesContentContent extends AController
         $tags = $this->model_catalog_content->getContentTags($content_id, $this->language->getLanguageID());
         $this->data['content_info']['tags'] = $this->prepTags($tags, 'content/content/list', null, $httpQuery);
 
-        $request['start'] = abs((int)($page - 1) * $limit);
+        $request['start'] = abs(($page - 1) * $limit);
         $request['limit'] = $limit;
         $request['filter'] = [
             'parent_id' => $content_id,
@@ -406,8 +406,8 @@ class ControllerPagesContentContent extends AController
             'keyword' => $keyword,
             'sort'    => $sort,
             'order'   => $order,
-            'page'    => $page,
-            'limit'   => $limit
+            'page'    => (int)$page,
+            'limit'   => (int)$limit
         ];
     }
 }

@@ -275,18 +275,26 @@ class ModelSettingStore extends Model
      * @return array
      * @throws AException
      */
-    public function getStores()
+    public function getStores( ?array $data = [])
     {
-        $store_data = $this->cache->pull('stores');
-        if ($store_data === false) {
-            $query = $this->db->query(
-                "SELECT *
-                FROM " . $this->db->table("stores") . " 
-                ORDER BY store_id"
-            );
-            $store_data = $query->rows;
-            $this->cache->push('stores', $store_data);
+        $cacheKey = 'stores.'.md5(var_export($data, true));
+        $store_data = $this->cache->pull($cacheKey);
+        if ($store_data !== false) {
+            return $store_data;
         }
+
+        $sql = "SELECT *
+                FROM " . $this->db->table("stores");
+        $data['filter']['include'] = array_map('intval', (array)$data['filter']['include']);
+        if($data['filter']['include']){
+            $sql .= " WHERE store_id IN (".(implode(',', $data['filter']['include'])).")";
+        }
+
+        $sql .= " ORDER BY store_id";
+
+        $query = $this->db->query( $sql );
+        $store_data = $query->rows;
+        $this->cache->push($cacheKey, $store_data);
         return (array)$store_data;
     }
 

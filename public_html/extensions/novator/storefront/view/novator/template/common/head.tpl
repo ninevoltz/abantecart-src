@@ -21,9 +21,10 @@ if ($google_analytics_code) { ?>
         function gtag() {
             dataLayer.push(arguments);
         }
-
+        <?php echo  $this->getHookVar('ga_pre'); ?>
         gtag('js', new Date());
-        gtag('config', <?php js_echo($google_analytics_code); ?>);
+        gtag('config', <?php js_echo($google_analytics_code); ?>, {cookie_flags: 'SameSite=None;Secure'});
+        <?php echo  $this->getHookVar('ga_post'); ?>
     </script>
     <?php
 } ?>
@@ -90,6 +91,9 @@ if($cart_ajax){ ?>
     let cart_ajax_url = '<?php echo $cart_ajax_url; ?>';
 <?php } ?>
     let ga4_enabled = <?php echo $this->config->get('config_google_analytics_code') ? 'true' : 'false'; ?>;
+    <?php
+    //if you need to add some js variable from hook use $that->view->addHookVar() method;
+    echo $this->getHookVar('head_js'); ?>
 </script>
 <script type="text/javascript" src="<?php
 /** @see public_html/extensions/novator/storefront/view/novator/js/main.js */

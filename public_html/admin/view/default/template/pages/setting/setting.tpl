@@ -7,21 +7,21 @@
         <div class="primary_content_actions pull-left">
         <?php if($store_id > 0){ ?>
             <div class="btn-group">
-                <a  class="btn btn-primary actionitem tooltips" title="<?php echo $edit_store_button->title; ?>" href="<?php echo $edit_store_button->href; ?>">
+                <a  class="btn btn-primary actionitem tooltips" title="<?php echo_html2view($edit_store_button->title); ?>" href="<?php echo $edit_store_button->href; ?>">
                 <i class="fa fa-edit fa-lg"></i>
                 </a>
             </div>
         <?php } ?>
             <?php if($new_store_button->title && $new_store_button->href){ ?>
             <div class="btn-group">
-                <a class="btn btn-primary actionitem tooltips" title="<?php echo $new_store_button->title; ?>" href="<?php echo $new_store_button->href; ?>">
+                <a class="btn btn-primary actionitem tooltips" title="<?php echo_html2view($new_store_button->title); ?>" href="<?php echo $new_store_button->href; ?>">
                 <i class="fa fa-plus"></i>
                 </a>
             </div>
         <?php }?>
         <?php if($active=='appearance'){?>
             <div class="btn-group">
-                <a class="btn btn-primary actionitem tooltips" title="<?php echo $manage_extensions->title; ?>" href="<?php echo $manage_extensions->href; ?>">
+                <a class="btn btn-primary actionitem tooltips" title="<?php echo_html2view($manage_extensions->title); ?>" href="<?php echo $manage_extensions->href; ?>">
                 <i class="fa fa-puzzle-piece"></i>
                 </a>
             </div>
@@ -29,7 +29,7 @@
         <?php if($phpinfo_button){?>
             <div class="btn-group">
                 <a class="btn btn-default actionitem tooltips"
-                   title="PHP Info"
+                   title="phpinfo();"
                    href="<?php echo $phpinfo_button->href;?>"
                    target="_blank">
                 <i class="fa fa-lg fa-info-circle"></i>&nbsp;PHP Info</a>
@@ -53,24 +53,25 @@
             $opening = false;
             $opening_hours = '';
             foreach ($form['fields'] as $name=> $field) {
-                if (!is_int(strpos($name, 'opening_'))) { continue; }
-                    if (!$opening) {
-                        $days = daysOfWeekList();
-                        foreach ($days as $day) {
-                            $opening_hours .= '<div class="col-xs-9 row">
-                                                <div class="row col-xs-3 text-right padding5 mr5">'
-                                                    .date('l', strtotime($day)).':</div>';
-                            $tt = [];
-                            foreach (['opens', 'closes'] as $state) {
-                                $f = $form['fields']['opening_'.$day.'_'.$state];
-                                $tt[] = '<div class="row col-xs-3" >'.$f.'</div>';
-                                unset($form['fields']['opening_'.$day.'_'.$state]);
-                            }
-                            $opening_hours .= implode('', $tt).'</div>';
-                        }
-                        $opening = true;
-                    }
+                if (!str_starts_with($name, 'opening_')) {
                     continue;
+                }
+                if (!$opening) {
+                    $days = daysOfWeekList();
+                    foreach ($days as $day) {
+                        $opening_hours .= '<div class="col-xs-9 row">
+                                            <div class="row col-xs-3 text-right padding5 mr5">'
+                                                .date('l', strtotime($day)).':</div>';
+                        $tt = [];
+                        foreach (['opens', 'closes'] as $state) {
+                            $f = $form['fields']['opening_'.$day.'_'.$state];
+                            $tt[] = '<div class="row col-xs-3" >'.$f.'</div>';
+                            unset($form['fields']['opening_'.$day.'_'.$state]);
+                        }
+                        $opening_hours .= implode('', $tt).'</div>';
+                    }
+                    $opening = true;
+                }
             }
             //push switch after featured field
             if($opening_hours) {
@@ -82,25 +83,15 @@
             }
             foreach ($form['fields'] as $name => $field) {
                 //Logic to calculate fields width
-                $widthcasses = "col-sm-7";
-                if ( is_int(stripos($field->style, 'large-field')) ) {
-                    $widthcasses = "col-sm-7";
-                } else if ( is_int(stripos($field->style, 'medium-field')) || is_int(stripos($field->style, 'date')) ) {
-                    $widthcasses = "col-sm-5";
-                } else if ( is_int(stripos($field->style, 'small-field')) || is_int(stripos($field->style, 'btn_switch')) ) {
-                    $widthcasses = "col-sm-4";
-                } else if ( is_int(stripos($field->style, 'tiny-field')) ) {
-                    $widthcasses = "col-sm-2";
-                }
-                $widthcasses .= " col-xs-12";
+                $widthCssClasses = adminFormFieldBS3CssClasses($field->style);
 
         if($name == 'ssl_url' && $error_https){ ?>
-            <div class="<?php echo $widthcasses; ?> col-sm-offset-4 alert alert-danger">
+            <div class="<?php echo $widthCssClasses; ?> col-sm-offset-4 alert alert-danger">
                 <i class="fa fa-exclamation-triangle"></i> <?php echo $error_https; ?></div>
         <?php } ?>
         <div id="<?php echo $field->element_id.'_fld'; ?>" class="form-group <?php if (!empty($error[$name])) { echo "has-error"; } ?>">
             <label class="control-label col-sm-4" for="<?php echo $field->element_id; ?>"><?php echo ${'entry_' . $name}; ?></label>
-            <div class="input-group afield <?php echo $widthcasses; ?> <?php echo ($name == 'description' ? 'ml_ckeditor' : '')?>">
+            <div class="input-group afield <?php echo $widthCssClasses; ?> <?php echo ($name == 'description' ? 'ml_ckeditor' : '')?>">
                 <?php
                 switch ($name) {
                     case 'url':
@@ -159,7 +150,7 @@
             <span class="help-block field_err"><?php echo $error[$name]; ?></span>
             <?php } ?>
         </div>
-            <?php }  ?><!-- <div class="fieldset"> -->
+            <?php }  ?>
 
         <div id="image">
         <?php if ( !empty($update) ) { echo $resources_html; } ?>

@@ -1,5 +1,5 @@
 <?php 
-$style = str_replace('btn-default','btn-secondary', $style);
+$style = str_replace('btn-default','btn-secondary', (string)$style);
 if($href) { ?>
     <a id="<?php echo $id; ?>" class="btn <?php echo $href_class . $style; ?>"
        href="<?php echo $href ?>" title="<?php echo $title ? : $text; ?>" <?php echo $attr; ?>>

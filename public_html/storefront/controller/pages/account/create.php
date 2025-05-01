@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -35,14 +35,12 @@ class ControllerPagesAccountCreate extends AController
         }
 
         $this->document->setTitle($this->language->get('heading_title'));
-        $this->loadModel('account/customer');
+        /** @var ModelAccountCustomer $mdl */
+        $mdl = $this->loadModel('account/customer');
         $request_data = $this->request->post;
         if ($this->request->is_POST()) {
             if ($this->csrftoken->isTokenValid()) {
-                $this->errors = array_merge(
-                    $this->errors,
-                    $this->model_account_customer->validateRegistrationData($request_data)
-                );
+                $this->errors = array_merge( $this->errors, $mdl->validateRegistrationData($request_data) );
             } else {
                 $this->errors['warning'] = $this->language->get('error_unknown');
             }
@@ -52,25 +50,30 @@ class ControllerPagesAccountCreate extends AController
                     $request_data['loginname'] = $request_data['email'];
                 }
 
-                $this->data['customer_id'] = $this->model_account_customer->addCustomer($request_data);
-                $this->model_account_customer->editCustomerNotifications($request_data, $this->data['customer_id']);
-
+                $this->data['customer_id'] = $mdl->addCustomer($request_data);
+                $mdl->editCustomerNotifications($request_data, $this->data['customer_id']);
                 unset($this->session->data['guest']);
 
-                if (!$this->config->get('config_customer_approval')) {
-                    //add and send account activation link if required
-                    if (!$this->config->get('config_customer_email_activation')) {
-                        //send welcome email
-                        $this->model_account_customer->sendWelcomeEmail($this->request->post['email'], true);
-                        //login customer after create account is approving and email activation are disabled in settings
-                        $this->customer->login($request_data['loginname'], $request_data['password']);
+                try {
+                    if (!$this->config->get('config_customer_approval')) {
+                        //add and send account activation link if required
+                        if (!$this->config->get('config_customer_email_activation')) {
+                            //send welcome email
+                            $mdl->sendWelcomeEmail($this->request->post['email'], true);
+                            //login customer after create account is approving and
+                            // email activation are disabled in settings
+                            $this->customer->login($request_data['loginname'], $request_data['password']);
+                        } else {
+                            //send activation email request and wait for confirmation
+                            $mdl->emailActivateLink($this->data['customer_id']);
+                        }
                     } else {
-                        //send activation email request and wait for confirmation
-                        $this->model_account_customer->emailActivateLink($this->data['customer_id']);
+                        //send welcome email, but need manual approval
+                        $mdl->sendWelcomeEmail($this->request->post['email'], false);
                     }
-                } else {
-                    //send welcome email, but need manual approval
-                    $this->model_account_customer->sendWelcomeEmail($this->request->post['email'], false);
+                }catch (Exception $e) {
+                    $this->log->write(__CLASS__ . '::' . __FUNCTION__ . '() error: ' . $e->getMessage());
+                    $this->messages->saveError("Mailer Critical Error!", $e->getMessage());
                 }
 
                 $this->extensions->hk_UpdateData($this, __FUNCTION__);
@@ -184,9 +187,7 @@ class ControllerPagesAccountCreate extends AController
 
         if ($im_drivers) {
             foreach ($im_drivers as $protocol => $driver_obj) {
-                /**
-                 * @var AMailIM $driver_obj
-                 */
+                /** @var AMailIM $driver_obj */
                 if (!is_object($driver_obj) || $protocol == 'email') {
                     continue;
                 }
@@ -253,15 +254,14 @@ class ControllerPagesAccountCreate extends AController
         if (count($countries) > 1) {
             $options = ["FALSE" => $this->language->get('text_select')];
         }
-        foreach ($countries as $item) {
-            $options[$item['country_id']] = $item['name'];
-        }
+        $options = $options + array_column($countries, 'name','country_id');
+
         $this->data['form']['fields']['address']['country'] = $form->getFieldHtml(
             [
                 'type'     => 'selectbox',
                 'name'     => 'country_id',
                 'options'  => $options,
-                'value'    => ($this->request->post['country_id'] ?? $this->config->get('config_country_id')),
+                'value'    => $this->request->post['country_id'] ?? $this->config->get('config_country_id'),
                 'required' => true,
             ]
         );
@@ -357,7 +357,6 @@ class ControllerPagesAccountCreate extends AController
         if ($this->config->get('config_account_id')) {
             $this->loadModel('catalog/content');
             $content_info = $this->model_catalog_content->getContent($this->config->get('config_account_id'));
-
             if ($content_info) {
                 $text_agree = $this->language->get('text_agree');
                 $this->data['text_agree_href'] = $this->html->getURL(
@@ -371,17 +370,14 @@ class ControllerPagesAccountCreate extends AController
             $text_agree = '';
         }
         $this->data['text_agree'] = $text_agree;
-
         $text_account_already = sprintf(
             $this->language->get('text_account_already'),
             $this->html->getSecureURL('account/login')
         );
 
         $this->data['text_account_already'] = $text_account_already;
-
         $this->view->batchAssign($this->data);
         $this->processTemplate('pages/account/create.tpl');
-
         unset($this->session->data['fc']);
 
         //init controller data
@@ -392,11 +388,17 @@ class ControllerPagesAccountCreate extends AController
     {
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
-        $this->loadModel('account/customer');
+        /** @var ModelAccountCustomer $mdl */
+        $mdl = $this->loadModel('account/customer');
         $enc = new AEncryption($this->config->get('encryption_key'));
         list($customer_id, $activation_code) = explode("::", $enc->decrypt($this->request->get['rid']));
         if ($customer_id && $activation_code) {
-            $this->model_account_customer->emailActivateLink($customer_id);
+            try {
+                $mdl->emailActivateLink($customer_id);
+            }catch (Exception $e) {
+                $this->log->write(__CLASS__ . '::' . __FUNCTION__ . '() error: ' . $e->getMessage());
+                $this->messages->saveError("Mailer Critical Error!", $e->getMessage());
+            }
         }
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
         redirect($this->html->getSecureURL('account/success'));

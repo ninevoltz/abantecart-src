@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -34,7 +34,6 @@ use ReCaptcha\ReCaptcha;
  * @property ARequest $request
  * @property ALoader $load
  * @property ALanguageManager $language
- * @property ModelLocalisationCountry $model_localisation_country
  *
  */
 class AForm
@@ -146,12 +145,12 @@ class AForm
      */
     protected function _loadForm($name)
     {
-        $language_id = (int) $this->config->get('storefront_language_id');
-        $store_id = (int) $this->config->get('config_store_id');
-        $cache_key = 'forms.'.$name;
+        $language_id = (int)$this->config->get('storefront_language_id');
+        $store_id = (int)$this->config->get('config_store_id');
+        $cache_key = 'forms.' . $name;
         $cache_key = preg_replace('/[^a-zA-Z0-9.]/', '', $cache_key)
-            .'.store_'.$store_id
-            .'_lang_'.$language_id;
+            . '.store_' . $store_id
+            . '_lang_' . $language_id;
         $form = $this->cache->pull($cache_key);
         if ($form !== false) {
             $this->form = $form;
@@ -160,15 +159,15 @@ class AForm
 
         $query = $this->db->query(
             "SELECT f.*, fd.description
-            FROM ".$this->db->table("forms")." f
-            LEFT JOIN ".$this->db->table("form_descriptions")." fd
-                ON ( f.form_id = fd.form_id AND fd.language_id = '".$language_id."' )
-            WHERE f.form_name = '".$this->db->escape($name)."'
+            FROM " . $this->db->table("forms") . " f
+            LEFT JOIN " . $this->db->table("form_descriptions") . " fd
+                ON ( f.form_id = fd.form_id AND fd.language_id = '" . $language_id . "' )
+            WHERE f.form_name = '" . $this->db->escape($name) . "'
                     AND f.status = 1 "
         );
 
         if (!$query->num_rows) {
-            $err = new AError('NOT EXIST Form with name '.$name);
+            $err = new AError('NOT EXIST Form with name ' . $name);
             $err->toDebug()->toLog();
             return;
         }
@@ -184,24 +183,24 @@ class AForm
      */
     protected function _loadFields()
     {
-        $language_id = (int) $this->config->get('storefront_language_id');
-        $store_id = (int) $this->config->get('config_store_id');
-        $cache_key = 'forms.'.$this->form['form_name'].'.fields';
+        $language_id = (int)$this->config->get('storefront_language_id');
+        $store_id = (int)$this->config->get('config_store_id');
+        $cache_key = 'forms.' . $this->form['form_name'] . '.fields';
         $cache_key = preg_replace('/[^a-zA-Z0-9.]/', '', $cache_key)
-            .'.store_'.$store_id
-            .'_lang_'.$language_id;
+            . '.store_' . $store_id
+            . '_lang_' . $language_id;
         $fields = $this->cache->pull($cache_key);
         if ($fields !== false) {
             $this->fields = $fields;
-            return null;
+            return;
         }
 
         $query = $this->db->query(
             "SELECT f.*, fd.name, fd.description, fd.error_text
-            FROM ".$this->db->table("fields")." f
-            LEFT JOIN ".$this->db->table("field_descriptions")." fd
-                ON ( f.field_id = fd.field_id AND fd.language_id = '".$language_id."' )
-            WHERE f.form_id = '".$this->form['form_id']."'
+            FROM " . $this->db->table("fields") . " f
+            LEFT JOIN " . $this->db->table("field_descriptions") . " fd
+                ON ( f.field_id = fd.field_id AND fd.language_id = '" . $language_id . "' )
+            WHERE f.form_id = '" . $this->form['form_id'] . "'
                 AND f.status = 1
             ORDER BY f.sort_order"
         );
@@ -212,13 +211,13 @@ class AForm
                 $this->fields[$row['field_id']] = $row;
                 $query = $this->db->query(
                     "SELECT *
-                    FROM ".$this->db->table("field_values")." 
-                    WHERE field_id = '".$row['field_id']."'
-                    AND language_id = '".$language_id."'"
+                    FROM " . $this->db->table("field_values") . " 
+                    WHERE field_id = '" . $row['field_id'] . "'
+                    AND language_id = '" . $language_id . "'"
                 );
                 if ($query->num_rows) {
                     $values = unserialize($query->row['value']);
-                    usort($values, ['self', '_sort_by_sort_order']);
+                    usort($values, self::_sort_by_sort_order(...));
                     foreach ($values as $value) {
                         $this->fields[$row['field_id']]['options'][$value['name']] = $value['name'];
                     }
@@ -251,12 +250,12 @@ class AForm
      */
     protected function _loadGroups()
     {
-        $language_id = (int) $this->config->get('storefront_language_id');
-        $store_id = (int) $this->config->get('config_store_id');
-        $cache_key = 'forms.'.$this->form['form_name'].'.groups';
+        $language_id = (int)$this->config->get('storefront_language_id');
+        $store_id = (int)$this->config->get('config_store_id');
+        $cache_key = 'forms.' . $this->form['form_name'] . '.groups';
         $cache_key = preg_replace('/[^a-zA-Z0-9.]/', '', $cache_key)
-            .'.store_'.$store_id
-            .'_lang_'.$language_id;
+            . '.store_' . $store_id
+            . '_lang_' . $language_id;
         $groups = $this->cache->pull($cache_key);
         if ($groups !== false) {
             $this->groups = $groups;
@@ -265,12 +264,12 @@ class AForm
 
         $query = $this->db->query(
             "SELECT fg.*, fgd.name, fgd.description
-            FROM ".$this->db->table("form_groups")." g
-                LEFT JOIN ".$this->db->table("fields_groups")." fg 
+            FROM " . $this->db->table("form_groups") . " g
+                LEFT JOIN " . $this->db->table("fields_groups") . " fg 
                     ON ( g.group_id = fg.group_id)
-                LEFT JOIN ".$this->db->table("fields_group_descriptions")." fgd
-                    ON ( fg.group_id = fgd.group_id AND fgd.language_id = '".$language_id."' )
-            WHERE g.form_id = '".$this->form['form_id']."'
+                LEFT JOIN " . $this->db->table("fields_group_descriptions") . " fgd
+                    ON ( fg.group_id = fgd.group_id AND fgd.language_id = '" . $language_id . "' )
+            WHERE g.form_id = '" . $this->form['form_id'] . "'
                 AND g.status = 1
             ORDER BY g.sort_order, fg.sort_order"
         );
@@ -320,8 +319,12 @@ class AForm
 
         foreach ($this->fields as $field) {
             $fields[$field['field_name']] = [
-                'value'    => $field['value'],
-                'required' => $field['required'],
+                'status'       => $field['status'],
+                'value'        => $field['value'],
+                'required'     => $field['required'] == 'Y',
+                'element_type' => $field['element_type'],
+                'title'        => $field['name'],
+                'id'           => $field['field_id'],
             ];
         }
 
@@ -343,7 +346,7 @@ class AForm
                 return [
                     'field_name'   => $field['field_name'],
                     'element_type' => $field['element_type'],
-                    'required'     => $field['required'],
+                    'required'     => $field['required'] == 'Y',
                     'name'         => $field['name'],
                     'value'        => $field['value'],
                     'settings'     => $field['settings'],
@@ -352,7 +355,7 @@ class AForm
             }
         }
 
-        $err = new AError('NOT EXIST Form field with name '.$fieldName);
+        $err = new AError('NOT EXIST Form field with name ' . $fieldName);
         $err->toDebug()->toLog();
         return null;
     }
@@ -506,7 +509,7 @@ class AForm
 
         $containFiles = false;
         foreach ($this->fields as $field) {
-            if($field['element_type'] == 'U'){
+            if ($field['element_type'] == 'U') {
                 $containFiles = true;
             }
 
@@ -520,14 +523,14 @@ class AForm
                 'name'     => $field['field_name'],
                 'form'     => $this->form['form_name'],
                 'attr'     => $field['attributes'],
-                'required' => $field['required'],
+                'required' => $field['required'] == 'Y',
                 'value'    => $field['value'],
                 'options'  => $field['options'],
             ];
 
             //populate customer entered values from session (if present)
-            if (is_array($this->session->data['custom_form_'.$this->form['form_id']])) {
-                $data['value'] = $this->session->data['custom_form_'.$this->form['form_id']][$field['field_name']];
+            if (is_array($this->session->data['custom_form_' . $this->form['form_id']])) {
+                $data['value'] = $this->session->data['custom_form_' . $this->form['form_id']][$field['field_name']];
             }
 
             //custom data based on the HTML element type
@@ -599,11 +602,11 @@ class AForm
                 'attr'   => ' class="form" ',
                 'action' => $this->html->getSecureURL(
                     $this->form['controller'],
-                    '&form_id='.$this->form['form_id'],
+                    '&form_id=' . $this->form['form_id'],
                     true
                 ),
             ];
-            if($containFiles){
+            if ($containFiles) {
                 $data['enctype'] = 'multipart/form-data';
             }
 
@@ -616,7 +619,7 @@ class AForm
                 [
                     'description'  => $this->form['description'],
                     'form'         => $output,
-                    'form_open'    => $js.$form_open->getHtml(),
+                    'form_open'    => $js . $form_open->getHtml(),
                     'form_close'   => $form_close,
                     'submit'       => $submit,
                     'button_reset' => $this->language->get('button_reset'),
@@ -640,46 +643,50 @@ class AForm
     {
         $errors = [];
         $this->_loadFields();
-        $this->load->language('checkout/cart'); // load language for file upload text errors
+        // load language for file upload text errors
+        $this->load->language('checkout/cart');
+        $errorRequiredText = $this->language->get('text_field_required');
 
         foreach ($this->fields as $field) {
-            // for multivalue required fields
+            $fieldName = $field['field_name'];
+            $fieldTitle = $field['name'];
+            $isRequired = $field['required'] == 'Y';
+            // for multi-value required fields
             if (in_array($field['element_type'], HtmlElementFactory::getMultivalueElements())
-                && !$data[$field['field_name']]
-                && $field['required'] == 'Y'
+                && !$data[$fieldName] && $isRequired
             ) {
-                $errors[$field['field_name']] = $field['name'].' '.$this->language->get('text_field_required');
+                $errors[$fieldName] = $fieldTitle . ' ' . $errorRequiredText;
             }
             // for required string values
-            if ($field['required'] == 'Y' && !in_array($field['element_type'], ['K', 'J', 'U'])) {
-                if (!is_array($data[$field['field_name']])) {
-                    $data[$field['field_name']] = trim($data[$field['field_name']]);
-                    //if empty string!
-                    if ($data[$field['field_name']] == '') {
-                        $errors[$field['field_name']] = $field['name'].' '.$this->language->get('text_field_required');
+            if ($isRequired && !in_array($field['element_type'], ['K', 'J', 'U'])) {
+                if (!is_array($data[$fieldName])) {
+                    $data[$fieldName] = trim($data[$fieldName]);
+                    //if empty string
+                    if ($data[$fieldName] == '') {
+                        $errors[$fieldName] = $fieldTitle . ' ' . $errorRequiredText;
                     }
                 } else {
                     // if empty array
-                    if (!$data[$field['field_name']]) {
-                        $errors[$field['field_name']] = $field['name'].' '.$this->language->get('text_field_required');
+                    if (!$data[$fieldName]) {
+                        $errors[$fieldName] = $fieldTitle . ' ' . $errorRequiredText;
                     }
                 }
             }
             // check by regexp
-            if (has_value($field['regexp_pattern'])) {
-                if (!is_array($data[$field['field_name']])) { //for string value
-                    if (!preg_match($field['regexp_pattern'], $data[$field['field_name']])) {
+            if ($field['regexp_pattern']) {
+                if (!is_array($data[$fieldName])) { //for string value
+                    if (!preg_match($field['regexp_pattern'], $data[$fieldName])) {
                         // show error only for field with value or required
-                        if (($data[$field['field_name']] && $field['required'] != 'Y') || $field['required'] == 'Y') {
-                            $errors[$field['field_name']] .= ' '.$field['error_text'];
+                        if (($data[$fieldName] && !$isRequired) || $isRequired) {
+                            $errors[$fieldName] .= ' ' . $field['error_text'];
                         }
                     }
                 } else {
                     // for array's values
-                    foreach ($data[$field['field_name']] as $dd) {
+                    foreach ($data[$fieldName] as $dd) {
                         if (!preg_match($field['regexp_pattern'], $dd)) {
-                            if (($dd && $field['required'] != 'Y') || $field['required'] == 'Y') {
-                                $errors[$field['field_name']] .= ' '.$field['error_text'];
+                            if (($dd && !$isRequired) || $isRequired) {
+                                $errors[$fieldName] .= ' ' . $field['error_text'];
                             }
                             break;
                         }
@@ -691,41 +698,38 @@ class AForm
             if ($field['element_type'] == 'K' || $field['element_type'] == 'J') {
                 if ($this->config->get('config_recaptcha_secret_key')) {
                     $recaptcha = new ReCaptcha($this->config->get('config_recaptcha_secret_key'));
-                    $resp = $recaptcha->verify($data['g-recaptcha-response']?:$data['captcha'], $this->request->getRemoteIP());
+                    $resp = $recaptcha->verify($data['g-recaptcha-response'] ?: $data['captcha'], $this->request->getRemoteIP());
                     if (!$resp->isSuccess() && $resp->getErrorCodes()) {
-                        $errors[$field['field_name']] = $this->language->get('error_captcha');
+                        $errors[$fieldName] = $this->language->get('error_captcha');
                     }
                 } else {
-                    if (!isset($this->session->data['captcha'])
-                        || ($this->session->data['captcha'] != $data[$field['field_name']])
+                    if (!isset($this->session->data['captcha']) || ($this->session->data['captcha'] != $data[$fieldName])
                     ) {
-                        $errors[$field['field_name']] = $this->language->get('error_captcha');
+                        $errors[$fieldName] = $this->language->get('error_captcha');
                     }
                 }
             }
 
             // for file
-            if ($field['element_type'] == 'U'
-                && ($this->request->files[$field['field_name']]['tmp_name'] || $field['required'] == 'Y')
-            ) {
+            if ($field['element_type'] == 'U' && ($this->request->files[$fieldName]['tmp_name'] || $isRequired)) {
                 $fm = new AFile();
                 $file_path_info = $fm->getUploadFilePath(
                     $data['settings']['directory'],
-                    $this->request->files[$field['field_name']]['name']
+                    $this->request->files[$fieldName]['name']
                 );
                 $file_data = [
                     'name'     => $file_path_info['name'],
                     'path'     => $file_path_info['path'],
-                    'type'     => $this->request->files[$field['field_name']]['type'],
-                    'tmp_name' => $this->request->files[$field['field_name']]['tmp_name'],
-                    'error'    => $this->request->files[$field['field_name']]['error'],
-                    'size'     => $this->request->files[$field['field_name']]['size'],
+                    'type'     => $this->request->files[$fieldName]['type'],
+                    'tmp_name' => $this->request->files[$fieldName]['tmp_name'],
+                    'error'    => $this->request->files[$fieldName]['error'],
+                    'size'     => $this->request->files[$fieldName]['size'],
                 ];
 
                 $file_errors = $fm->validateFileOption($field['settings'], $file_data);
 
                 if ($file_errors) {
-                    $errors[$field['field_name']] .= implode(' ', $file_errors);
+                    $errors[$fieldName] .= implode(' ', $file_errors);
                 }
             }
         }
@@ -743,7 +747,7 @@ class AForm
      */
     public function processFileUploads($files = [])
     {
-        if(!$files){
+        if (!$files) {
             return [];
         }
         if ($this->fields) {
@@ -772,7 +776,7 @@ class AForm
             } else {
                 $err = new AError(
                     "AForm error: can't to move uploaded file "
-                    .$files[$field['field_name']]['tmp_name']." to ".$file_path_info['path']
+                    . $files[$field['field_name']]['tmp_name'] . " to " . $file_path_info['path']
                 );
                 $err->toLog()->toDebug();
             }
@@ -783,7 +787,7 @@ class AForm
                     'date_added' => date("Y-m-d H:i:s", time()),
                     'name'       => $file_path_info['name'],
                     'type'       => $files[$field['field_name']]['type'],
-                    'section'    => 'AForm:'.$this->form['form_name'].":".$field['field_name'],
+                    'section'    => 'AForm:' . $this->form['form_name'] . ":" . $field['field_name'],
                     'section_id' => '',
                     'path'       => $file_path_info['path'],
                 ]

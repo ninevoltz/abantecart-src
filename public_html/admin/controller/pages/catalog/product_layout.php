@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -29,8 +29,8 @@ class ControllerPagesCatalogProductLayout extends AController
     {
         $page_controller = 'pages/product/product';
         $page_key_param = 'product_id';
-        $product_id = (int)$this->request->get['product_id'];
-        $page_url = $this->html->getSecureURL('catalog/product_layout', '&product_id=' . $product_id);
+        $productId = (int)$this->request->get['product_id'];
+        $page_url = $this->html->getSecureURL('catalog/product_layout', '&product_id=' . $productId);
 
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
@@ -39,8 +39,8 @@ class ControllerPagesCatalogProductLayout extends AController
         $this->loadLanguage('design/layout');
         $this->loadModel('catalog/product');
 
-        if (has_value($product_id) && $this->request->is_GET()) {
-            $product_info = $this->model_catalog_product->getProduct($product_id);
+        if ($productId && $this->request->is_GET()) {
+            $product_info = $this->model_catalog_product->getProduct($productId);
             if (!$product_info) {
                 unset($this->session->data['success']);
                 $this->session->data['warning'] = $this->language->get('error_product_not_found');
@@ -49,10 +49,13 @@ class ControllerPagesCatalogProductLayout extends AController
         }
 
         $this->data['help_url'] = $this->gen_help_url('product_layout');
-        $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions($product_id);
+        $this->data['product_description'] = $this->model_catalog_product->getProductDescriptions(
+            $productId,
+            $this->language->getContentLanguageID()
+        );
         $this->data['heading_title'] = $this->language->get('text_design')
             . ' - '
-            . $this->data['product_description'][$this->language->getContentLanguageID()]['name'];
+            . $this->data['product_description']['name'];
         $this->document->setTitle($this->data['heading_title']);
 
         // Alert messages
@@ -81,7 +84,7 @@ class ControllerPagesCatalogProductLayout extends AController
         );
         $this->document->addBreadcrumb(
             [
-                'href'      => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $product_id),
+                'href'      => $this->html->getSecureURL('catalog/product/update', '&product_id=' . $productId),
                 'text'      => $this->data['heading_title'],
                 'separator' => ' :: ',
             ]
@@ -106,13 +109,13 @@ class ControllerPagesCatalogProductLayout extends AController
         $templateTxtId = $this->request->get['tmpl_id'] ?: $this->config->get('config_storefront_template');
         $layout = new ALayoutManager($templateTxtId);
         //get existing page layout or generic
-        $page_layout = $layout->getPageLayoutIDs($page_controller, $page_key_param, $product_id);
+        $page_layout = $layout->getPageLayoutIDs($page_controller, $page_key_param, $productId);
         $pageId = $page_layout['page_id'];
         $layoutId = $page_layout['layout_id'];
 
 
         $params = [
-            'product_id' => $product_id,
+            'product_id' => $productId,
             'page_id'    => $pageId,
             'layout_id'  => $layoutId,
             'tmpl_id'    => $templateTxtId,
@@ -205,10 +208,14 @@ class ControllerPagesCatalogProductLayout extends AController
             ]
         );
         if ($this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $this->data['product_store'] = $this->model_catalog_product->getProductStores($productId);
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/product',
-                '&product_id=' . $this->request->get['product_id']
+                ['product_id' => $productId],
+                $this->data['product_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->view->batchAssign($this->data);

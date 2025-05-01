@@ -189,3 +189,48 @@ function renderAdminMenu(array $menu, ?int $level = 0, ?string $currentRt = '')
     }
     return $result;
 }
+
+/**
+ * @param string $rt
+ * @param array $httpQuery
+ * @param array|null $storeList
+ * @return array
+ * @throws AException
+ */
+function getEmbedButtonsData(string $rt, array $httpQuery, ?array $storeList = [0])
+{
+    if(IS_ADMIN !== true){
+        return[];
+    }
+    $registry = Registry::getInstance();
+    if(count($storeList) > 1){
+        $mdl = $registry->get('load')->model('setting/store');
+        $output['embed_stores'] = array_column(
+            $mdl->getStores( ['filter' => ['include' => $storeList]] ),
+            'name',
+            'store_id'
+        );
+    }else{
+        if($storeList){
+            $httpQuery['store_id'] = (int)current($storeList);
+        }
+        $output['embed_stores'] = [];
+    }
+    $output['embed_url'] = $registry->get('html')->getSecureURL( $rt, '&'.http_build_query($httpQuery) );
+    return $output;
+}
+
+
+function adminFormFieldBS3CssClasses(?string $style){
+    $style = (string)$style;
+    $cssClasses = "col-sm-7";
+    if ( str_contains($style, 'medium-field') || str_contains($style, 'date') ) {
+        $cssClasses = "col-sm-5";
+    } else if ( str_contains($style, 'small-field') || str_contains($style, 'btn_switch') ) {
+        $cssClasses = "col-sm-4";
+    } else if ( str_contains($style, 'tiny-field') ) {
+        $cssClasses = "col-sm-2";
+    }
+    $cssClasses .= " col-xs-12";
+    return $cssClasses;
+}

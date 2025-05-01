@@ -39,7 +39,7 @@
                             'text' => $text_history
                         ],
                         'transactions' =>[
-                            'href' => $history,
+                            'href' => $transactions,
                             'icon_class' => 'bi-credit-card-2-back-fill',
                             'text' => $text_transactions
                         ]

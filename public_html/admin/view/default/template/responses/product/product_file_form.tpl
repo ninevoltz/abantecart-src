@@ -60,17 +60,15 @@
 							<?php foreach ($fields as $name => $field) {
 								if( $field->type=='hidden' ){ echo $field; continue;	}
 								//Logic to calculate fields width
-								$widthcasses = "col-sm-7";
-								if ( is_int(stripos($field->style, 'large-field')) ) {
-									$widthcasses = "col-sm-7";
-								} else if ( is_int(stripos($field->style, 'medium-field')) || is_int(stripos($field->style, 'date')) ) {
-									$widthcasses = "col-sm-5";
-								} else if ( is_int(stripos($field->style, 'small-field')) ) {
-									$widthcasses = "col-sm-3";
-								} else if ( is_int(stripos($field->style, 'btn_switch')) ) {
-									$widthcasses = "col-sm-6";
+								$widthCssClasses = "col-sm-7";
+								if ( str_contains((string)$field->style, 'medium-field') || str_contains((string)$field->style, 'date') ) {
+									$widthCssClasses = "col-sm-5";
+								} else if ( str_contains((string)$field->style, 'small-field') ) {
+									$widthCssClasses = "col-sm-3";
+								} else if ( str_contains((string)$field->style, 'btn_switch') ) {
+									$widthCssClasses = "col-sm-6";
 								}
-								$widthcasses .= " col-xs-12";
+								$widthCssClasses .= " col-xs-12";
 							?>
 						<div class="form-group <?php echo $error[$name] ? "has-error" : ''; ?>">
 							<label class="control-label col-sm-3 col-xs-12" for="<?php echo $field->element_id; ?>">
@@ -89,7 +87,7 @@
                                 </ul>
 							</div>
 							<?php } else { ?>
-							<div class="input-group afield <?php echo $widthcasses.' '.($name == 'description' ? 'ml_ckeditor' : '')?>">
+							<div class="input-group afield <?php echo $widthCssClasses.' '.($name == 'description' ? 'ml_ckeditor' : '')?>">
                                 <?php if ($field->type == 'checkboxgroup') {
                                     echo '<div class="c_wrapper">'.$field.'</div>';
                                     $field = '';
@@ -108,7 +106,7 @@
                             <label class="control-label col-sm-3 col-xs-12" for="">
                                 <?php echo $entry_date_added; ?>
                             </label>
-                            <div class="input-group afield <?php echo $widthcasses; ?>">
+                            <div class="input-group afield <?php echo $widthCssClasses; ?>">
                                 <div class="control-label pull-left"> <?php echo $date_added; ?> </div>
                             </div>
                         </div>
@@ -116,7 +114,7 @@
                             <label class="control-label col-sm-3 col-xs-12" for="">
                                 <?php echo $entry_date_modified; ?>
                             </label>
-                            <div class="input-group afield <?php echo $widthcasses; ?>">
+                            <div class="input-group afield <?php echo $widthCssClasses; ?>">
                                 <div class="control-label pull-left" > <?php echo $date_modified; ?> </div>
                             </div>
                         </div>
@@ -124,7 +122,7 @@
                             <label class="control-label col-sm-3 col-xs-12" for="">
                                 <?php echo $text_path; ?>
                             </label>
-                            <div class="input-group afield <?php echo $widthcasses; ?>">
+                            <div class="input-group afield <?php echo $widthCssClasses; ?>">
                                 <div class="control-label pull-left" >
                                     <a href="<?php echo $preview['href']?>" target="_blank">
                                         <i class="fa fa-download m5"></i> <?php echo $preview['path']; ?>

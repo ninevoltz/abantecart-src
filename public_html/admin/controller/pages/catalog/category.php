@@ -624,10 +624,13 @@ class ControllerPagesCatalogCategory extends AController
         unset($tabs_obj);
 
         if ($category_id && $this->config->get('config_embed_status')) {
-            $this->data['embed_url'] = $this->html->getSecureURL(
+            $btnData = getEmbedButtonsData(
                 'common/do_embed/categories',
-                '&category_id=' . $category_id
+                ['category_id' => $category_id],
+                $this->data['category_store']
             );
+            $this->data['embed_url'] = $btnData['embed_url'];
+            $this->data['embed_stores'] = $btnData['embed_stores'];
         }
 
         $this->view->batchAssign($this->data);
