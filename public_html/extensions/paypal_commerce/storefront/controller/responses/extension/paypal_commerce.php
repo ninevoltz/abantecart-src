@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -598,19 +598,22 @@ class ControllerResponsesExtensionPaypalCommerce extends AController
             http_response_code('406');
             exit;
         }
-        list($orderId, $uniqueId) = explode('-',$inData['parsed']['resource']['custom_id']);
+        list($orderId,) = explode('-',$inData['parsed']['resource']['custom_id']);
+        $this->data['event_name'] = $eventName;
+        $this->data['order_id'] = $orderId;
+        $this->data['order_status_id'] = $orderStatusId;
 
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
 
         $this->model_checkout_order->update(
             $orderId,
-            $orderStatusId,
+            $this->data['order_status_id'],
             'Order updated by Paypal webhook request.'
         );
         //save input data into comments but hide from customer
         $this->model_checkout_order->addHistory(
             $orderId,
-            $orderStatusId,
+            $this->data['order_status_id'],
             "Paypal webhook " . $eventName . ": \n\nParsed data:\n" . var_export($inData['parsed'], true)
         );
     }
@@ -635,7 +638,7 @@ class ControllerResponsesExtensionPaypalCommerce extends AController
             return false;
         }
 
-        list($orderId, $uniqueId) = explode('-',$inData['parsed']['resource']['custom_id']);
+        list($orderId, ) = explode('-',$inData['parsed']['resource']['custom_id']);
         $ppOrderId = $inData['parsed']['resource']['supplementary_data']['related_ids']['order_id'];
         $this->loadModel('checkout/order');
         $orderInfo = $this->model_checkout_order->getOrder($orderId);
