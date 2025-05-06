@@ -87,6 +87,7 @@ final class AMySQLi
         try {
             $timezone = date_default_timezone_get();
             if ($timezone) {
+                $timezone = $timezone == 'UTC' ? 'Europe/London' : $timezone;
                 $connection->query("SET time_zone='".$timezone."';");
             }
         } catch (\Exception $e) {
