@@ -250,7 +250,7 @@ class ABackup
             $res = $db->query($sql);
             $nullables = array_column($res->rows,'COLUMN_NAME');
 
-            if($start >= $column_max){
+            if($start >= $column_max && $column_max){
                 throw new AException(
                     0,
                     'Abnormal situation! start: '
