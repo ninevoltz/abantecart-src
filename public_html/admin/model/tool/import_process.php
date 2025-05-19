@@ -604,7 +604,7 @@ class ModelToolImportProcess extends Model
                     for ($j = 0; $j < max($counts); $j++) {
                         //build flat associative array options value
                         $opt_val_data = [];
-                        foreach (array_keys($option_vals) as $key) {
+                        foreach (array_keys((array)$option_vals) as $key) {
                             $opt_val_data[$key] = $option_vals[$key][$j];
                         }
                         $this->_save_option_value($product_id, $weight_class_id, $p_option_id, $opt_val_data);
@@ -626,7 +626,7 @@ class ModelToolImportProcess extends Model
      */
     protected function _save_option_value($product_id, $weight_class_id, $p_option_id, $data)
     {
-        if (empty($data) || !array_filter($data)) {
+        if (empty($data) || !array_filter((array)$data)) {
             //skip empty data
             return false;
         }
@@ -1097,7 +1097,7 @@ class ModelToolImportProcess extends Model
                     }
                     $arr['product_option_values']['image'][] = $field_val;
                     $tmp_index = ($op_index >= 0) ? $op_index : 0;
-                    $op_array[$tmp_index] = array_merge_recursive($op_array[$tmp_index], $arr);
+                    $op_array[$tmp_index] = array_merge_recursive((array)$op_array[$tmp_index], $arr);
                 } else {
                     for ($i = 0; $i < count($keys) - 1; $i++) {
                         if ($i == 0) {
@@ -1107,7 +1107,7 @@ class ModelToolImportProcess extends Model
                         }
                     }
                     $tmp_index = ($op_index >= 0) ? $op_index : 0;
-                    $op_array[$tmp_index] = array_merge_recursive($op_array[$tmp_index], $arr);
+                    $op_array[$tmp_index] = array_merge_recursive((array)$op_array[$tmp_index], $arr);
                 }
             } else {
                 foreach ($keys as $key) {
@@ -1199,7 +1199,7 @@ class ModelToolImportProcess extends Model
      */
     protected function getValueFromDataMap($key, $record, $fields, $columns)
     {
-        $index = array_search($key, $fields);
+        $index = array_search($key, (array)$fields);
         if ($index !== false) {
             return $record[$columns[$index]];
         }
