@@ -42,35 +42,35 @@ function renderAllCategoriesSFMenuNv(array $menuItems, $options = [ ])
                         data-bs-toggle="tab" data-bs-target="#drp-'.$item['category_id'].'-tab-pane" type="button" role="tab"
                         aria-controls="drp-'.$item['category_id'].'-tab-pane" aria-selected="true">'.$item_title.'</a></li>';
         $cards = renderFeaturedProductsCards( $item );
-        $hasChild = (bool) $item['children'];
-        if ($hasChild) {
-            $children .= '<div class="tab-pane fade '.(!$i ? ' active show' : '').'" id="drp-'.$item['category_id'].'-tab-pane" role="tabpanel"
-                                aria-labelledby="drp-'.$item['category_id'].'-tab" data-category-id="'.$item['category_id'].'">
-                                <div class="container d-flex flex-nowrap align-items-stretch">
-                                <div class="col-4">
-                                    <ul class="list-unstyled category-sub-links">';
-            foreach($item['children'] as $child){
-                $childTitle = $child['text'] ?: $child['title'] ?: $child['name'];
-                $children .= '<li><a href="'.$child['href'].'"
-                                    class="subcategory-link"
-                                    id="child-'.$child['category_id'].'-tab">'.$childTitle.'</a></li>';
 
-                $cards .= renderFeaturedProductsCards( $child );
+        $children .= '<div class="tab-pane fade '.(!$i ? ' active show' : '').'" id="drp-'.$item['category_id'].'-tab-pane" role="tabpanel"
+                            aria-labelledby="drp-'.$item['category_id'].'-tab" data-category-id="'.$item['category_id'].'">
+                            <div class="container d-flex flex-nowrap align-items-stretch">
+                            <div class="col-4">
+                                <ul class="list-unstyled category-sub-links">';
+        if($item['children']) {
+            foreach ($item['children'] as $child) {
+                $childTitle = $child['text'] ?: $child['title'] ?: $child['name'];
+                $children .= '<li><a href="' . $child['href'] . '" class="subcategory-link"
+                                id="child-' . $child['category_id'] . '-tab">'
+                    . $childTitle. '</a></li>';
+
+                $cards .= renderFeaturedProductsCards($child);
             }
-            $children .= '</ul></div>'.$cards.'</div></div>';
         }
+        $children .= '</ul></div>'.$cards.'</div></div>';
     }
     $output .= '</ul></div>'.$children.'</div></div>';
     return $output;
 }
 
-function renderFeaturedProductsCards( $item )
+function renderFeaturedProductsCards( $item, ?int $limit =2, ?int $offset = 0 )
 {
     $html = Registry::getInstance()->get('html');
     $cards = '<div id="card-'.$item['category_id'].'-tab-pane" class="container featured-products col-8 tab-pane fade" role="tabpanel" >
                     <div class="row g-4">';
-    $k=0;
-    while( $k<2 ){
+    $k = (int)$offset;
+    while( $k < $limit ){
         $product = $item['featured_products'][$k];
         $name = mb_substr($product['name'], 0,150).(mb_strlen($product['name']) > 150 ? '...' : '');
         $blurb = mb_strlen($name) > 149 ? '' : ($product['blurb'] ? mb_substr($product['blurb'], 0, 150).'...' : '');
