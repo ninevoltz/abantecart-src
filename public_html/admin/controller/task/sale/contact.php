@@ -1,35 +1,36 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2020 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
 
 class ControllerTaskSaleContact extends AController
 {
-    public $data = [];
-    private $protocol;
-    private $sent_count = 0;
+    protected $protocol;
+    protected $sent_count = 0;
 
     public function sendSms(...$args)
     {
         list($task_id, $step_id,) = $args;
+        $task_id = (int)$task_id;
+        $step_id = (int)$step_id;
         $this->load->library('json');
         //for aborting process
         ignore_user_abort(false);
@@ -60,6 +61,8 @@ class ControllerTaskSaleContact extends AController
     public function sendEmail(...$args)
     {
         list($task_id, $step_id,) = $args;
+        $task_id = (int)$task_id;
+        $step_id = (int)$step_id;
 
         $this->load->library('json');
         //for aborting process
@@ -88,11 +91,9 @@ class ControllerTaskSaleContact extends AController
         return $result;
     }
 
-    private function _send($task_id, $step_id)
+    protected function _send(int $task_id, int $step_id)
     {
-
         $this->loadLanguage('sale/contact');
-
         if (!$task_id || !$step_id) {
             $error_text = 'Cannot run task step. Task_id (or step_id) has not been set.';
             $this->_return_error($error_text);
@@ -144,7 +145,6 @@ class ControllerTaskSaleContact extends AController
         ];
         //send emails in loop and update task's step info for restarting if step or task failed
         $step_settings = $step_info['settings'];
-        $cnt = 0;
         $step_result = true;
         $send_to = $step_info['settings']['to'];
         //remove step if no recipients
@@ -188,7 +188,6 @@ class ControllerTaskSaleContact extends AController
             } else {
                 $step_result = false;
             }
-            $cnt++;
         }
 
         $tm->updateStep($step_id, ['last_result' => $step_result]);
@@ -199,11 +198,11 @@ class ControllerTaskSaleContact extends AController
         return $step_result;
     }
 
-    private function _return_error($error_text)
+    protected function _return_error($error_text)
     {
         $error = new AError($error_text);
         $error->toLog()->toDebug();
-        return $error->toJSONResponse('APP_ERROR_402',
+        $error->toJSONResponse('APP_ERROR_402',
                                       [
                 'error_text'  => $error_text,
                 'reset_value' => true,
@@ -211,7 +210,7 @@ class ControllerTaskSaleContact extends AController
         );
     }
 
-    private function _send_email($email, $data)
+    protected function _send_email($email, $data)
     {
         if (!$email || !$data) {
             $error = new AError('Error: Cannot send email. Unknown address or empty message.');
@@ -264,7 +263,7 @@ class ControllerTaskSaleContact extends AController
         return true;
     }
 
-    private function _send_sms($phone, $data)
+    protected function _send_sms($phone, $data)
     {
         if (!$phone || !$data) {
             $error = new AError('Error: Cannot send sms. Unknown phone number or empty message.');
@@ -291,8 +290,7 @@ class ControllerTaskSaleContact extends AController
             }
 
             $driver = new $classname();
-        } catch (AException $e) {
-        }
+        } catch (AException|Error) { }
 
         if ($driver === null) {
             return false;
@@ -305,12 +303,10 @@ class ControllerTaskSaleContact extends AController
             //use safe call
             try {
                 $result = $driver->send($to, $text);
-            } catch (AException $e) {
+            } catch (AException|Error) {
                 return false;
             }
         }
-
         return $result;
     }
-
 }

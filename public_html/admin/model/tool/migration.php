@@ -1,22 +1,22 @@
 <?php
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2020 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -32,7 +32,7 @@ class ModelToolMigration extends Model
      * @var Migration_Oscmax|Migration_OC15x|Migration_Zen|Migration_Osc|Migration_OC|Migration_Cre $cart
      */
     protected $cartObj = null;
-    protected $log = '';
+    protected $logger = '';
     private $is_error = null;
     private $pic_count = 0;
 
@@ -85,7 +85,7 @@ class ModelToolMigration extends Model
     {
         $class = $type == 'error' ? 'warning' : 'success';
         $class = $type == 'attention' ? 'attention' : $class;
-        $this->log .= '<p class="'.$class.'">'.$msg.'</p>';
+        $this->logger .= '<p class="'.$class.'">'.$msg.'</p>';
     }
 
     public function getCounts()
@@ -121,13 +121,13 @@ class ModelToolMigration extends Model
 
         if ($this->session->data['migration']['migrate_customers']) {
             if (!$this->migrateCustomers()) {
-                return $this->log;
+                return $this->logger;
             }
         }
 
         if ($this->session->data['migration']['migrate_products']) {
             if (!$this->migrateProducts()) {
-                return $this->log;
+                return $this->logger;
             }
         }
 
@@ -139,7 +139,7 @@ class ModelToolMigration extends Model
         }*/
 
         $this->clearStepData();
-        return $this->log;
+        return $this->logger;
     }
 
     protected function import($sql)

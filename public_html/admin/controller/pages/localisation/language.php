@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -269,13 +269,21 @@ class ControllerPagesLocalisationLanguage extends AController
 
         if (!isset($this->request->get['language_id'])) {
             $this->data['action'] = $this->html->getSecureURL('localisation/language/insert');
-            $this->data['heading_title'] = $this->language->get('text_insert') . '&nbsp;' . $this->language->get('text_language');
+            $this->data['heading_title'] = $this->language->get('text_insert')
+                . '&nbsp;' . $this->language->get('text_language');
             $this->data['update'] = '';
             $form = new AForm('ST');
         } else {
-            $this->data['action'] = $this->html->getSecureURL('localisation/language/update', '&language_id=' . $this->request->get['language_id']);
-            $this->data['heading_title'] = $this->language->get('text_edit') . '&nbsp;' . $this->language->get('text_language') . ' - ' . $this->data['name'];
-            $this->data['update'] = $this->html->getSecureURL('listing_grid/language/update_field', '&id=' . $this->request->get['language_id']);
+            $this->data['action'] = $this->html->getSecureURL(
+                'localisation/language/update', '&language_id=' . (int)$this->request->get['language_id']
+            );
+            $this->data['heading_title'] = $this->language->get('text_edit')
+                . '&nbsp;' . $this->language->get('text_language')
+                . ' - ' . $this->data['name'];
+            $this->data['update'] = $this->html->getSecureURL(
+                'listing_grid/language/update_field',
+                '&id=' . (int)$this->request->get['language_id']
+            );
             $form = new AForm('HS');
         }
 
@@ -441,9 +449,15 @@ class ControllerPagesLocalisationLanguage extends AController
                     'options' => $translate_methods,
                 ]
             );
-            $this->data['form2']['build_task_url'] = $this->html->getSecureURL('r/localisation/language_description/buildTask');
-            $this->data['form2']['complete_task_url'] = $this->html->getSecureURL('r/localisation/language_description/complete');
-            $this->data['form']['abort_task_url'] = $this->html->getSecureURL('r/localisation/language_description/abort');
+            $this->data['form2']['build_task_url'] = $this->html->getSecureURL(
+                'r/localisation/language_description/buildTask'
+            );
+            $this->data['form2']['complete_task_url'] = $this->html->getSecureURL(
+                'r/localisation/language_description/complete'
+            );
+            $this->data['form']['abort_task_url'] = $this->html->getSecureURL(
+                'r/localisation/language_description/abort'
+            );
 
             //check for incomplete tasks
             $task_name = 'description_translation';
@@ -456,28 +470,32 @@ class ControllerPagesLocalisationLanguage extends AController
                 ]
             );
 
-            foreach ($incomplete as $incm_task) {
+            foreach ($incomplete as $incmTask) {
                 //show all incomplete tasks for Top Administrator user group
                 if ($this->user->getUserGroupId() != 1) {
-                    if ($incm_task['starter'] != $this->user->getId()) {
+                    if ($incmTask['starter'] != $this->user->getId()) {
                         continue;
                     }
                     //rename task to prevent collision with new
-                    if ($incm_task['name'] == $task_name) {
+                    if ($incmTask['name'] == $task_name) {
                         $tm->updateTask(
-                            $incm_task['task_id'],
+                            (int)$incmTask['task_id'],
                             ['name' => $task_name . '_' . date('YmdHis')]
                         );
                     }
                 }
                 //define incomplete tasks by last time run
-                $max_exec_time = (int)$incm_task['max_execution_time'];
+                $max_exec_time = (int)$incmTask['max_execution_time'];
                 if (!$max_exec_time) {
                     //if no limitations for execution time for task - think it's 2 hours
                     $max_exec_time = 7200;
                 }
-                if (time() - dateISO2Int($incm_task['last_time_run']) > $max_exec_time) {
-                    $this->data['incomplete_tasks_url'] = $this->html->getSecureURL('r/localisation/language_description/incomplete');
+                if ($incmTask['last_time_run']
+                    && time() - dateISO2Int($incmTask['last_time_run']) > $max_exec_time
+                ) {
+                    $this->data['incomplete_tasks_url'] = $this->html->getSecureURL(
+                        'r/localisation/language_description/incomplete'
+                    );
                     break;
                 }
             }

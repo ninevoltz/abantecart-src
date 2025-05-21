@@ -1,23 +1,22 @@
 <?php
-
-/*------------------------------------------------------------------------------
-  $Id$
-
-  AbanteCart, Ideal OpenSource Ecommerce Solution
-  http://www.AbanteCart.com
-
-  Copyright © 2011-2021 Belavier Commerce LLC
-
-  This source file is subject to Open Software License (OSL 3.0)
-  License details is bundled with this package in the file LICENSE.txt.
-  It is also available at this URL:
-  <http://www.opensource.org/licenses/OSL-3.0>
-
- UPGRADE NOTE:
-   Do not edit or add to this file if you wish to upgrade AbanteCart to newer
-   versions in the future. If you wish to customize AbanteCart for your
-   needs please refer to http://www.AbanteCart.com for more information.
-------------------------------------------------------------------------------*/
+/*
+ *   $Id$
+ *
+ *   AbanteCart, Ideal OpenSource Ecommerce Solution
+ *   http://www.AbanteCart.com
+ *
+ *   Copyright © 2011-2025 Belavier Commerce LLC
+ *
+ *   This source file is subject to Open Software License (OSL 3.0)
+ *   License details is bundled with this package in the file LICENSE.txt.
+ *   It is also available at this URL:
+ *   <http://www.opensource.org/licenses/OSL-3.0>
+ *
+ *  UPGRADE NOTE:
+ *    Do not edit or add to this file if you wish to upgrade AbanteCart to newer
+ *    versions in the future. If you wish to customize AbanteCart for your
+ *    needs please refer to http://www.AbanteCart.com for more information.
+ */
 if (!defined('DIR_CORE') || !IS_ADMIN) {
     header('Location: static_pages/');
 }
@@ -81,7 +80,7 @@ class ControllerResponsesToolBackup extends AController
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
 
-        $task_id = (int) $this->request->post['task_id'];
+        $task_id = (int)$this->request->post['task_id'];
         $result_text = '';
         if ($task_id) {
             $backup_name = '';
@@ -179,9 +178,9 @@ class ControllerResponsesToolBackup extends AController
             $this->errors['warning'] = $this->language->get('error_permission');
         }
 
-        $this->request->post['backup_code'] = $this->request->post['backup_code'] ? true : false;
-        $this->request->post['backup_content'] = $this->request->post['backup_content'] ? true : false;
-        $this->request->post['compress_backup'] = $this->request->post['compress_backup'] ? true : false;
+        $this->request->post['backup_code'] = (bool)$this->request->post['backup_code'];
+        $this->request->post['backup_content'] = (bool)$this->request->post['backup_content'];
+        $this->request->post['compress_backup'] = (bool)$this->request->post['compress_backup'];
 
         if (!$this->request->post['table_list']
             && !$this->request->post['backup_code']

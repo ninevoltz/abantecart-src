@@ -5,7 +5,7 @@
  *   AbanteCart, Ideal OpenSource Ecommerce Solution
  *   http://www.AbanteCart.com
  *
- *   Copyright © 2011-2024 Belavier Commerce LLC
+ *   Copyright © 2011-2025 Belavier Commerce LLC
  *
  *   This source file is subject to Open Software License (OSL 3.0)
  *   License details is bundled with this package in the file LICENSE.txt.
@@ -29,6 +29,8 @@ class ControllerTaskLocalisationLanguage extends AController
     {
         $isTranslated = false;
         list($task_id, $step_id,) = $args;
+        $task_id = (int)$task_id;
+        $step_id = (int)$step_id;
         $this->load->library('json');
 
         if (!$task_id || !$step_id) {

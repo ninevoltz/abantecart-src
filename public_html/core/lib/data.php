@@ -441,7 +441,6 @@ class AData
      */
     protected function _csv_file2array($file, $delimiter = ',', $enclose = '"', $escape = '"', $start = 0, $offset = 0)
     {
-        ini_set('auto_detect_line_endings', true);
         $data = [];
         $titles = [];
         $handle = fopen($file, 'r');

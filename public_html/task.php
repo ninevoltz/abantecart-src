@@ -121,7 +121,7 @@ if ($mode && !$task_id) {
             if ($run_mode != 'continue') {
                 $task_details = $tm->getTaskById($task_id);
                 foreach ($task_details['steps'] as $step) {
-                    $tm->updateStep($step['step_id'], ['status' => $tm::STATUS_READY]);
+                    $tm->updateStep((int)$step['step_id'], ['status' => $tm::STATUS_READY]);
                 }
             }
 
