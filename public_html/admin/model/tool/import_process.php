@@ -586,7 +586,7 @@ class ModelToolImportProcess extends Model
 
         //process columns that needs to be concatenated
         if (isset($settings['concat']) && is_array($settings['concat'])) {
-            $this->updateConcatinatedColumns($record, $settings);
+            $this->updateConcatenatedColumns($record, $settings);
         }
         //data mapping
         $data = $this->buildDataMap(
@@ -605,7 +605,7 @@ class ModelToolImportProcess extends Model
         $manufacturers = $this->filterArray((array)$data['manufacturers']);
         //check if row is complete and uniform
         if (
-            ( !$product_desc['name'] && !$product['sku'] && !$product['model'])
+            (!$product_desc['name'] && !$product['sku'] && !$product['model'])
             || ($data['product_options'] && !$this->validateOptions((array)$data['product_options']))
         ) {
             $this->toLog('Error: Record is not complete or missing required data. Skipping!');
@@ -719,12 +719,12 @@ class ModelToolImportProcess extends Model
         }
 
         if (isset($data['product_options'])) {
-                //process options
-                $this->_addUpdateOptions(
-                    $product_id,
-                    $data['product_options'],
-                    $product_data['weight_class_id']
-                );
+            //process options
+            $this->_addUpdateOptions(
+                $product_id,
+                $data['product_options'],
+                $product_data['weight_class_id']
+            );
         }
 
         return $status;
@@ -732,13 +732,24 @@ class ModelToolImportProcess extends Model
 
     protected function validateOptions(array $options)
     {
-      foreach($options as $option) {
-          if (!is_array($option) || !array_filter($option) || !$option['name']) {
-              $this->toLog('Error: Option name must be a non-empty string.');
-              return false;
-          }
-      }
-      return true;
+        foreach ($options as $option) {
+            $arr = (array)$option;
+            $flattened = [];
+            array_walk_recursive($arr, function ($value) use (&$flattened) {
+                $flattened[] = (string)$value;
+            });
+
+            $cc = implode('', $flattened);
+            //if option array contains only empty values - skip option check
+            if ($cc === '') {
+                continue;
+            }
+            if (!is_array($option) || !array_filter($option) || !$option['name']) {
+                $this->toLog('Error: Option name must be a non-empty string.');
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -756,7 +767,7 @@ class ModelToolImportProcess extends Model
 
         //process columns that needs to be concatenated
         if (isset($settings['concat']) && is_array($settings['concat'])) {
-            $this->updateConcatinatedColumns($record, $settings);
+            $this->updateConcatenatedColumns($record, $settings);
         }
 
         //data mapping
@@ -883,7 +894,7 @@ class ModelToolImportProcess extends Model
 
         //process columns that needs to be concatenated
         if (isset($settings['concat']) && is_array($settings['concat'])) {
-            $this->updateConcatinatedColumns($record, $settings);
+            $this->updateConcatenatedColumns($record, $settings);
         }
 
         //data mapping
@@ -1469,11 +1480,11 @@ class ModelToolImportProcess extends Model
      */
     protected function buildDataMap($record, $import_col, $fields, $split_col)
     {
-        $ret = [];
+        $output = [];
         $op_index = -1;
         $op_array = [];
         if (!is_array($import_col) || !is_array($fields)) {
-            return $ret;
+            return $output;
         }
 
         //decode html encoded symbols such as &gt;
@@ -1488,7 +1499,7 @@ class ModelToolImportProcess extends Model
             $arr = [];
             $field_val = $record[$import_col[$index]] ?? '';
             $keys = array_reverse(explode('.', $field));
-            if (end($keys) == 'product_options' && !empty($field_val)) {
+            if (end($keys) == 'product_options' && isset($field_val)) {
                 //map options special way
                 //check if this is still same option or it is new name
                 if (count($keys) == 2) {
@@ -1540,14 +1551,14 @@ class ModelToolImportProcess extends Model
                     }
                 }
 
-                $ret = array_merge_recursive($ret, $arr);
+                $output = array_merge_recursive($output, $arr);
             }
         }
 
         if ($op_array) {
-            $ret = array_merge_recursive($ret, ['product_options' => $op_array]);
+            $output = array_merge_recursive($output, ['product_options' => $op_array]);
         }
-        return $ret;
+        return $output;
     }
 
     /**
@@ -1556,7 +1567,7 @@ class ModelToolImportProcess extends Model
      *
      * @return void
      */
-    protected function updateConcatinatedColumns(&$vals, &$map)
+    protected function updateConcatenatedColumns(&$vals, &$map)
     {
         $concatMap = [];
         foreach ($map['concat'] as $index => $col) {
