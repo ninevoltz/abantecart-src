@@ -94,7 +94,7 @@ class ACart
         } else {
             $this->cust_data =& $c_data;
         }
-        //can load promotion if customer_group_id is provided  
+        //can load promotion if customer_group_id is provided
         $this->promotion = new APromotion($this->cust_data['customer_group_id']);
 
         if (!isset($this->cust_data['cart']) || !is_array($this->cust_data['cart'])) {
@@ -561,14 +561,15 @@ class ACart
      */
     public function getWeight($product_ids = [])
     {
+        $product_ids = filterIntegerIdList($product_ids);
         $weight = 0;
         $products = $this->getProducts();
         foreach ($products as $product) {
-            if (count($product_ids) > 0 && !in_array((string)$product['product_id'], $product_ids)) {
+            if (count($product_ids) > 0 && !in_array((int)$product['product_id'], $product_ids)) {
                 continue;
             }
 
-            if ($product['shipping']) {
+            if ($this->productRequireShipping($product)) {
                 $product_weight = $product['weight'];
                 // if product_option has weight value
                 if ($product['option']) {
@@ -622,13 +623,14 @@ class ACart
      */
     public function getVolume($product_ids = [])
     {
+        $product_ids = filterIntegerIdList($product_ids);
         $output = 0.0;
         $products = $this->getProducts();
         foreach ($products as $product) {
             if (
-                (count($product_ids) > 0 && !in_array((string)$product['product_id'], $product_ids))
+                (count($product_ids) > 0 && !in_array((int)$product['product_id'], $product_ids))
                 //if not required shipping - skip
-                || !$product['shipping']
+                || !$this->productRequireShipping($product)
             ) {
                 continue;
             }
@@ -670,11 +672,9 @@ class ACart
         $basic_ship_products = [];
         $products = $this->getProducts();
         foreach ($products as $product) {
-            if ($product['shipping']
-                && !$product['ship_individually']
-                && !$product['free_shipping']
-                && $product['shipping_price'] == 0
-            ) {
+            if ( $this->productRequireShipping($product)
+                && !$product['ship_individually'] && !$product['free_shipping'] && $product['shipping_price'] == 0)
+            {
                 $basic_ship_products[] = $product;
             }
         }
@@ -693,10 +693,8 @@ class ACart
         $special_ship_products = [];
         $products = $this->getProducts();
         foreach ($products as $product) {
-            if ($product['shipping']
-                && ($product['ship_individually']
-                    || $product['free_shipping']
-                    || $product['shipping_price'] > 0)
+            if ( $this->productRequireShipping($product)
+                && ($product['ship_individually'] || $product['free_shipping'] || $product['shipping_price'] > 0)
             ) {
                 $special_ship_products[] = $product;
             }
@@ -716,10 +714,7 @@ class ACart
         $allFreeShipping = false;
         $products = $this->getProducts();
         foreach ($products as $product) {
-            $requireShipping = $product['shipping'];
-            if (!$requireShipping && array_sum(array_column($product['option'], 'require_shipping')) > 0) {
-                $requireShipping = true;
-            }
+            $requireShipping = $this->productRequireShipping($product);
             if (!$requireShipping || $product['free_shipping']) {
                 $allFreeShipping = true;
             } else {
@@ -1110,6 +1105,11 @@ class ACart
             }
         }
         return $shipping;
+    }
+
+    protected function productRequireShipping(array $product)
+    {
+        return ($product['shipping'] || array_sum(array_column((array)$product['option'], 'require_shipping')) > 0);
     }
 
     /**
