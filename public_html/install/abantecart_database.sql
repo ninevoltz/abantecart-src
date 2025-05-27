@@ -1497,6 +1497,7 @@ CREATE TABLE `ac_product_option_values` (
   `price` decimal(15,4) NOT NULL,
   `cost` decimal(15,4) NOT NULL,
   `prefix` char(1) NOT NULL, -- % or $
+  `require_shipping` smallint default 0 not null comment 'depends on "shipping" column of table "products" ',
   `weight` decimal(15,8) NOT NULL,
   `weight_type` varchar(3) NOT NULL, -- lbs or %
   `attribute_value_id` int(11),

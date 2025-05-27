@@ -341,15 +341,12 @@ jQuery(function ($) {
 					$('select#option').parents('.primary_content_actions').find('label').remove();
 					$('select#option').remove();
 				}
+                bindAform($("input, textarea, select", '#option_edit_form'));
+                bindCustomEvents('#option_values');
 			},
 			global: false,
 			error: function (jqXHR, textStatus, errorThrown) {
 				error_alert(errorThrown);
-			},
-			complete: function() {
-				bindAform($("input, textarea, select", '#option_edit_form'));
-				bindAform($("input, textarea, select", '#update_option_values'));
-				bindCustomEvents('#option_values');
 			}
 		});
 	});

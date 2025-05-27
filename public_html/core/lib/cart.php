@@ -713,16 +713,20 @@ class ACart
      */
     public function areAllFreeShipping()
     {
-        $all_free_shipping = false;
+        $allFreeShipping = false;
         $products = $this->getProducts();
         foreach ($products as $product) {
-            if (!$product['shipping'] || ($product['shipping'] && $product['free_shipping'])) {
-                $all_free_shipping = true;
+            $requireShipping = $product['shipping'];
+            if (!$requireShipping && array_sum(array_column($product['option'], 'require_shipping')) > 0) {
+                $requireShipping = true;
+            }
+            if (!$requireShipping || $product['free_shipping']) {
+                $allFreeShipping = true;
             } else {
                 return false;
             }
         }
-        return $all_free_shipping;
+        return $allFreeShipping;
     }
 
     /**
@@ -1097,6 +1101,12 @@ class ACart
             if ($product['shipping']) {
                 $shipping = true;
                 break;
+            }
+            foreach ($product['option'] as $option) {
+                if ($option['require_shipping']) {
+                    $shipping = true;
+                    break;
+                }
             }
         }
         return $shipping;

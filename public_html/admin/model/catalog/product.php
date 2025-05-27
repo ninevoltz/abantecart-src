@@ -1019,6 +1019,7 @@ class ModelCatalogProduct extends Model
             'price'                  => 'float',
             'cost'                   => 'float',
             'prefix'                 => 'string',
+            'require_shipping'       => 'int',
             'weight'                 => 'float',
             'weight_type'            => 'string',
             'attribute_value_id'     => 'int',
@@ -2038,13 +2039,14 @@ class ModelCatalogProduct extends Model
                 'cost'                   => $data['cost'][$opt_val_id],
                 'prefix'                 => $data['prefix'][$opt_val_id],
                 'sort_order'             => $data['sort_order'][$opt_val_id],
+                'require_shipping'       => $data['require_shipping'][$opt_val_id],
                 'weight'                 => $data['weight'][$opt_val_id],
                 'weight_type'            => $data['weight_type'][$opt_val_id],
                 'default'                => ($data['default_value'] == $opt_val_id ? 1 : 0),
             ];
 
             //Check if new, delete or update
-            if ($status == 'delete' && strpos($opt_val_id, 'new') === false) {
+            if ($status == 'delete' && !str_contains($opt_val_id, 'new')) {
                 //delete this option value for all languages
                 $this->deleteProductOptionValue($product_id, $opt_val_id);
             } else {
@@ -2058,7 +2060,9 @@ class ModelCatalogProduct extends Model
                 } else {
                     //Existing need to update
                     $this->updateProductOptionValueAndDescription(
-                        $product_id, $opt_val_id, $option_value_data,
+                        $product_id,
+                        $opt_val_id,
+                        $option_value_data,
                         $language_id
                     );
                 }
@@ -2104,23 +2108,12 @@ class ModelCatalogProduct extends Model
             }
         }
 
-        $result = [
-            'product_option_value_id' => $option_value['product_option_value_id'],
-            'language'                => $value_description_data,
-            'sku'                     => $option_value['sku'],
-            'txt_id'                  => $option_value['txt_id'],
-            'quantity'                => $option_value['quantity'],
-            'subtract'                => $option_value['subtract'],
-            'price'                   => $option_value['price'],
-            'cost'                    => $option_value['cost'],
-            'prefix'                  => $option_value['prefix'],
-            'weight'                  => $option_value['weight'],
-            'weight_type'             => $option_value['weight_type'],
-            'attribute_value_id'      => $option_value['attribute_value_id'],
-            'grouped_attribute_data'  => $option_value['grouped_attribute_data'],
-            'sort_order'              => $option_value['sort_order'],
-            'default'                 => $option_value['default'],
-        ];
+        $result = array_merge(
+            $option_value,
+            [
+                'language' => $value_description_data
+            ]
+        );
 
         //get children (grouped options) data
         $child_option_values = unserialize($result['grouped_attribute_data']);
@@ -2202,19 +2195,12 @@ class ModelCatalogProduct extends Model
      */
     public function getProductDownloads($product_id)
     {
-        $product_download_data = [];
-
         $query = $this->db->query(
             "SELECT *
             FROM " . $this->db->table("products_to_downloads") . " 
             WHERE product_id = '" . (int)$product_id . "'"
         );
-
-        foreach ($query->rows as $result) {
-            $product_download_data[] = $result['download_id'];
-        }
-
-        return $product_download_data;
+        return filterIntegerIdList(array_column($query->rows, 'download_id'));
     }
 
     /**
@@ -2225,13 +2211,7 @@ class ModelCatalogProduct extends Model
      */
     public function getProductStores($product_id)
     {
-        return array_map(
-            'intval',
-            array_column(
-                $this->getProductStoresInfo($product_id),
-                'store_id'
-            )
-        );
+        return filterIntegerIdList(array_column($this->getProductStoresInfo($product_id), 'store_id'));
     }
 
     /**
@@ -2276,7 +2256,7 @@ class ModelCatalogProduct extends Model
             FROM " . $this->db->table("products_to_categories") . " 
             WHERE product_id = '" . (int)$product_id . "'"
         );
-        return array_column($query->rows, 'category_id');
+        return filterIntegerIdList(array_column($query->rows, 'category_id'));
     }
 
     /**
@@ -2287,18 +2267,12 @@ class ModelCatalogProduct extends Model
      */
     public function getProductRelated($product_id)
     {
-        $product_related_data = [];
-
         $query = $this->db->query(
             "SELECT *
             FROM " . $this->db->table("products_related") . " 
             WHERE product_id = '" . (int)$product_id . "'"
         );
-
-        foreach ($query->rows as $result) {
-            $product_related_data[] = $result['related_id'];
-        }
-        return $product_related_data;
+        return filterIntegerIdList(array_column($query->rows, 'related_id'));
     }
 
     /**
@@ -2346,17 +2320,13 @@ class ModelCatalogProduct extends Model
     public function getProductSEOKeywords($product_id, $language_id = 0)
     {
         $language_id = (int)$language_id;
-        $product_seo_keys = [];
 
         $query = $this->db->query(
             "SELECT *
             FROM " . $this->db->table("url_aliases") . "
             WHERE `query` = 'product_id=" . (int)$product_id . "'"
         );
-
-        foreach ($query->rows as $result) {
-            $product_seo_keys[$result['language_id']] = $result['keyword'];
-        }
+        $product_seo_keys = array_column($query->rows, 'keyword', 'language_id');
 
         if ($language_id) {
             return $product_seo_keys[$language_id];
