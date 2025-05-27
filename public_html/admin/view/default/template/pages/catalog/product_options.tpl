@@ -389,7 +389,6 @@ jQuery(function ($) {
 			},
 			complete: function() {
 				bindAform($("input, textarea, select", '#option_edit_form'));
-				bindAform($("input, textarea, select", '#update_option_values'));
 				bindCustomEvents('#option_values');
                 that.button('reset');
 			}			
