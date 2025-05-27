@@ -437,4 +437,8 @@
 		<key>text_max_order_subtotal</key>
 		<value><![CDATA[Maximum Order Subtotal: <span class="help">Enter the maximum order subtotal value for shipment option to be available for customer. This field is optional.</span>]]></value>
 	</definition>
+	<definition>
+		<key>text_customer_groups</key>
+		<value><![CDATA[Allowed only for customer group(s):]]></value>
+	</definition>
 </definitions>

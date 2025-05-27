@@ -1700,6 +1700,7 @@ class ControllerResponsesCheckoutPay extends AController
             : $this->fc_session['guest'];
 
         $pmntSettings = [];
+        $customerGroupId = $this->customer->getCustomerGroupId() ?? (int)$this->config->get('config_customer_group_id');
         foreach ($ac_payments as $result) {
             //#filter only allowed payment methods based on total min/max
             $pkey = $result['key'];
@@ -1707,9 +1708,11 @@ class ControllerResponsesCheckoutPay extends AController
             $min = $pmntSettings[$pkey][$pkey . "_payment_minimum_total"] ?? null;
             $max = $pmntSettings[$pkey][$pkey . "_payment_maximum_total"] ?? null;
             $autoselect = $pmntSettings[$pkey][$pkey . "_autoselect"] ?? null;
+            $customerGroups = array_map('intval',(array)$pmntSettings[$pkey][$pkey . "_customer_groups"]);
 
             if ((has_value($min) && $total['total'] < $min)
                 || (has_value($max) && $total['total'] > $max)
+                || ($customerGroups && !in_array($customerGroupId, $customerGroups))
             ) {
                 continue;
             }
