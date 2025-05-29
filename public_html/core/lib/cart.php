@@ -285,6 +285,7 @@ class ACart
                     array_merge(
                         $option_value_query,
                         [
+                            'name'               => $option_query['name'],
                             'product_option_id'  => $product_option_id,
                             'element_type'       => $element_type,
                             'settings'           => $option_query['settings'],
