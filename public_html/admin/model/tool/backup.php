@@ -243,6 +243,7 @@ class ModelToolBackup extends Model
                         'table_list'    => $data['table_list'],
                         'sql_dump_mode' => $data['sql_dump_mode'],
                         'backup_name'   => $backupName,
+                        'username'      => $this->user?->getUserName() ?: 'system',
                     ],
                 ]
             );
@@ -279,6 +280,7 @@ class ModelToolBackup extends Model
                     'settings'           => [
                         'interrupt_on_step_fault' => false,
                         'backup_name'             => $backupName,
+                        'username'                => $this->user?->getUserName() ?: 'system',
                     ],
                 ]
             );
@@ -312,6 +314,7 @@ class ModelToolBackup extends Model
                     'settings'           => [
                         'interrupt_on_step_fault' => false,
                         'backup_name'             => $backupName,
+                        'username'                => $this->user?->getUserName() ?: 'system',
                     ],
                 ]
             );
@@ -345,6 +348,7 @@ class ModelToolBackup extends Model
                     'settings'           => [
                         'interrupt_on_step_fault' => false,
                         'backup_name'             => $backupName,
+                        'username'                => $this->user?->getUserName() ?: 'system',
                     ],
                 ]
             );
@@ -375,7 +379,7 @@ class ModelToolBackup extends Model
      * @return array
      * @throws AException
      */
-    public function getTableSizes($table_list = [])
+    public function getTableSizes(array $table_list = [])
     {
         $tables = [];
         foreach ($table_list as $table) {
@@ -448,7 +452,7 @@ class ModelToolBackup extends Model
     public function getContentSize()
     {
         // white list
-        $content_dirs = [ 'resources', 'image', 'download' ];
+        $content_dirs = ['resources', 'image', 'download'];
         $dirs_size = 0;
         foreach ($content_dirs as $d) {
             $dirs_size += $this->_get_directory_size(DIR_ROOT . '/' . $d);
@@ -461,7 +465,7 @@ class ModelToolBackup extends Model
      *
      * @return int
      */
-    private function _get_directory_size($dir)
+    private function _get_directory_size(string $dir)
     {
         $count_size = 0;
         $dir_array = scandir($dir);

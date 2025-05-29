@@ -59,7 +59,7 @@ class ControllerResponsesToolBackup extends AController
                 return;
             } else {
                 $task_details['task_api_key'] = $task_api_key;
-                $task_details['url'] = HTTPS_SERVER.'task.php';
+                $task_details['url'] = HTTPS_SERVER . 'task.php';
                 $this->data['output']['task_details'] = $task_details;
             }
         }
@@ -93,28 +93,15 @@ class ControllerResponsesToolBackup extends AController
                 $backup_name = !$backup_name ? 'manual_backup' : $backup_name;
             }
             $tm->deleteTask($task_id);
-            $install_upgrade_history = new ADataset('install_upgrade_history', 'admin');
 
-            $display_name = '';
-            if (is_file(DIR_BACKUP.$backup_name.'.tar.gz')) {
-                $display_name = $backup_name.'.tar.gz';
+            if (is_file(DIR_BACKUP . $backup_name . '.tar.gz')) {
                 $result_text = $this->html->convertLinks($this->language->get('backup_complete_text_file'));
-            } elseif (is_dir(DIR_BACKUP.$backup_name)) {
-                $display_name = $backup_name.'/...';
-                $result_text = sprintf($this->language->get('backup_complete_text_dir'), DIR_BACKUP.$backup_name);
+            } elseif (is_dir(DIR_BACKUP . $backup_name)) {
+                $result_text = $this->language->getAndReplace(
+                    'backup_complete_text_dir',
+                    replaces: DIR_BACKUP . $backup_name
+                );
             }
-
-            $install_upgrade_history->addRows(
-                [
-                    'date_added'  => date("Y-m-d H:i:s", time()),
-                    'name'        => 'Manual Backup',
-                    'version'     => VERSION,
-                    'backup_file' => $display_name,
-                    'backup_date' => date("Y-m-d H:i:s", time()),
-                    'type'        => 'backup',
-                    'user'        => $this->user->getUsername(),
-                ]
-            );
         }
         //update controller data
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
@@ -150,7 +137,7 @@ class ControllerResponsesToolBackup extends AController
                         'date_added'  => date("Y-m-d H:i:s", time()),
                         'name'        => 'Manual Backup',
                         'version'     => VERSION,
-                        'backup_file' => $this->model_tool_backup->backup_filename.'.tar.gz',
+                        'backup_file' => $this->model_tool_backup->backup_filename . '.tar.gz',
                         'backup_date' => date("Y-m-d H:i:s", time()),
                         'type'        => 'backup',
                         'user'        => $this->user->getUsername(),
