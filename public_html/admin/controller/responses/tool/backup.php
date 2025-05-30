@@ -89,8 +89,7 @@ class ControllerResponsesToolBackup extends AController
             $steps = $tm->getTaskSteps($task_id);
             if ($steps) {
                 $step_info = current($steps);
-                $backup_name = $step_info['settings']['backup_name'];
-                $backup_name = !$backup_name ? 'manual_backup' : $backup_name;
+                $backup_name = $step_info['settings']['backup_name'] ?: 'manual_backup';
             }
             $tm->deleteTask($task_id);
 
@@ -127,7 +126,8 @@ class ControllerResponsesToolBackup extends AController
             $this->loadModel('tool/backup');
 
             $bkp = $this->model_tool_backup->backup(
-                $this->request->post['backup'], $this->request->post['backup_files'],
+                $this->request->post['backup'],
+                $this->request->post['backup_files'],
                 $this->request->post['backup_config']
             );
             if ($bkp) {

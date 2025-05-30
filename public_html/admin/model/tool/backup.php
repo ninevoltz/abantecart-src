@@ -130,7 +130,8 @@ class ModelToolBackup extends Model
      */
     public function backup($tables, $rl = true, $config = false, $sql_dump_mode = 'data_only')
     {
-        $bkp = new ABackup('manual_backup' . '_' . date('Y-m-d-H-i-s'));
+        $backupName = 'manual_backup' . '_' . date('Y-m-d-H-i-s');
+        $bkp = new ABackup($backupName);
 
         if ($bkp->error) {
             return false;
@@ -191,7 +192,6 @@ class ModelToolBackup extends Model
                 // schedule it!
                 'status'             => 1,
                 'start_time'         => date('Y-m-d H:i:s', mktime(0, 0, 0, date('m'), (int)date('d') + 1, date('Y'))),
-                'last_time_run'      => '0000-00-00 00:00:00',
                 'progress'           => '0',
                 'last_result'        => '0',
                 'run_interval'       => '0',
@@ -235,7 +235,6 @@ class ModelToolBackup extends Model
                     'task_id'            => $task_id,
                     'sort_order'         => 1,
                     'status'             => 1,
-                    'last_time_run'      => '0000-00-00 00:00:00',
                     'last_result'        => '0',
                     'max_execution_time' => $eta,
                     'controller'         => 'task/tool/backup/dumptables',
@@ -273,7 +272,6 @@ class ModelToolBackup extends Model
                     'task_id'            => $task_id,
                     'sort_order'         => 2,
                     'status'             => 1,
-                    'last_time_run'      => '0000-00-00 00:00:00',
                     'last_result'        => '0',
                     'max_execution_time' => $eta,
                     'controller'         => 'task/tool/backup/backupCodeFiles',
@@ -307,7 +305,6 @@ class ModelToolBackup extends Model
                     'task_id'            => $task_id,
                     'sort_order'         => 3,
                     'status'             => 1,
-                    'last_time_run'      => '0000-00-00 00:00:00',
                     'last_result'        => '0',
                     'max_execution_time' => $eta,
                     'controller'         => 'task/tool/backup/backupContentFiles',
@@ -341,7 +338,6 @@ class ModelToolBackup extends Model
                     'task_id'            => $task_id,
                     'sort_order'         => 4,
                     'status'             => 1,
-                    'last_time_run'      => '0000-00-00 00:00:00',
                     'last_result'        => '0',
                     'max_execution_time' => $eta,
                     'controller'         => 'task/tool/backup/compressbackup',
