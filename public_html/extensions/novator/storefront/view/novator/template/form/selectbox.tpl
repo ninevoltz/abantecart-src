@@ -1,5 +1,4 @@
 <?php
-$no_wrapper  = false;
 if(!$no_wrapper){?>
     <div class="input-group">
 <?php } ?>
