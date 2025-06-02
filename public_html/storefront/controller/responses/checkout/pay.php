@@ -1708,7 +1708,7 @@ class ControllerResponsesCheckoutPay extends AController
             $min = $pmntSettings[$pkey][$pkey . "_payment_minimum_total"] ?? null;
             $max = $pmntSettings[$pkey][$pkey . "_payment_maximum_total"] ?? null;
             $autoselect = $pmntSettings[$pkey][$pkey . "_autoselect"] ?? null;
-            $customerGroups = array_map('intval',(array)$pmntSettings[$pkey][$pkey . "_customer_groups"]);
+            $customerGroups = filterIntegerIdList((array)$pmntSettings[$pkey][$pkey . "_customer_groups"]);
 
             if ((has_value($min) && $total['total'] < $min)
                 || (has_value($max) && $total['total'] > $max)
