@@ -740,7 +740,7 @@ class ControllerResponsesProductProduct extends AController
         );
         $this->data['option_attribute']['values'] = [];
         $this->data['option_attribute']['type'] = 'input';
-        $optionValueId = (int)$this->request->get['product_option_value_id'];
+        $optionValueId = $this->request->get['product_option_value_id'];
         $group_attribute = [];
         if ($this->data['option_attribute']['attribute_id']) {
             $group_attribute = $this->attribute_manager->getAttributes(

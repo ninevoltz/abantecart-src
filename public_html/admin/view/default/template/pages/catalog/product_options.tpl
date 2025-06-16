@@ -27,7 +27,10 @@
 	</div>
 
 	<div class="panel-body panel-body-nopadding tab-content col-xs-12" id="option_values">
-		<?php //# Options HTML loaded from responce controller rt=product/product/load_option ?>		
+		<?php
+            /** Options HTML loaded from response controller
+             * @see ControllerResponsesProductProduct::load_option() */
+        ?>
 	</div>
 </div>
 

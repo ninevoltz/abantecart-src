@@ -10,7 +10,7 @@
 
 # For any support issues please visit: https://forum.abantecart.com
 
-Options +FollowSymlinks
+Options +SymLinksIfOwnerMatch
 
 # Prevent Directory listing
 Options -Indexes
