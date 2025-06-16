@@ -180,6 +180,9 @@ class AImage
             }
         } else {
             $result = copy($this->file, $filename);
+            if(!$result && !is_writable_dir(dirname($filename))) {
+                Registry::getInstance()?->get('log')?->write( 'Directory '.dirname($filename).' is not writable.');
+            }
         }
 
         return $result;
@@ -219,9 +222,9 @@ class AImage
         $quality = min($quality, 100);
         $quality = max($quality, 1);
 
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         if ($this->_is_memory_enough($this->info['width'], $this->info['height'])) {
-            if ($extension == 'jpeg' || $extension == 'jpg') {
+            if (in_array($extension,['jpeg','jpg'])) {
                 imagejpeg($this->image, $filename, $quality);
             } elseif ($extension == 'png') {
                 //use maximum compression for PNG
