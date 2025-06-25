@@ -2491,17 +2491,20 @@ class ModelCatalogProduct extends Model
                 return $query->row['total'];
             }
 
-            $sort_data = [
-                'product_id'    => 'p.product_id',
-                'name'          => 'pd.name',
-                'model'         => 'p.model',
-                'sku'           => 'p.sku',
-                'quantity'      => 'quantity',
-                'price'         => 'p.price',
-                'status'        => 'p.status',
-                'sort_order'    => 'p.sort_order',
-                'date_modified' => 'p.date_modified',
-            ];
+            $sort_data = array_merge(
+                [
+                    'product_id'    => 'p.product_id',
+                    'name'          => 'pd.name',
+                    'model'         => 'p.model',
+                    'sku'           => 'p.sku',
+                    'quantity'      => 'quantity',
+                    'price'         => 'p.price',
+                    'status'        => 'p.status',
+                    'sort_order'    => 'p.sort_order',
+                    'date_modified' => 'p.date_modified',
+                ],
+                (array)$data['sort_by']
+            );
 
             if (isset($data['sort']) && array_key_exists($data['sort'], $sort_data)) {
                 $sql .= " ORDER BY " . $sort_data[$data['sort']];
