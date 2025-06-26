@@ -321,6 +321,7 @@ if ($error){ ?>
         </div>
     </div>
 </div>
+<?php echo $this->getHookVar('product_before_tabs'); ?>
 <!-- Product Description tab & comments-->
 <section class="prod-desc mt-3 mt-lg-0">
     <ul id="productTabs" class="nav nav-tabs profile-tabs mb-4 border-bottom" role="tablist">
