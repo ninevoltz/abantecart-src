@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 /*
  *   $Id$
  *
@@ -98,7 +98,7 @@ class ACustomer
                 INNER JOIN " . $this->db->table("customer_sessions") . " cs 
                     ON c.customer_id = cs.customer_id
                 WHERE c.customer_id = '" . (int)$this->session->data['customer_id'] . "' 
-                    AND cs.session_id = '".session_id()."' AND status = '1'"
+                    AND cs.session_id = '" . session_id() . "' AND status = '1'"
             );
 
             if ($customer_data->num_rows) {
@@ -116,17 +116,7 @@ class ACustomer
                 || !$this->isValidEnabledCustomer()
             ) {
                 //clean up
-                $this->unauth_customer = [];
-                //expire unauth cookie
-                unset($_COOKIE['customer']);
-                setCookieOrParams(
-                    'customer',
-                    '',
-                    [
-                        'lifetime' => time() - 3600,
-                        'path'     => dirname($this->request->server['PHP_SELF']),
-                    ]
-                );
+                $this->clearUnauthCustomer();
             }
             //check if unauthenticated customer cart content was found and merge with session
             $saved_cart = $this->getCustomerCart();
@@ -139,7 +129,10 @@ class ACustomer
         $ip = $this->request->getRemoteIP();
         $url = '';
         if (isset($this->request->server['HTTP_HOST']) && isset($this->request->server['REQUEST_URI'])) {
-            $url = 'http://' . $this->request->server['HTTP_HOST'] . $this->request->server['REQUEST_URI'];
+            $url = $this->request->server['REQUEST_SCHEME']
+                .'://'
+                . $this->request->server['HTTP_HOST']
+                . $this->request->server['REQUEST_URI'];
         }
         $referer = '';
         if (isset($this->request->server['HTTP_REFERER'])) {
@@ -148,16 +141,40 @@ class ACustomer
         $customer_id = '';
         if ($this->isLogged()) {
             $customer_id = $this->getId();
-        } else {
-            if ($this->isUnauthCustomer()) {
-                $customer_id = $this->isUnauthCustomer();
+        } else if ($this->isUnauthCustomer()) {
+            if (!$this->config->get('config_unauth_customer')
+                && IS_ADMIN !== true
+                && !str_contains($this->request->get['rt'], 'account/login')
+            ) {
+                $this->session->data['redirect'] = $this->request->server['REQUEST_SCHEME']
+                    .'://'
+                    .$this->request->server['SERVER_NAME']
+                    . $this->request->server['REQUEST_URI'];
+                redirect($registry->get('html')->getSecureUrl('account/login'));
             }
+            $customer_id = $this->isUnauthCustomer();
         }
+
         /** @var ModelToolOnlineNow $mdl */
         $mdl = $this->load->model('tool/online_now');
         $mdl->setOnline($ip, $customer_id, $url, $referer);
         //call hooks
         $this->extensions->hk_ProcessData($this, 'constructor', $customer_id);
+    }
+
+    public function clearUnauthCustomer()
+    {
+        $this->unauth_customer = [];
+        //expire unauth cookie
+        unset($_COOKIE['customer']);
+        setCookieOrParams(
+            'customer',
+            '',
+            [
+                'lifetime' => time() - 3600,
+                'path'     => dirname($this->request->server['PHP_SELF']),
+            ]
+        );
     }
 
     /**
@@ -292,23 +309,24 @@ class ACustomer
 
     /**
      * @param string $sessID
-     * @return string
+     * @void
+     * @throws AException
      */
     protected function setActiveSession($sessID)
     {
         //first clear all expired tokens
         $customerSesTbl = $this->db->table("customer_sessions");
         $session_ttl = $this->config->get('config_session_ttl');
-        $this->db->query("DELETE FROM ".$customerSesTbl." 
-            WHERE customer_id = '".$this->customer_id."' 
-            AND last_active < DATE_SUB(NOW(), INTERVAL ".$session_ttl." MINUTE)");
+        $this->db->query("DELETE FROM " . $customerSesTbl . " 
+            WHERE customer_id = '" . $this->customer_id . "' 
+            AND last_active < DATE_SUB(NOW(), INTERVAL " . $session_ttl . " MINUTE)");
 
         //set or update token
-        $this->db->query("INSERT INTO ".$customerSesTbl." 
+        $this->db->query("INSERT INTO " . $customerSesTbl . " 
              VALUES (
-                '".$this->customer_id."',
-                '".$this->db->escape($sessID)."',
-                '".$this->db->escape($this->request->getRemoteIP())."',
+                '" . $this->customer_id . "',
+                '" . $this->db->escape($sessID) . "',
+                '" . $this->db->escape($this->request->getRemoteIP()) . "',
                 NOW(),
                 NOW()
             )
@@ -316,16 +334,18 @@ class ACustomer
     }
 
     /**
-     * @param string $token
+     * @param string $sessionId
      * @return bool
+     * @throws AException
      */
-    public function isActiveSession($sessID)
+    public function isActiveSession(string $sessionId)
     {
         $customerSesTbl = $this->db->table("customer_sessions");
-        $user_query = $this->db->query("SELECT * 
-                FROM ".$customerSesTbl." 
-                WHERE customer_id = '".$this->customer_id."'  
-                AND session_id = '".$this->db->escape($sessID)."'"
+        $user_query = $this->db->query(
+            "SELECT * 
+            FROM " . $customerSesTbl . " 
+            WHERE customer_id = '" . $this->customer_id . "'  
+                AND session_id = '" . $this->db->escape($sessionId) . "'"
         );
         if ($user_query->num_rows) {
             return true;
@@ -337,31 +357,32 @@ class ACustomer
     /**
      * Delete all or specific active sessions for the customer
      *
-     * @param string $sessID
+     * @param string $sessionId
      * @return void
      * @throws AException
      */
-    public function deleteActiveSessions($sessID = '')
+    public function deleteActiveSessions(string $sessionId = '')
     {
-        $this->deleteActiveSessionsByID($this->customer_id, $sessID);
+        $this->deleteActiveSessionsByID($this->customer_id, $sessionId);
     }
 
     /**
      * Delete all or specific active sessions for the customer by customer ID
-     * @param int $customerID
-     * @param string $sessID
-     * @return void
+     * @param int $customerId
+     * @param string $sessionId
+     * @void
      * @throws AException
      */
-    public function deleteActiveSessionsByID($customerID, $sessID = '')
+    public function deleteActiveSessionsByID(int $customerId, string $sessionId = '')
     {
         $customerSesTbl = $this->db->table("customer_sessions");
-        $where = " WHERE customer_id = '".$customerID."'";
-        if ($sessID) {
-            $where .= " AND session_id = '".$this->db->escape($sessID)."'";
+        $where = " WHERE customer_id = '" . $customerId . "'";
+        if ($sessionId) {
+            $where .= " AND session_id = '" . $this->db->escape($sessionId) . "'";
         }
         $this->db->query("DELETE FROM " . $customerSesTbl . $where);
     }
+
     /**
      * @void
      */
@@ -415,11 +436,11 @@ class ACustomer
     }
 
     /**
-     * @return int
+     * @return int|false
      */
     public function isUnauthCustomer()
     {
-        return $this->unauth_customer['customer_id'] ?? null;
+        return $this->unauth_customer['customer_id'] ?? false;
     }
 
     /**

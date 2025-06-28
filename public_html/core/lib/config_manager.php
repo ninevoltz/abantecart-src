@@ -1002,6 +1002,14 @@ class AConfigManager
                 'style' => 'btn_switch',
             ]
         );
+        $fields['unauth_customer'] = $form->getFieldHtml(
+            $props[] = [
+                'type'  => 'checkbox',
+                'name'  => 'config_unauth_customer',
+                'value' => $data['config_unauth_customer']??1,
+                'style' => 'btn_switch',
+            ]
+        );
         $fields['account'] = $form->getFieldHtml(
             $props[] = [
                 'type'    => 'selectbox',

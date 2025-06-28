@@ -1732,6 +1732,7 @@ INSERT INTO `ac_settings` (`group`, `key`, `value`) VALUES
 ('checkout','config_customer_email_activation',0),
 ('checkout','prevent_email_as_login',1),
 ('checkout','config_guest_checkout',1),
+('checkout','config_unauth_customer',1),
 ('checkout','config_account_id',2),
 ('checkout','config_checkout_id',3),
 ('checkout','config_stock_checkout',0),
