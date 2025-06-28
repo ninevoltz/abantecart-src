@@ -57,6 +57,10 @@ if( $langCode != 'en'){ ?>
         const custom_<?php echo $id ?> = <?php echo json_encode($js_custom_config,JSON_PRETTY_PRINT); ?>;
         const cfg_<?php echo $id ?> ={ ...default_<?php echo $id ?>, ...custom_<?php echo $id ?>};
 
+        if(cfg_<?php echo $id ?>.mode === 'range' && cfg_<?php echo $id ?>.enableTime){
+            $('#<?php echo $id ?>').parents('.prod-option.date').addClass('col-12 col-md-9 col-lg-7');
+        }
+
         flatpickr.localize(flatpickr.l10ns.<?php echo $this->language->getLanguageCode() ?>);
         const flpkr_<?php echo $id ?> = flatpickr('#<?php echo $id ?>',cfg_<?php echo $id ?>);
 

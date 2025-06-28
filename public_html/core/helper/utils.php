@@ -339,8 +339,8 @@ function format4Datepicker($dateFormat)
 function dateISO2Int($string_date)
 {
     $string_date = trim($string_date);
-    $is_datetime = strlen($string_date) > 10;
-    return dateFromFormat($string_date, ($is_datetime ? 'Y-m-d H:i:s' : 'Y-m-d'));
+    $datetime = new DateTime($string_date);
+    return $datetime->getTimestamp();
 }
 
 /*
