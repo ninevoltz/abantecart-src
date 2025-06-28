@@ -610,6 +610,7 @@ class ControllerPagesProductProduct extends AController
                     'placeholder'      => $option['option_placeholder'],
                     'regexp_pattern'   => $option['regexp_pattern'],
                     'error_text'       => $option['error_text'],
+                    'settings'         => unserialize($option['settings']) ?: [],
                 ];
 
                 if ($option['element_type'] == 'C') {
