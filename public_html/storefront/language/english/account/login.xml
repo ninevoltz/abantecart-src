@@ -74,6 +74,6 @@
   </definition>
   <definition>
     <key>welcome_unauth_customer</key>
-    <value><![CDATA[Welcome %s , please login to your account or <a href="%s">continue browsing as a guest</a>]]></value>
+    <value><![CDATA[Welcome %s, please login to your account or <a href="%s">continue browsing as a guest</a>]]></value>
   </definition>
 </definitions>
