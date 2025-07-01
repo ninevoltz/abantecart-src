@@ -121,7 +121,7 @@ class ControllerPagesExtensionExtensionSummary extends AController
         }
 
         if ($expires) {
-            //do not allow expire date as Integer be a zero
+            //do not allow to expire date as Integer be a zero
             $expiresInt = $expires == '1970-01-01 00:00:00' ? 1 : dateISO2Int($expires);
             $this->data['extension_info']['support_expiration_int'] = $expiresInt;
             $this->data['extension_info']['support_expiration'] =
@@ -132,6 +132,17 @@ class ControllerPagesExtensionExtensionSummary extends AController
         }
         if (!$mpProductUrl) {
             $mpProductUrl = $this->model_tool_mp_api->getMPURL() . $extension . '/support';
+        }else{
+            $parsed_url = parse_url($mpProductUrl);
+            if(str_contains($parsed_url['query'],'rt=product/vendor_product')){
+                parse_str($parsed_url['query'], $httpQuery);
+                $httpQuery['rt'] = 'product/vendor_product/support';
+                $mpProductUrl = $parsed_url['scheme']
+                    .'://'
+                    .$parsed_url['host']
+                    .$parsed_url['path']
+                    .'?'.http_build_query($httpQuery,encoding_type: PHP_QUERY_RFC3986);
+            }
         }
 
         $this->data['text_support_expired'] = $this->language->get('text_support_expired');
