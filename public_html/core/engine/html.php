@@ -1020,8 +1020,10 @@ abstract class HtmlElement
     public function __unserialize($data)
     {
         $this->view = new AView(Registry::getInstance(), 0);
-        $this->view->batchAssign((array)$this->data['view_data']);
-        unset($this->data['view_data']);
+        if (isset($this->data['view_data'])) {
+            $this->view->batchAssign((array)$this->data['view_data']);
+            unset($this->data['view_data']);
+        }
         if ($data) {
             foreach ($data as $key => $val) {
                 $this->{$key} = $val;
