@@ -212,7 +212,7 @@ class ControllerTaskToolBackup extends AController
                     'date_added'  => date("Y-m-d H:i:s", time()),
                     'name'        => 'Backup',
                     'version'     => VERSION,
-                    'backup_file' => $arc_basename . '.tar.gz',
+                    'backup_file' => $bkp->getBackupName() . '.tar.gz',
                     'backup_date' => date("Y-m-d H:i:s", time()),
                     'type'        => 'backup',
                     'user'        => $stepArgs['username'] ?: 'system',
