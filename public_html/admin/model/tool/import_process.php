@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpMultipleClassDeclarationsInspection */
 /*
  *   $Id$
  *
@@ -641,8 +641,10 @@ class ModelToolImportProcess extends Model
             $this->toLog('Error: Insert only action is set, but product already exists. Skipping!');
             return false;
         } elseif ($action == 'delete' && ($new_product || !$product_id)) {
-            $this->toLog('Error: Delete action is set, but product does not exists. Skipping!');
-            return false;
+            $this->toLog(
+                'Warn: Delete action is set, but product does not exists (' . $unique_field . ': ' . $lookup_value . '). Skipping!'
+            );
+            return true;
         }
 
         if ($action == 'delete' && $product_id) {
