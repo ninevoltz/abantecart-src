@@ -1826,9 +1826,6 @@ class ControllerResponsesProductProduct extends AController
         $product_options = $this->model_catalog_product->getOrderProductOptions($product_id);
         $options = [];
         foreach ($product_options as $option) {
-            if ($option['element_type'] == 'U') {
-                continue;
-            } //skip files for now. TODO: add edit file-option in the future
             $values = [];
             $price = $preset_value = $default_value = '';
             foreach ($option['option_value'] as $option_value) {
@@ -1914,11 +1911,12 @@ class ControllerResponsesProductProduct extends AController
 
                 $value = $preset_value;
                 //for checkbox with empty value
-
                 if ($value == '' && $option['element_type'] == 'C') {
                     $value = $default_value;
                     $value = $value == '' ? 1 : $value;
                 }
+
+                $attr = ' data-option-id ="' . $option['product_option_id'] . '"';
 
                 $option_data = [
                     'type'           => $option['html_type'],
@@ -1930,7 +1928,7 @@ class ControllerResponsesProductProduct extends AController
                     'placeholder'    => $option['option_placeholder'],
                     'regexp_pattern' => $option['regexp_pattern'],
                     'error_text'     => $option['error_text'],
-                    'attr'           => ' data-option-id ="' . $option['product_option_id'] . '"',
+                    'attr'           => $attr,
                 ];
                 if ($option['element_type'] == 'C') {
                     // note: 0 and 1 must be string to prevent collision with 'yes'. (in php 'yes'==1) ;-)
