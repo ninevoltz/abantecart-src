@@ -370,10 +370,7 @@ class ControllerPagesCatalogCategory extends AController
             + array_column($this->data['categories'], 'name', 'category_id');
 
         $category_id = (int)$this->request->get['category_id'];
-        $category_info = [];
-        if ($category_id && $this->request->is_GET()) {
-            $category_info = $this->model_catalog_category->getCategory($category_id);
-        }
+        $category_info = $category_id ? $this->model_catalog_category->getCategory($category_id) : [];
 
         if (!$category_info && $category_id) {
             redirect($this->html->getSecureURL('catalog/category'));
@@ -682,6 +679,17 @@ class ControllerPagesCatalogCategory extends AController
                 $this->error['warning'][] = $this->language->get('error_name');
             }
         }
+
+        if($this->request->post['parent_id']) {
+            //check for deadlock
+            if( !$this->model_catalog_category->validateParentId(
+                (int)$this->request->get['category_id'],
+                (int)$this->request->post['parent_id'])
+            ){
+                $this->error['warning'][] = $this->language->get('error_deadlock');
+            }
+        }
+
 
         $error_text = $this->html->isSEOkeywordExists(
             'category_id=' . $this->request->get['category_id'],
