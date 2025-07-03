@@ -303,7 +303,13 @@ class ControllerPagesAccountLogin extends AController
 
         $this->data['redirect_url'] = $this->session->data['redirect'] ?: $this->html->getHomeURL();
         $this->extensions->hk_UpdateData($this, __FUNCTION__);
-        if (str_contains($this->data['redirect_url'], 'clearUnauthCustomer')) {
+        $parsed_url = parse_url($this->data['redirect_url']);
+        parse_str($parsed_url['query'],$httpQuery);
+
+        if (str_contains($this->data['redirect_url'], 'clearUnauthCustomer')
+            //do not redirect to response controllers
+            || str_starts_with($httpQuery['rt'],'r/')
+        ) {
             unset($this->session->data['redirect']);
             $this->data['redirect_url'] = $this->html->getHomeURL();
         }
