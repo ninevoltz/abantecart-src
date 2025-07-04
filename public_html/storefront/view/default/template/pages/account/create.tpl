@@ -110,16 +110,13 @@
            <div class="form-check-inline me-0 d-flex flex-nowrap text-nowrap align-items-center ">
                <?php
                $form['agree']->checked = false;
-               $form['agree']->attr .= ' onclick="$(\'#submit_button\').toggle();" autocomplete="off" ';
-               $form['agree']->label_text = $text_agree.'&nbsp;<a href="'.$text_agree_href.'" onclick="openModalRemote(\'#privacyPolicyModal\',\''.$text_agree_href.'\'); return false;"><b>'. $text_agree_href_text . '</b></a>';
+               $form['agree']->label_text = $text_agree.'&nbsp;<a id="policyLink" href="'.$text_agree_href.'"><b>'. $text_agree_href_text . '</b></a>';
                echo $form['agree']; ?>
            </div>
         <?php } ?>
         <button id="submit_button" type="submit"
-                role="button" data-bs-toggle="button"
-                style="<?php echo $text_agree ? 'display:none;' : ''; ?>"
-                onclick="$('#AccountFrm').submit();"
-                class="btn btn-primary ms-auto lock-on-click"
+                role="button"
+                class="btn btn-primary ms-auto disabled"
                 title="<?php echo_html2view($form['continue']->name); ?>">
             <i class="fa fa-check"></i>
             <?php echo $form['continue']->name ?>
@@ -144,11 +141,24 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function(){
-        <?php $cz_url = $this->html->getURL('common/zone', '&zone_id='. $zone_id); ?>
-        $('#AccountFrm_country_id').change( function(){
-            $('select[name=\'zone_id\']').load('<?php echo $cz_url;?>&country_id=' + $(this).val());
+    $(document).ready(function () {
+        <?php $cz_url = $this->html->getURL('common/zone', '&zone_id=' . $zone_id); ?>
+        $('#AccountFrm_country_id').change(function () {
+            $('select[name=zone_id]').load('<?php echo $cz_url;?>&country_id=' + $(this).val());
         });
-        $('select[name=\'zone_id\']').load('<?php echo $cz_url;?>&country_id='+ $('#AccountFrm_country_id').val());
+        $('select[name=zone_id]').load('<?php echo $cz_url;?>&country_id=' + $('#AccountFrm_country_id').val());
+
+        $('#AccountFrm_agree').on('click', function () {
+            if ($(this).is(':checked')) {
+                $('#submit_button').removeClass('disabled');
+            } else {
+                $('#submit_button').addClass('disabled');
+            }
+        });
+
+        $('#policyLink').on('click', (e) => {
+            e.preventDefault();
+            openModalRemote('#privacyPolicyModal',<?php js_echo($text_agree_href);?>);
+        })
     });
 </script>
