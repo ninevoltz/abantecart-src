@@ -399,6 +399,19 @@ jQuery(function ($) {
 		return false;
 	});
 
+    //only positive value of weight in the option values
+    $(document).on('input','input[type=number][name^=weight]', function (e) {
+        const v = parseFloat(this.value);
+        if (isNaN(v) || v < 0 ) {
+            $(this).val('');
+        }
+    });
+    $(document).on('keydown','input[type=number][name^=weight]', function (e) {
+        if (e.key === '-') {
+            e.preventDefault();
+        }
+    });
+
 });
 
 	// Function to delete option. NOTE. Needs to be here (global)

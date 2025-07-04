@@ -991,10 +991,11 @@ class ControllerResponsesProductProduct extends AController
         $this->data['entry_weight'] = $this->language->get('entry_weight_change');
         $this->data['form']['fields']['weight'] = $form->getFieldHtml(
             [
-                'type'  => 'input',
+                'type'  => 'number',
                 'name'  => 'weight[' . $optionValueId . ']',
-                'value' => (float)$this->data['weight'],
+                'value' => abs((float)$this->data['weight']),
                 'style' => 'small-field',
+                'attr'  => 'min="0" step="any"'
             ]
         );
         $this->data['entry_shipping'] = $this->language->get('entry_shipping');
