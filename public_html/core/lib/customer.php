@@ -130,7 +130,7 @@ class ACustomer
         $url = '';
         if (isset($this->request->server['HTTP_HOST']) && isset($this->request->server['REQUEST_URI'])) {
             $url = $this->request->server['REQUEST_SCHEME']
-                .'://'
+                . '://'
                 . $this->request->server['HTTP_HOST']
                 . $this->request->server['REQUEST_URI'];
         }
@@ -142,14 +142,12 @@ class ACustomer
         if ($this->isLogged()) {
             $customer_id = $this->getId();
         } else if ($this->isUnauthCustomer()) {
-            if (!$this->config->get('config_unauth_customer')
-                && IS_ADMIN !== true
-                && !str_contains($this->request->get['rt'], 'account/login')
+            $route = $this->request->get['rt'] ?: $this->request->get['_route_'];
+            if (IS_ADMIN !== true
+                && !$this->config->get('config_unauth_customer')
+                && $route
+                && !str_contains($route, 'login')
             ) {
-                $this->session->data['redirect'] = $this->request->server['REQUEST_SCHEME']
-                    .'://'
-                    .$this->request->server['SERVER_NAME']
-                    . $this->request->server['REQUEST_URI'];
                 redirect($registry->get('html')->getSecureUrl('account/login'));
             }
             $customer_id = $this->isUnauthCustomer();
