@@ -3094,6 +3094,11 @@ class ModelCatalogProduct extends Model
             if ($optionId) {
                 $sql .= " AND pov.product_option_id <> " . (int)$optionId;
             }
+            $gaValueIds = filterIntegerIdList((array)$data['attribute_value_id']);
+            if($gaValueIds){
+                $sql .= " AND pov.attribute_value_id NOT IN (" . implode(',',$gaValueIds).") ";
+            }
+
             $exists = $this->db->query($sql);
             if ($exists->num_rows) {
                 $this->errors['txt_id'] = $this->language->get('error_not_unique') . " (";
