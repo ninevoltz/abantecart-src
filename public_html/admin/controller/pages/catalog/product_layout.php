@@ -177,12 +177,6 @@ class ControllerPagesCatalogProductLayout extends AController
         $layoutForm = $this->dispatch('common/page_layout', [$layout]);
         $this->data['block_layout_form'] = $layoutForm->dispatchGetOutput();
 
-        //build pages and available layouts for cloning
-        $this->data['pages'] = $layout->getAllPages();
-        $avLayouts = ["0" => $this->language->get('text_select_copy_layout')]
-            + array_column($this->data['pages'], 'layout_name','layout_id');
-        unset($avLayouts[$layoutId]);
-
         $form = new AForm('HT');
         $form->setForm(
             [
@@ -190,12 +184,12 @@ class ControllerPagesCatalogProductLayout extends AController
             ]
         );
 
-        $this->data['cp_layout_select'] = $form->getFieldHtml(
+        $this->data['pages'] = buildPageLayoutTree(
+            $layout,
+            $templateTxtId,
             [
-                'type'    => 'selectbox',
-                'name'    => 'source_layout_id',
-                'value'   => '',
-                'options' => $avLayouts,
+                'exclude_ids' => [$layoutId],
+                'page_groups' => (array)$this->data['page_groups']
             ]
         );
 

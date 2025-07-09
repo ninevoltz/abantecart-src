@@ -1614,3 +1614,59 @@ function getBSCssClass(?string $styleAttribute)
     $output .= " col-xs-12";
     return $output;
 }
+
+/**
+ * @param ALayoutManager $lm
+ * @param string $templateTxtId
+ * @param array $extra
+ * @return array
+ * @throws AException
+ */
+function buildPageLayoutTree(ALayoutManager $lm, string $templateTxtId, array $extra = [])
+{
+    $html = Registry::getInstance()->get('html');
+    $allPages = $lm->getAllPages();
+    $pageGroups = array_merge($lm::PAGE_GROUPS, (array)$extra['page_groups']);
+    $layoutPages = [];
+    foreach ($allPages as $page) {
+        if(in_array($page['layout_id'],(array)$extra['exclude_ids'])){
+            continue;
+        }
+        $httpQuery = [
+            'page_id'   => $page['page_id'],
+            'layout_id' => $page['layout_id'],
+            'tmpl_id'   => $templateTxtId
+        ];
+        $page['url'] = $html->getSecureURL(
+            $extra['rt'] ?: 'design/layout',
+            '&' . http_build_query($httpQuery)
+        );
+        if (!$page['restricted']) {
+            $page['delete_url'] = $html->getSecureURL(
+                $extra['delete_rt'] ?: 'design/layout/delete',
+                '&' . http_build_query($httpQuery)
+            );
+        }
+        $pageGroup = array_filter(
+            array_keys($pageGroups),
+            function ($controller) use ($page) {
+                return str_starts_with($page['controller'], $controller);
+            }
+        );
+        if ($pageGroup) {
+            $k = current($pageGroup);
+            if (!$layoutPages[$k]) {
+                $layoutPages[$k] = [
+                    'id'          => 'dp' . preformatTextID($k),
+                    'name'        => $pageGroups[$k],
+                    'layout_name' => $pageGroups[$k],
+                    'restricted'  => true
+                ];
+            }
+            $layoutPages[$k]['children'][] = $page;
+        } else {
+            $layoutPages[] = $page;
+        }
+    }
+    return $layoutPages;
+}
