@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+	<id>taxjar_integration</id>
+	<version>1.2.6</version>
+	<type>tax</type>
+	<category>tax</category>
+	<cartversions>
+		<item>1.2</item>
+		<item>1.3</item>
+		<item>1.4</item>
+	</cartversions>
+	<priority>10</priority>
+	<dependencies></dependencies>
+	<settings>
+		<item id="taxjar_integration_status">
+			<type>checkbox</type>
+			<default_value>0</default_value>
+		</item>
+		<item id="taxjar_integration_sandbox_status">
+			<type>checkbox</type>
+			<default_value>0</default_value>
+		</item>
+		<item id="taxjar_integration_sandbox_api_key">
+			<type>input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_api_key">
+			<type required="true">input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_tax_name">
+			<type required="true">input</type>
+			<default_value>Tax</default_value>
+		</item>
+		<item id="taxjar_integration_street">
+			<type>input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_city">
+			<type required="true">input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_state">
+			<type required="true">input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_postal_code">
+			<type required="true">input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_country">
+			<type required="true">input</type>
+			<default_value></default_value>
+		</item>
+		<item id="taxjar_integration_sales_tax_calculation">
+			<type>checkbox</type>
+			<default_value>0</default_value>
+		</item>
+		<item id="taxjar_integration_sales_tax_report">
+			<type>checkbox</type>
+			<default_value>0</default_value>
+		</item>
+		<item id="taxjar_integration_debug">
+			<type>checkbox</type>
+			<default_value>0</default_value>
+		</item>
+	</settings>
+	<custom_settings_template>pages/extension/taxjar_integration_settings.tpl</custom_settings_template>
+	<install>
+		<sql></sql>
+		<trigger>install.php</trigger>
+	</install>
+	<uninstall>
+		<sql></sql>
+		<trigger>uninstall.php</trigger>
+	</uninstall>
+	<note>true</note>
+	<help_link><![CDATA[https://abantecartextensions.com/docs/taxjar]]></help_link>
+</extension>
