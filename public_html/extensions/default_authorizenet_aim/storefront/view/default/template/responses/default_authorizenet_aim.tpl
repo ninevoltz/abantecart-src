@@ -1,49 +1,45 @@
-<h4 class="heading4"><?php echo $text_credit_card; ?>:</h4>
-
-<?php echo $form_open; ?>
-
-<?php echo $this->getHookVar('payment_table_pre'); ?>
-
-<div class="form-group ">
-	<label class="col-sm-4 control-label"><?php echo $entry_cc_owner; ?></label>
-	<div class="col-sm-7 input-group"><?php echo $cc_owner; ?></div>
-	<span class="help-block"></span>
-</div>
-<div class="form-group form-inline">
-	<label class="col-sm-4 control-label"><?php echo $entry_cc_number; ?></label>
-	<div class="col-sm-5 input-group"><?php echo $cc_number; ?></div>
-	<div class="col-sm-2 input-group"><?php echo $cc_type; ?></div>
-	<span class="help-block"></span>
-</div>
-<div class="form-group form-inline">
-	<label class="col-sm-4 control-label"><?php echo $entry_cc_expire_date; ?></label>
-	<div class="col-sm-3 input-group"><?php echo $cc_expire_date_month; ?></div>
-	<div class="col-sm-2 input-group"><?php echo $cc_expire_date_year; ?></div>
-	<span class="help-block"></span>
-</div>
-<div class="form-group ">
-	<label class="col-sm-6 control-label"><?php echo $entry_cc_cvv2; ?> <a
-				onclick="openModalRemote('#ccModal', '<?php echo $cc_cvv2_help_url; ?>')"
-				href="Javascript:void(0);"><?php echo $entry_cc_cvv2_short; ?></a></label>
-	<div class="input-group col-sm-3"><?php echo $cc_cvv2; ?></div>
-	<span class="help-block"></span>
-</div>
-
-<?php echo $this->getHookVar('payment_table_post'); ?>
-
-<div class="form-group action-buttons text-center">
-	<a id="<?php echo $back->name ?>" href="<?php echo $back->href; ?>" class="btn btn-default mr10"
-	   title="<?php echo $back->text ?>">
-		<i class="fa fa-arrow-left"></i>
-		<?php echo $back->text ?>
-	</a>
-	<button id="<?php echo $submit->name ?>" class="btn btn-orange lock-on-click" title="<?php echo $submit->text ?>"
-			type="submit">
-		<i class="fa fa-check"></i>
-		<?php echo $submit->text; ?>
-	</button>
-</div>
+<div class="enter_card">
+<?php $form_open->attr .= ' novalidate '; echo $form_open;?>
+    <h4 class="heading4"><?php echo $text_credit_card; ?></h4>
+    <?php echo $this->getHookVar('payment_table_pre'); ?>
+    <div class="mb-3">
+        <label for="cc_owner" class="col-form-label"><?php echo $entry_cc_owner; ?></label>
+        <?php echo $cc_owner; ?>
+    </div>
+    <div class="mb-3">
+        <label for="cc_number" class="col-form-label"><?php echo $entry_cc_number; ?></label>
+        <?php echo $cc_number; ?>
+    </div>
+    <div class="mb-3 row g-3 d-flex flex-wrap justify-content-end">
+        <label class="col-auto control-label"><?php echo $entry_cc_expire_date; ?></label>
+        <div class="col-6 col-sm-4">
+            <?php echo $cc_expire_date_month; ?>
+        </div>
+        <div class="col-auto">
+            <?php echo $cc_expire_date_year; ?>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label class="col-9 col-form-label"><?php echo $entry_cc_cvv2; ?>
+            <a onclick="openModalRemote('#ccModal', '<?php echo $cc_cvv2_help_url; ?>')"
+               href="Javascript:void(0);"><?php echo $entry_cc_cvv2_short; ?></a></label>
+        <div class="col-3">
+            <?php echo $cc_cvv2; ?>
+        </div>
+    </div>
+    <?php echo $this->getHookVar('payment_table_post'); ?>
+    <div class="form-group action-buttons text-center">
+        <a id="<?php echo $back->name ?>" href="<?php echo $back->href; ?>" class="btn btn-default me-2" title="<?php echo $back->text ?>">
+            <i class="fa fa-arrow-left"></i>
+            <?php echo $back->text ?>
+        </a>
+        <button id="<?php echo $submit->name ?>" class="btn btn-primary" title="<?php echo $submit->text ?>" type="submit">
+            <i class="fa fa-check"></i>
+            <?php echo $submit->text; ?>
+        </button>
+    </div>
 </form>
+</div>
 
 <!-- Modal -->
 <div id="ccModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ccModalLabel" aria-hidden="true">
