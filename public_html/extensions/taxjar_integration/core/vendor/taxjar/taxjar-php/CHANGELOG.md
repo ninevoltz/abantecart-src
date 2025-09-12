@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.1] - 2025-05-08
+- Handle error detail as array
+
+## [2.0.0] - 2022-09-30
+- Adds PHP 8.x support and drops support for PHP <= 7.x
+
+## [1.10.4] - 2020-10-06
+- Support Guzzle version 7 in composer.json.
+
+## [1.10.3] - 2020-06-03
+- Tweak error handling and provide default error messages
+
+## [1.10.2] - 2020-06-02
+- Fix issue where some error messages were masked by improper formatting
+
+## [1.10.1] - 2020-04-02
+- Fix issue with displaying current taxjar-php version in user agent
+
+## [1.10.0] - 2020-03-26
+
+- Include custom user agent for debugging and informational purposes
+
+## [1.9.0] - 2019-09-30
+
+- `showOrder`, `deleteOrder`, `showRefund`, and `deleteRefund` now accept an optional second parameter: `$parameters`.
+
 ## [1.8.1] - 2018-11-30
 
 - Clean up exception handling and unblock `\Exception` codes.
@@ -89,7 +115,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Initial release.
 
-[Unreleased]: https://github.com/taxjar/taxjar-php/compare/v1.8.1...HEAD
+[Unreleased]: https://github.com/taxjar/taxjar-php/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/taxjar/taxjar-php/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/taxjar/taxjar-php/compare/v1.10.4...v2.0.0
+[1.10.4]: https://github.com/taxjar/taxjar-php/compare/v1.10.3...v1.10.4
+[1.10.3]: https://github.com/taxjar/taxjar-php/compare/v1.10.2...v1.10.3
+[1.10.2]: https://github.com/taxjar/taxjar-php/compare/v1.10.1...v1.10.2
+[1.10.1]: https://github.com/taxjar/taxjar-php/compare/v1.10.0...v1.10.1
+[1.10.0]: https://github.com/taxjar/taxjar-php/compare/v1.9.0...v1.10.0
+[1.9.0]: https://github.com/taxjar/taxjar-php/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/taxjar/taxjar-php/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/taxjar/taxjar-php/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/taxjar/taxjar-php/compare/v1.6.0...v1.7.0
