@@ -1,6 +1,6 @@
 {
   "name": "taxjar/taxjar-php",
-  "description": "Sales Tax API Client for PHP 5.5+",
+  "description": "Sales Tax API Client for PHP 8.0+",
   "keywords": [
     "taxjar",
     "sales tax",
@@ -14,15 +14,24 @@
     }
   ],
   "require": {
-    "php": ">=5.5.0",
-    "guzzlehttp/guzzle": "^6.0.2"
+    "php": "^8.0",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^7.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "4.8.*",
-    "internations/http-mock": "0.10.1",
-    "silex/silex": "2.2.2"
+    "phpunit/phpunit": "^9.3"
   },
   "autoload": {
-    "psr-4": { "TaxJar\\" : "lib/" }
+    "psr-4": {
+      "TaxJar\\" : "lib/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "TaxJar\\Tests\\": "test/"
+    }
+  },
+  "scripts": {
+    "tests": "phpunit"
   }
 }

@@ -1,14 +1,11 @@
 language: php
 
 php:
-  - '5.5'
-  - '5.6'
-  - '7.0'
-  - '7.1'
-  - '7.2'
-  
+  - 8.0
+  - 8.1.0
+
 before_script:
   - composer self-update
   - composer install
-  
-script: php vendor/bin/phpunit test/specs/.
+
+script: composer tests

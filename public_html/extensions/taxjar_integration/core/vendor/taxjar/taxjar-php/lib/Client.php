@@ -8,14 +8,9 @@ class Client extends TaxJar
         return new Client($key);
     }
 
-    public function __construct($key)
-    {
-        parent::__construct($key);
-    }
-
     /**
      * Get tax categories
-     * https://developers.taxjar.com/api/?php#list-tax-categories
+     * https://developers.taxjar.com/api/reference/?php#get-list-tax-categories
      *
      * @return object Collection of tax categories.
      */
@@ -44,7 +39,7 @@ class Client extends TaxJar
 
     /**
      * Get sales tax for an order
-     * https://developers.taxjar.com/api/?php#calculate-sales-tax-for-an-order
+     * https://developers.taxjar.com/api/reference/?php#post-calculate-sales-tax-for-an-order
      *
      * @param array $parameters
      *
@@ -60,7 +55,7 @@ class Client extends TaxJar
 
     /**
      * List order transactions
-     * https://developers.taxjar.com/api/?php#list-order-transactions
+     * https://developers.taxjar.com/api/reference/?php#get-list-order-transactions
      *
      * @param array $parameters
      *
@@ -76,21 +71,24 @@ class Client extends TaxJar
 
     /**
      * Show order transaction
-     * https://developers.taxjar.com/api/?php#show-an-order-transaction
+     * https://developers.taxjar.com/api/reference/?php#get-show-an-order-transaction
      *
-     * @param integer $transaction_id
+     * @param string $transaction_id
+     * @param array $parameters
      *
      * @return object Order object.
      */
-    public function showOrder($transaction_id)
+    public function showOrder($transaction_id, $parameters = [])
     {
-        $response = $this->client->get('transactions/orders/' . $transaction_id);
+        $response = $this->client->get('transactions/orders/' . $transaction_id, [
+            'query' => $parameters,
+        ]);
         return json_decode($response->getBody())->order;
     }
 
     /**
      * Create a new order transaction
-     * https://developers.taxjar.com/api/?php#create-an-order-transaction
+     * https://developers.taxjar.com/api/reference/?php#post-create-an-order-transaction
      *
      * @param array $parameters
      *
@@ -106,9 +104,9 @@ class Client extends TaxJar
 
     /**
      * Update an existing order transaction
-     * https://developers.taxjar.com/api/?php#update-an-order-transaction
+     * https://developers.taxjar.com/api/reference/?php#put-update-an-order-transaction
      *
-     * @param integer @transaction_id
+     * @param string @transaction_id
      * @param array $parameters
      *
      * @return object Order object.
@@ -123,21 +121,24 @@ class Client extends TaxJar
 
     /**
      * Delete an existing order transaction
-     * https://developers.taxjar.com/api/?php#delete-an-order-transaction
+     * https://developers.taxjar.com/api/reference/?php#delete-delete-an-order-transaction
      *
-     * @param integer $transaction_id
+     * @param string $transaction_id
+     * @param array $parameters
      *
      * @return object Order object.
      */
-    public function deleteOrder($transaction_id)
+    public function deleteOrder($transaction_id, $parameters = [])
     {
-        $response = $this->client->delete('transactions/orders/' . $transaction_id);
+        $response = $this->client->delete('transactions/orders/' . $transaction_id, [
+            'query' => $parameters,
+        ]);
         return json_decode($response->getBody())->order;
     }
 
     /**
      * List refund transactions
-     * https://developers.taxjar.com/api/?php#list-refund-transactions
+     * https://developers.taxjar.com/api/reference/?php#get-list-refund-transactions
      *
      * @param array $parameters
      *
@@ -153,21 +154,24 @@ class Client extends TaxJar
 
     /**
      * Show refund transaction
-     * https://developers.taxjar.com/api/?php#show-a-refund-transaction
+     * https://developers.taxjar.com/api/reference/?php#get-show-a-refund-transaction
      *
-     * @param integer $transaction_id
+     * @param string $transaction_id
+     * @param array $parameters
      *
      * @return object Refund object.
      */
-    public function showRefund($transaction_id)
+    public function showRefund($transaction_id, $parameters = [])
     {
-        $response = $this->client->get('transactions/refunds/' . $transaction_id);
+        $response = $this->client->get('transactions/refunds/' . $transaction_id, [
+            'query' => $parameters,
+        ]);
         return json_decode($response->getBody())->refund;
     }
 
     /**
      * Create a new refund transaction
-     * https://developers.taxjar.com/api/?php#create-an-refund-transaction
+     * https://developers.taxjar.com/api/reference/?php#post-create-a-refund-transaction
      *
      * @param array $parameters
      *
@@ -183,7 +187,7 @@ class Client extends TaxJar
 
     /**
      * Update an order transaction
-     * https://developers.taxjar.com/api/?php#update-an-refund-transaction
+     * https://developers.taxjar.com/api/reference/?php#put-update-a-refund-transaction
      *
      * @param array $parameters
      *
@@ -199,21 +203,24 @@ class Client extends TaxJar
 
     /**
      * Delete an existing refund transaction
-     * https://developers.taxjar.com/api/?php#delete-a-refund-transaction
+     * https://developers.taxjar.com/api/reference/?php#delete-delete-a-refund-transaction
      *
-     * @param integer $transaction_id
+     * @param string $transaction_id
+     * @param array $parameters
      *
      * @return object Refund object.
      */
-    public function deleteRefund($transaction_id)
+    public function deleteRefund($transaction_id, $parameters = [])
     {
-        $response = $this->client->delete('transactions/refunds/' . $transaction_id);
+        $response = $this->client->delete('transactions/refunds/' . $transaction_id, [
+            'query' => $parameters,
+        ]);
         return json_decode($response->getBody())->refund;
     }
 
     /**
      * List customers
-     * https://developers.taxjar.com/api/?php#get-list-customers
+     * https://developers.taxjar.com/api/reference/?php#get-list-customers
      *
      * @param array $parameters
      *
@@ -229,7 +236,7 @@ class Client extends TaxJar
 
     /**
      * Show customer
-     * https://developers.taxjar.com/api/?php#get-show-a-customer
+     * https://developers.taxjar.com/api/reference/?php#get-show-a-customer
      *
      * @param integer $customer_id
      *
@@ -243,7 +250,7 @@ class Client extends TaxJar
 
     /**
      * Create a new customer
-     * https://developers.taxjar.com/api/?php#post-create-a-customer
+     * https://developers.taxjar.com/api/reference/?php#post-create-a-customer
      *
      * @param array $parameters
      *
@@ -259,7 +266,7 @@ class Client extends TaxJar
 
     /**
      * Update a customer
-     * https://developers.taxjar.com/api/?php#put-update-a-customer
+     * https://developers.taxjar.com/api/reference/?php#put-update-a-customer
      *
      * @param integer @customer_id
      * @param array $parameters
@@ -276,7 +283,7 @@ class Client extends TaxJar
 
     /**
      * Delete a customer
-     * https://developers.taxjar.com/api/?php#delete-delete-a-customer
+     * https://developers.taxjar.com/api/reference/?php#delete-delete-a-customer
      *
      * @param integer $customer_id
      *
