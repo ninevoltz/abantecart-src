@@ -509,7 +509,23 @@ class ExtensionTaxjarIntegration extends Extension {
         $load = $this->registry->get('load');
         $config = $this->registry->get('config');
         $session = $this->registry->get('session');
-        $route=$that->request->get['rt'];
+        $route = '';
+        if (isset($that->request->get['rt'])) {
+            $route = $that->request->get['rt'];
+        } elseif (isset($that->request->get['route'])) {
+            $route = $that->request->get['route'];
+        }
+        if (strpos($route, 'r/') === 0) {
+            $route = substr($route, 2);
+        }
+        $api_routes = array(
+            'checkout/confirm',
+            'checkout/guest_step_3',
+            'checkout/fast_checkout',
+            'checkout/cart',
+            'checkout/cart/recalc_totals'
+        );
+        $order_routes = array('checkout/confirm', 'checkout/guest_step_3', 'checkout/fast_checkout');
         if (IS_ADMIN === true) {
             $order_id = $cust_data['order_id'];
         } elseif (isset($session->data['order_id'])) {
@@ -595,7 +611,7 @@ class ExtensionTaxjarIntegration extends Extension {
             $total=$final_discount = 0.00;
             if ($order_id) {
                 if (IS_ADMIN === false) {
-                    if ($route==='checkout/confirm' || $route==='checkout/guest_step_3') {
+                    if (in_array($route, $order_routes)) {
                         $load->model('account/order');
                         $product_data = $that->model_account_order->getOrderProducts($order_id);
                         $totals = $that->model_account_order->getOrderTotals($order_id);
@@ -708,8 +724,7 @@ class ExtensionTaxjarIntegration extends Extension {
             $that->load->model('extension/nexus_address');
             $is_nexus = $that->model_extension_nexus_address->getNexusByState($to_state);
 	        if (($to_country==='US' && $is_nexus > 0) || $to_country!=='US') {
-                if ($route === 'checkout/confirm' || $route === 'checkout/guest_step_3'
-                    || $that->session->data['is_admin'] === '1') {
+                if (in_array($route, $api_routes) || $that->session->data['is_admin'] === '1') {
                     unset($that->session->data['is_admin']);
                     $zipcode_exist = $that->cache->get($cache_zipcode);
                     $total_exist = $that->cache->get($cache_total);
@@ -823,10 +838,10 @@ class ExtensionTaxjarIntegration extends Extension {
                        }
                     }
             }
-            if ($route==='checkout/confirm' || $route==='checkout/guest_step_3') {
-            	return $that->cache->get($taxjar_tax_rate_cache);
+            if (in_array($route, $order_routes)) {
+                return $that->cache->get($taxjar_tax_rate_cache);
             } else {
-	            return $tax_rate;
+                return $tax_rate;
             }
         }
     }
