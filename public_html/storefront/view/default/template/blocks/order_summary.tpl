@@ -1,5 +1,5 @@
-<div id="fast_checkout_summary_block" class=" mt-3">
-    <div id="cart_details d-flex flex-column mx-sm-auto">
+<div class="mt-3">
+    <div id="cart_details" class="d-flex flex-column mx-sm-auto">
 <?php   if ($products || $this->getHookVar('list_more_product_last')) { ?>
         <h2>
             <?php echo $this->language->get('heading_title', 'blocks/order_summary');

@@ -12,6 +12,7 @@
 			url: '<?php echo $summaryUrl; ?>' + urlQuery,
 			type: 'GET',
 			dataType: 'html',
+				cache: false,
 			success: function (data) {
 				$('#fast_checkout_summary_block').hide().html(data).fadeIn(1000)
                 if(urlQuery.length>0){

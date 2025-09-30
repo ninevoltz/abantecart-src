@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions>
+	<definition>
+		<key>taxjar_integration_name</key>
+		<value><![CDATA[Taxjar Integration]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_text_tax_exemption</key>
+		<value><![CDATA[Tax Exemption details]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_exemption_number</key>
+		<value><![CDATA[Tax Exemption Certificate Number]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status</key>
+		<value><![CDATA[Current Exempt Status]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_pending</key>
+		<value><![CDATA[Pending Review]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_declined</key>
+		<value><![CDATA[Declined]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_approved</key>
+		<value><![CDATA[Approved]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_review_number_title</key>
+		<value><![CDATA[Customer taxjar Exemption Number needs to be reviewed!]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_review_number_message</key>
+		<value><![CDATA[Please review customer's tax exemption number. Visit #admin#rt=sale/taxjar_customer_data&customer_id=%s]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_exempt_group</key>
+		<value><![CDATA[Tax Exemption Customer Usage Type  :<br /><span class="help">Select a group that defines you.</span>]]></value>
+	</definition>
+</definitions>

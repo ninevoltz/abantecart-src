@@ -50,11 +50,9 @@
                         </button>
 
                     <?php } ?>
-                <button class="nav-link border mx-1 <?php echo $action=='login' ? ' active ' : ''?>"
+                <a class="nav-link border mx-1 <?php echo $action=='login' ? ' active ' : ''?>"
                         id="login_user"
-                        data-bs-toggle="tab"
-                        data-bs-target="#user" type="button" role="tab"
-                        aria-controls="payment_details" aria-selected="true">
+                   href="<?php echo $this->html->getSecureURL('account/login', '&redirect=checkout/fast_checkout'); ?>">
                     <i class="fa fa-user fa-fw"></i>&nbsp;
                     <span class="hidden-xxs">
                         <?php echo $fast_checkout_text_login; ?>

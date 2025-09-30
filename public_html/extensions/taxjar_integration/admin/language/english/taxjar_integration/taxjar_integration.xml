@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions>
+	<definition>
+		<key>taxjar_integration_name</key>
+		<value><![CDATA[TaxJar Integration]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_note</key>
+		<value><![CDATA[
+		This extension helps you calculate tax rates by using TaxJar service, also transmits the order to TaxJar for filing returns and accumulating sales to determine if Nexus has been reached.<br>
+		<strong>Important notes: <br>
+		<ul>
+		<li>The tax rate calculation is made only when customer arrives at checkout/confirm or checkout/guest_step_3 page to reduce the number of API calls.  Recalculation will be done if customer adds a new product, updates the current product quantity or changes the zip code.</li>
+		<li>You need to disable standard taxes. Check System -> Localization -> <a target="_BLANK" href="#admin#rt=localisation/tax_class">Tax Class</a>.</li>
+		<li>Subtotal calculation should precede TaxJar  Integration Total calculation order. Check this in Extensions -> <a target="_BLANK" href="#admin#rt=extension/total">Order Totals.</a></li>
+		<li>You need to turn OFF System -> Settings -> Checkout -> <a target="_BLANK" href="#admin#rt=setting/setting/checkout">Display Prices with Tax</a></li>
+		<li>You need to turn OFF Tax class in shipping extensions.</li>
+		</ul>
+		</strong>
+        <strong>Recommendation:  Use our <a href="https://abantecartextensions.com/docs/sales-state" target="_blank">Sales By State Report</a>. It is an ideal way to keep track of your potential economic nexus by Remote or Online Sellers. Economic nexus does have thresholds that trigger your requirement to collect and remit taxes.</strong><br><br>
+		1.&nbsp;Turn ON the extension in order to use the extension.<br>
+		2.&nbsp;Sandbox Mode: Turn ON to use sandbox mode. This mode is only available for TaxJar PLUS account.<br>
+		3.&nbsp;Sandbox API Token: Enter the sandbox API Token that was provided by TaxJar. This is only available for TaxJar Plus account. Sandbox mode must be turned ON prior using the mode.<br>
+		4.&nbsp;API Token: Enter the Live API Token that was provided by TaxJar.<br>
+		5.&nbsp;Tax Name: Enter the desired tax name (label name) to be shown to the customer in the totals section.<br>
+		6.&nbsp;Street Address: Enter your street address.<br>
+		7.&nbsp;City: Enter your City name.<br>
+		8.&nbsp;State Code: Enter your (two letters) State code.<br>
+		9.&nbsp;ZIP/Postal code: Enter your ZIP/Postal Code.<br>
+		10.&nbsp;Country Code: Enter your (two letters) Country code.<br>
+		11.&nbsp;Enable TaxJar tax calculations: If enabled, the extension will calculate all sales tax for your store.<br>
+		<strong>Important notes: No 12-14 will be shown only if you turned ON Enable TaxJar tax calculations and after SAVE the settings, the extension will download the nexus addresses that you have set in TaxJar dashboard, and generate fallback tax rate field for each of nexus address. The fallback tax rate will be used to calculate tax rate in every other page than checkout/confirm or checkout/guest_step_3 page.</strong><br>
+		12.&nbsp;Sync Nexus Addresses: Click this to sync TaxJar Nexus addresses into your cart. <strong>You only need to click this if you add new or remove Nexus address and wait for about 5 minutes after adding the new or remove Nexus address.</strong><br>
+		13.&nbsp;Manage Nexus Locations: Click this to go to TaxJar Nexus addresses management.<br>
+		14.&nbsp;Fallback tax rate for (state code): This field is generated according to your Nexus address(es). So if you have 2 Nexus address, then it will show 2 fields. And this field value will be used as the fallback tax rate calculation for checkout/cart page.<br>
+		15.&nbsp;Enable export orders to TaxJar: If enabled, the extension will export your orders to TaxJar for reporting.<br>
+		<strong>Important notes: No 16-21 will be shown only if you enable export orders to TaxJar and after SAVE the settings.</strong><br>
+		16.&nbsp;Transmit order to TaxJar: If turned ON, the order will be transmitted at specified order status.<br>
+		17.&nbsp;Transmit on order status: If the order status is the same as this order status, the order will be transmitted to TaxJar.<br>
+		18.&nbsp;Delete TaxJar order: If turned ON, the order will be deleted at specified order status.<br>
+		19.&nbsp;Delete on order status: If the order status is the same as this order status, the order on TaxJar will be deleted.<br>
+		20.&nbsp;Refund TaxJar order: If turned ON, the order will set to refund at specified order status.<br>
+		21.&nbsp;Refund on order status: If the order status is the same as this order status, the order on TaxJar will set to refund.<br>
+		22.&nbsp;Debug API response: Turn ON if you want to get the API response for debugging purpose. The API response will be written to System -> Logs -> <a target="_BLANK" href="#admin#rt=tool/error_log">Error Logs</a>.<br>
+		23.&nbsp;Run Order: Leave it blank if you don't want to set the sort order.<br>
+		24.&nbsp;Test Connection: Click this button to test if the API Token is set correctly and able to connect to TaxJar. You need to enter the required fields prior testing the connection.<br>
+		25.&nbsp;Must be registered for Support.  Click <a href="https://wehearyou2.com/clientarea/reg/?type=extension" target="_blank" style="font-weight:bold;">here</a>.<br>
+     	26.&nbsp;Need help with this extension- please submit a support ticket <a href="https://wehearyou2.com/clientarea/client/login/" target="_blank" style="font-weight:bold;">here</a>.]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_debug</key>
+		<value><![CDATA[Debug API response:<br /><span class="help">Turn ON if you want to get the API response for debugging purpose. The API response will be written to System -> Logs -> Error Logs.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_api_key</key>
+		<value><![CDATA[API Token:<br /><span class="help">Enter the Live API Token that was provided by TaxJar</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_sandbox_status</key>
+		<value><![CDATA[Sandbox Mode:<span class="help">Turn ON to use sandbox mode. This mode is only available for TaxJar PLUS account.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_sandbox_api_key</key>
+		<value><![CDATA[Sandbox API Token:<br /><span class="help">Enter the sandbox API Token that was provided by TaxJar. This is only available for TaxJar Plus account. Sandbox mode must be turned ON prior using the mode.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_tax_name</key>
+		<value><![CDATA[Tax Name: <span class="help">Tax name (label name) to be shown to the customer in the totals section</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_country</key>
+		<value><![CDATA[Country Code:<span class="help">Enter your (two letters) Country code.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_postal_code</key>
+		<value><![CDATA[ZIP/Postal code:<span class="help">Enter your ZIP/Postal Code.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_state</key>
+		<value><![CDATA[State Code: <span class="help">Enter your (two letters) State code.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_city</key>
+		<value><![CDATA[City: <span class="help">Enter your City name.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_street</key>
+		<value><![CDATA[Street Address: <span class="help">Enter your street address.</span>]]></value>
+	</definition>
+	<definition>
+		<key>error_turn_extension_on</key>
+		<value><![CDATA[Error! Please check if extension is turned ON.]]></value>
+	</definition>
+	<definition>
+		<key>text_test</key>
+		<value><![CDATA[Test connection]]></value>
+	</definition>
+	<definition>
+		<key>text_connection_success</key>
+		<value><![CDATA[Connection is successful and API Credentials are configured correctly.]]></value>
+	</definition>
+	<definition>
+		<key>text_add_customer_success</key>
+		<value><![CDATA[This customer info has been successfully saved into TaxJar.]]></value>
+	</definition>
+	<definition>
+		<key>text_nexus_information</key>
+		<value><![CDATA[Nexus Information]]></value>
+	</definition>
+	<definition>
+		<key>text_nexus_information</key>
+		<value><![CDATA[Sales tax will be calculated on orders delivered into the following regions:]]></value>
+	</definition>
+	<definition>
+		<key>button_sync</key>
+		<value><![CDATA[Sync Nexus Addresses]]></value>
+	</definition>
+	<definition>
+		<key>text_or</key>
+		<value><![CDATA[or]]></value>
+	</definition>
+	<definition>
+		<key>text_manage</key>
+		<value><![CDATA[Manage Nexus locations]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_button_find_taxcode</key>
+		<value><![CDATA[Find Tax Code]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_sales_tax_calculation</key>
+		<value><![CDATA[Enable TaxJar tax calculations: <span class="help">If enabled, the extension will calculate all sales tax for your store.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_sales_tax_report</key>
+		<value><![CDATA[Enable export orders to TaxJar: <span class="help">If enabled, the extension will export your orders to TaxJar for reporting.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_taxcode_name</key>
+		<value><![CDATA[Product TaxCode: <span class="help">Copy and paste code here. You may use 11111 as the product code if TaxJar category type doesn't suit your category. If you leave the product tax code empty, the extension will use 11111 as the default tax code and products will be fully taxable.</span>]]></value>
+	</definition>
+	<definition>
+		<key>text_add_customer_failed</key>
+		<value><![CDATA[We are unable to create TaxJar customer. Please check System - Logs - Error Logs for more information.]]></value>
+	</definition>
+	<definition>
+		<key>text_update_customer_success</key>
+		<value><![CDATA[The TaxJar customer info has been successfully updated.]]></value>
+	</definition>
+	<definition>
+		<key>text_update_customer_failed</key>
+		<value><![CDATA[We are unable to update TaxJar customer info. Please check System - Logs - Error Logs for more information.]]></value>
+	</definition>
+	<definition>
+		<key>text_customer_synced</key>
+		<value><![CDATA[This customer information is already saved into TaxJar. Click the Update TaxJar Customer Info if you want to update TaxJar customer information.]]></value>
+	</definition>
+	<definition>
+		<key>text_test_connection</key>
+		<value><![CDATA[Test connection: <span class="help">Click this button to test if the API Token is set correctly and able to connect to TaxJar. You need to enter the required fields prior testing the connection.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_address_validate_button_title</key>
+		<value><![CDATA[Title for Address Validation Button:]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_save_transaction</key>
+		<value><![CDATA[Transmit order to TaxJar:<span class="help">If turned ON, the order will be transmitted at specified order status.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_delete_transaction</key>
+		<value><![CDATA[Delete TaxJar order:<span class="help">If turned ON, the order will be deleted at specified order status.</span>]]></value>
+	</definition>
+	 <definition>
+		<key>taxjar_integration_refund_transaction</key>
+		<value><![CDATA[Refund TaxJar order:<span class="help">If turned ON, the order will set to refund at specified order status.</span>]]></value>
+	</definition>
+	 <definition>
+		<key>button_add_tax_code</key>
+		<value><![CDATA[Save]]></value>
+	</definition>
+	<definition>
+		<key>button_delete_tax_code</key>
+		<value><![CDATA[Clear TaxCode]]></value>
+	</definition>
+	<definition>
+		<key>entry_tax_code</key>
+		<value><![CDATA[Select Product Category: <span class="help">The list is taken from TaxJar available tax categories.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_button_find_taxcode</key>
+		<value><![CDATA[Find Tax Code]]></value>
+	</definition>
+	<definition>
+		<key>exemption_status</key>
+		<value><![CDATA[Exemption Status:]]></value>
+	</definition>
+	<definition>
+		<key>exemption_status_pending</key>
+		<value><![CDATA[Pending]]></value>
+	</definition>
+	<definition>
+		<key>exemption_status_approved</key>
+		<value><![CDATA[Approved]]></value>
+	</definition>
+	<definition>
+		<key>exemption_status_declined</key>
+		<value><![CDATA[Declined]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_subject</key>
+		<value><![CDATA[Your tax exempt number has been declined]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_mail_text</key>
+		<value><![CDATA[Your tax exempt number has been declined. To check validity please visit your account details page:]]></value>
+	</definition>
+	<definition>
+		<key>exemption_number_name</key>
+		<value><![CDATA[Exemption Number:<br /><span class="help">Tax exemption number</span>]]></value>
+	</definition>
+	<definition>
+		<key>exempt_group_name</key>
+		<value><![CDATA[Exempt Group :<br /><span class="help">TaxJar has a group of codes that indicate the type of exemption.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_success_settled</key>
+		<value><![CDATA[Transmit on order status: <span class="help">If the order status is the same as this order status, the order will be transmitted to TaxJar.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_refund_settled</key>
+		<value><![CDATA[Refund on order status: <span class="help">If the order status is the same as this order status, the order status in TaxJar will be set to refunded.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_status_delete_settled</key>
+		<value><![CDATA[Delete on order status: <span class="help">If the order status is the same as this order status, the order on TaxJar will be deleted.</span>]]></value>
+	</definition>
+	<definition>
+		<key>taxjar_integration_account_number_validation_error</key>
+		<value><![CDATA[Account Number error. Check it!]]></value>
+	</definition>
+	<definition>
+		<key>total_name</key>
+		<value><![CDATA[TaxJar Integration Total]]></value>
+	</definition>
+	<definition>
+		<key>button_update</key>
+		<value><![CDATA[Update TaxJar Customer Info]]></value>
+	</definition>
+	<definition>
+		<key>error_country</key>
+		<value><![CDATA[The country code cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_postal_code</key>
+		<value><![CDATA[The ZIP/Postal code cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_state</key>
+		<value><![CDATA[The state code cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_city</key>
+		<value><![CDATA[The city name cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_street</key>
+		<value><![CDATA[The address cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_api_key</key>
+		<value><![CDATA[API Token cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>error_sandbox_api_key</key>
+		<value><![CDATA[Sandbox API Token cannot left empty!]]></value>
+	</definition>
+	<definition>
+		<key>text_fallback</key>
+		<value><![CDATA[Fallback tax rate (%) for [state] :<span class="help">This will be used as fallback tax rate.</span>]]></value>
+	</definition>
+</definitions>

@@ -28,7 +28,6 @@ class ControllerCommonFooter extends AController
 
         //init controller data
         $this->extensions->hk_InitData($this, __FUNCTION__);
-
         $this->loadLanguage('common/header');
         $this->loadLanguage('checkout/fast_checkout');
         $this->data['text_copy'] = $this->config->get('store_name').' &copy; '.date('Y');

@@ -67,8 +67,7 @@ showLoading = function (modal_body) {
 pageRequest = function (url, scroll = true) {
     $('.spinner-overlay').fadeIn(100);
     $('#fast_checkout_summary_block').html('');
-    $.get(url, {} , function (data) {
-        $('#fast_checkout_summary_block').trigger('reload');
+    return $.get(url, {}, function (data) {
         $('#fast_checkout_cart').hide().html(data).fadeIn(1000);
         $('.spinner-overlay').fadeOut(500);
         let form = $('form#PayFrm');
@@ -79,6 +78,8 @@ pageRequest = function (url, scroll = true) {
         if(scroll) {
             scrollOnTop();
         }
+    }).done(function () {
+        $('#fast_checkout_summary_block').trigger('reload');
     });
 };
 

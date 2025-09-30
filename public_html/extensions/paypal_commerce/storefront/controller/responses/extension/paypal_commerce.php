@@ -374,6 +374,7 @@ class ControllerResponsesExtensionPaypalCommerce extends AController
         }
 
         try {
+            $mdl = $this->loadModel('extension/paypal_commerce');
             $output = (array)$mdl->createPPOrder($ppData);
         }catch(\PayPalHttp\HttpException|Error $e){
             $this->log->write('PaypalCommerce order creation error: '.$e->getMessage()."\n Input Data: ".var_export($ppData, true));

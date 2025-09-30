@@ -38,6 +38,9 @@ class ControllerPagesAccountLogin extends AController
         if ($this->customer->isLogged()) {
             redirect($this->html->getSecureURL('account/account'));
         }
+        if (has_value($this->request->get['redirect'])) {
+            $this->session->data['redirect'] = $this->html->getSecureURL($this->request->get['redirect']);
+        }
 
         $this->document->setTitle($this->language->get('heading_title'));
         $loginname = '';

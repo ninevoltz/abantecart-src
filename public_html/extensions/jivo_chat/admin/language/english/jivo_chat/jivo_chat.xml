@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<definitions>
+	<definition>
+		<key>jivo_chat_name</key>
+		<value><![CDATA[JivoChat Live Chat]]></value>
+	</definition>
+	<definition>
+		<key>jivo_chat_status</key>
+		<value><![CDATA[Status:]]></value>
+	</definition>
+	<definition>
+		<key>jivo_chat_note</key>
+		<value><![CDATA[Chat with visitors on your website. They'll see a chat box in the bottom right of your website. You can chat with them, they can chat with you.<br />
+		<h3>How do I get started?</h3>
+		<ul>
+			<li>Register for a free account at <a href="https://www.jivochat.com/?partner_id=7183&pricelist_id=104&lang=en" target="_blank">www.jivochat.com</a></li>
+		<li>
+Activate the Abantecart extension through the 'All Extensions' menu in abante admin front</li>
+<li>Copy the widget_id token (Jivo ID) provided in the JivoChat Welcome email or visit the <a href="https://www.jivochat.com/?partner_id=7183&pricelist_id=104&lang=en" target="_blank">Jivochat account settings</a>, <br /><img src="extensions/jivo_chat/image/jivo-chat-id0.png" width="400" height="auto"></li>
+<li> click Manage, add channels, click Live Chat and copy <a class="btnin" href="https://app.jivosite.com/settings/channels?partner_id=7183&lang=en&pricelist_id=104" target="_blank">Jivo ID</a> token<br /><img src="extensions/jivo_chat/image/jivo-chat-id.png" width="600" height="auto"></li><li>
+Paste the widget_id token into the plugin settings, found under Admin > Extensions > All extensions > JivoChat Live Chat</li>
+<li>To start answer download one of the <a href="https://www.jivochat.com/apps/?partner_id=7183&lang=en&pricelist_id=4" target="_blank">native JivoChat apps</a> or <a href="https://app.jivosite.com/?partner_id=7183&lang=en&pricelist_id=104" target="_blank">Open browser Web app</a>
+<div id="footerRight">
+<a target="_blank" href="https://www.jivochat.com/apps/?partner_id=7183&lang=en&pricelist_id=104" class="fa fa-laptop fa-lg" id="appLinkMac"> Mac or Windows</a>
+<a target="_blank" href="https://apps.apple.com/us/app/apple-store/id898216971" class="fa fa-mobile fa-lg" id="appLinkIOS"> iOS</a>
+<a target="_blank" href="https://play.google.com/store/apps/details?id=com.jivosite.mobile&hl=en" class="fa fa-android fa-lg" id="appLinkAndroid"> Android</a>
+</div></li></ul>]]></value>
+	</definition>
+	<definition>
+		<key>jivo_chat_code</key>
+		<value><![CDATA[Widget ID: Login to <a href="https://app.jivosite.com?partner_id=7183&lang=en&pricelist_id=104">https://app.jivosite.com</a> and grab the Jivo token in your channel settings.<span class="help">Your unique jivochat id.</span>]]></value>
+	</definition>
+</definitions>
